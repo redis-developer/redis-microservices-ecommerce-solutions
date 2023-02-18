@@ -1,18 +1,22 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'Redis';
   titleSmall = 'Shopping';
   cartTitle = 'Cart';
   searchItem = '';
+  lblNoData = 'No data to display!';
+  lblLoading = 'Loading...';
   totalQuantity = 0;
   carts = [];
   showCart = false;
+  showLoader = false;
+  finalData = [];
   details = [
     {
       "id": 1,
@@ -79,16 +83,26 @@ export class AppComponent {
     }
   ];
 
-
-  finalData = [...this.details];
+  ngOnInit() {
+    this.showLoader = true;
+    setTimeout(() => {
+      this.finalData = [...this.details];
+      this.showLoader = false;
+    }, 2000);
+  }
 
   onClickSearch() {
     //dummy full name search (add loader)
-    if (this.searchItem && this.searchItem.length) {
-      this.finalData = this.details.filter(element => element.name == this.searchItem);
-    } else {
-      this.finalData = [...this.details];
-    }
+    this.showLoader = true;
+    setTimeout(() => {
+      if (this.searchItem && this.searchItem.length) {
+        this.finalData = this.details.filter(element => element.name == this.searchItem);
+      } else {
+        this.finalData = [...this.details];
+      }
+      this.showLoader = false;
+    }, 2000);
+
   }
 
   onClickAddToCart(_element) {
@@ -136,5 +150,18 @@ export class AppComponent {
         this.showCart = false;
       }
     }
+  }
+
+  getShortName(_str, _splitLength = 90) {
+    let retVal = '';
+    if (_str && _str.length) {
+      if (_str.length > _splitLength) {
+        retVal = _str.slice(0, _splitLength);
+        retVal += '...';
+      } else {
+        retVal = _str;
+      }
+    }
+    return retVal;
   }
 }

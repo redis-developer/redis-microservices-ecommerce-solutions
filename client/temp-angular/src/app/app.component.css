@@ -128,6 +128,12 @@
     border-top: 1px solid #d6d6d6;
 }
 
+.rds-card-body-top {
+    flex-grow: 1;
+    height: 1px;
+    overflow-y: auto;
+}
+
 .rds-card-title {
     font-size: var(--rds-font-5);
 }
@@ -327,3 +333,36 @@
 }
 
 /* Cart Ends */
+
+/* No Data Starts  */
+.rds-no-data {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+    color: #868686;
+}
+
+/* No Data Ends */
+/* Loader Starts */
+.rds-loader-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 60%);
+    color: #ffffff;
+    font-size: var(--rds-font-7);
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.rds-loader-icon {
+    margin-bottom: var(--rds-space-4);
+    font-size: var(--rds-font-10);
+}
+
+/* Loader Starts */

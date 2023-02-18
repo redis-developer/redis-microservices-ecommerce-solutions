@@ -19,18 +19,19 @@
     </div>
   </div>
   <!-- Header Endss-->
-  <div class="rds-app-body-container">
+  <div class="rds-app-body-container" *ngIf="finalData.length">
     <!-- Card Starts-->
     <div
       class="rds-card-container mdc-elevation--z2"
-      *ngFor="let item of finalData"
-    >
+      *ngFor="let item of finalData">
       <div class="rds-card-head">
         <img [src]="item.image_url" class="rds-card-image" />
       </div>
       <div class="rds-card-body">
-        <div class="rds-card-title">{{ item.name }}</div>
-        <div class="rds-card-desc">{{ item.description }}</div>
+        <div class="rds-card-body-top">
+          <div class="rds-card-title" title="{{ item.name }}">{{getShortName(item.name, 25)}}</div>
+          <div class="rds-card-desc" title="{{item.description}}">{{getShortName(item.description)}}</div>
+        </div>
         <div class="rds-card-price">${{ item.price }}</div>
         <div
           class="rds-card-btn mdc-elevation--z2"
@@ -42,6 +43,12 @@
       </div>
     </div>
     <!-- Card Ends-->
+    
+  </div>
+  
+  <!-- No Data  -->
+  <div class="rds-no-data" *ngIf="!finalData.length && !showLoader">
+    {{lblNoData}}
   </div>
   <!-- Cart Starts-->
   <div class="rds-cart-main-container" *ngIf="showCart">
@@ -108,5 +115,11 @@
     (click)="onClickCartToggle(true)"
   >
     <span class="rds-cart-count">{{ totalQuantity }}</span>
+  </div>
+
+  <!-- Loader  -->
+  <div class="rds-loader-container" *ngIf="showLoader">
+    <div class="rds-loader-icon fas fa-spinner fa-spin"></div>
+    <div>{{lblLoading}}</div>
   </div>
 </div>
