@@ -1,6 +1,5 @@
 import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
-import cors from "cors";
 
 import { setMongodb } from "../../../common/utils/mongodb/node-mongo-wrapper";
 import { SERVER_CONFIG } from "../../../common/config/server-config";
@@ -17,7 +16,6 @@ const API_PREFIX = SERVER_CONFIG.ORDERS_SERVICE.API.PREFIX;
 
 const app: Express = express();
 
-app.use(cors());
 app.use(express.json());
 app.use(API_PREFIX, router);
 
