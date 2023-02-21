@@ -1,0 +1,13 @@
+{
+  "name": "database",
+  "version": "1.0.0",
+  "description": "Database seeder",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "mongo-seeding": "^3.7.2"
+  }
+}
