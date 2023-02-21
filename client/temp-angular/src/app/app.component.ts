@@ -1530,4 +1530,13 @@ export class AppComponent implements OnInit {
     }
     return retVal;
   }
+
+  //temp - to be fixed
+  getHtmlToText(_str) {
+    let retVal = '';
+    if (_str && _str.length) {
+      retVal = _str.replace(/<[^>]+>/g, ' ');
+    }
+    return retVal;
+  }
 }
