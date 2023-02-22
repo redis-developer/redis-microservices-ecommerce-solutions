@@ -6,6 +6,11 @@ const HTTP_STATUS_CODES = {
     INTERNAL_SERVER_ERROR: 500
 };
 
+const USERS = {
+    DEFAULT: "ADMIN"
+}
+
 export {
-    HTTP_STATUS_CODES
+    HTTP_STATUS_CODES,
+    USERS
 };

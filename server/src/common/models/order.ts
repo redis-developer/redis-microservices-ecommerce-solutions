@@ -23,7 +23,7 @@ interface IOrderProduct {
 interface IOrder extends Document {
     orderId: string;
     userId: string;
-    orderStatus: ORDER_STATUS;
+    orderStatusCode: ORDER_STATUS;
 
     products: IOrderProduct[];
 
@@ -36,5 +36,7 @@ interface IOrder extends Document {
 }
 
 export {
-    IOrder
+    IOrder,
+    ORDER_STATUS,
+    DB_ROW_STATUS
 }

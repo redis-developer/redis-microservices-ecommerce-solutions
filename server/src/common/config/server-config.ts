@@ -5,6 +5,13 @@ interface IApiResponseBody {
 //@ts-ignore
 const envVariables = process.env;
 
+const COLLECTIONS = {
+    ORDERS: {
+        collectionName: "orders",
+        keyName: "orderId"
+    }
+};
+
 const SERVER_CONFIG = {
 
     MONGO_DB_URI: envVariables.MONGO_DB_CONNECTION_URI || "mongodb://localhost:27017/dbFashion",
@@ -17,7 +24,7 @@ const SERVER_CONFIG = {
         PORT: envVariables.ORDERS_SERVICE_PORT || 3001,
         API: {
             PREFIX: "/orders",
-            CREATE_ORDER: "/createOrder",  // http://localhost:3000/api/orders/createOrder
+            CREATE_ORDER: "/createOrder",  // http://localhost:3000/orders/createOrder
             VIEW_ORDER_HISTORY: "/viewOrderHistory"
         }
 
@@ -27,6 +34,7 @@ const SERVER_CONFIG = {
 
 
 export {
+    IApiResponseBody,
     SERVER_CONFIG,
-    IApiResponseBody
+    COLLECTIONS
 }

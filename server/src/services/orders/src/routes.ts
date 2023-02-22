@@ -3,6 +3,7 @@ import express, { Request, Response } from "express";
 import { HTTP_STATUS_CODES } from "../../../common/config/constants";
 import { LoggerCls } from "../../../common/utils/logger";
 import { SERVER_CONFIG, IApiResponseBody } from "../../../common/config/server-config";
+import { createOrder } from "./service-impl";
 
 const router = express.Router();
 const API_NAMES = SERVER_CONFIG.ORDERS_SERVICE.API;
@@ -15,7 +16,7 @@ router.post(API_NAMES.CREATE_ORDER, async (req: Request, res: Response) => {
     };
 
     try {
-        result.data = await Promise.resolve("Not implemented");
+        result.data = await createOrder(body);
     }
     catch (err) {
         const pureErr = LoggerCls.getPureError(err);

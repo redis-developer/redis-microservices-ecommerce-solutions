@@ -17,11 +17,11 @@ const ORDERS_API_URL = SERVER_CONFIG.SERVER_ORIGIN + ":" + SERVER_CONFIG.ORDERS_
 const app: Express = express();
 
 app.use(cors());
-app.use(express.json());
 
 app.use(ORDERS_API_PREFIX, createProxyMiddleware({
     // http://localhost:3000/orders/bar -> http://localhost:3001/orders/bar
-    target: ORDERS_API_URL
+    target: ORDERS_API_URL,
+    changeOrigin: true
 }));
 app.listen(PORT);
 
