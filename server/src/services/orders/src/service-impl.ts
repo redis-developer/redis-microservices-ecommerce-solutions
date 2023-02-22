@@ -4,7 +4,9 @@ import { COLLECTIONS } from "../../../common/config/server-config";
 import { YupCls } from "../../../common/utils/yup";
 import { ORDER_STATUS, DB_ROW_STATUS, IOrder } from "../../../common/models/order";
 import { getMongodb } from "../../../common/utils/mongodb/node-mongo-wrapper";
+import { getRedisClient } from "../../../common/utils/redis/node-redis-wrapper";
 import { USERS } from "../../../common/config/constants";
+
 
 const validateOrder = async (_order) => {
 
@@ -33,6 +35,18 @@ const validateOrder = async (_order) => {
     return _order;
 }
 
+const addOrderToRedis = async (order: IOrder) => {
+    if (order) {
+        const redisClient = getRedisClient();
+        if (redisClient) {
+            const key = COLLECTIONS.ORDERS.collectionName + ":" + order.orderId;
+            //@ts-ignore
+            await redisClient.json.set(key, "$", order);
+        }
+    }
+}
+
+
 const createOrder = async (order: IOrder) => {
     if (order) {
         order.orderStatusCode = ORDER_STATUS.CREATED;
@@ -46,7 +60,10 @@ const createOrder = async (order: IOrder) => {
 
         order = await validateOrder(order);
         const mongodbWrapperInst = getMongodb();
-        const orderId = await mongodbWrapperInst.insertOne(COLLECTIONS.ORDERS.collectionName, COLLECTIONS.ORDERS.keyName, order, null);
+        //add to database
+        const orderId = await mongodbWrapperInst.insertOne(COLLECTIONS.ORDERS.collectionName, COLLECTIONS.ORDERS.keyName, order);
+        //add to cache
+        await addOrderToRedis(order);
 
         return orderId;
     }

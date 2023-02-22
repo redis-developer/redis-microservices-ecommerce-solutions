@@ -16,6 +16,7 @@ const SERVER_CONFIG = {
 
     MONGO_DB_URI: envVariables.MONGO_DB_CONNECTION_URI || "mongodb://localhost:27017/dbFashion",
     MONGO_DB_NAME: envVariables.MONGO_DB_NAME || "dbFashion",
+    REDIS_URI: envVariables.REDIS_CONNECTION_URI || "redis://localhost:6379",
     SERVER_ORIGIN: "http://localhost",
     API_GATEWAY: {
         PORT: envVariables.API_GATEWAY_PORT || 3000,

@@ -3,6 +3,8 @@
     "version": "1.0.0",
     "main": "index.ts",
     "scripts": {
+        "postinstall": "cd ../../common/utils/ && npm install",
+        "comments": "Above postinstall is to have same node_modules for other folders like common..etc",
         "build": "npx tsc",
         "start": "npm run build && concurrently -k \"npx tsc --watch\" \"nodemon  dist/services/orders/src/index.js\""
     },

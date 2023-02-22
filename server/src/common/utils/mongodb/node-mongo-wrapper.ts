@@ -5,7 +5,6 @@ import {
     MongoClientOptions, Db, Filter, Document, CollationOptions, Sort, ClientSession,
     InsertOneOptions, UpdateOptions, UpdateResult, BulkWriteOptions, InsertManyResult
 }
-    //@ts-ignore
     from "mongodb";
 
 import { LoggerCls } from "../logger";

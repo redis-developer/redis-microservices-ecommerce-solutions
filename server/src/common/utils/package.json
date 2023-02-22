@@ -1,0 +1,16 @@
+{
+    "name": "utils",
+    "version": "1.0.0",
+    "scripts": {
+        "comments": "Just to support import types for utils folder"
+    },
+    "dependencies": {
+        "mongodb": "^4.8.0",
+        "redis": "^4.3.0"
+    },
+    "devDependencies": {
+        "@types/mongodb": "^4.0.7",
+        "@types/node": "^18.0.6",
+        "typescript": "^4.7.4"
+    }
+}
