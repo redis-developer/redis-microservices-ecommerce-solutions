@@ -1,0 +1,20 @@
+<!-- Header Starts-->
+<div class="rds-main-header mdc-elevation--z4">
+    <div class="rds-header-left">
+      <div class="rds-logo" (click)="onClickHome()">
+        {{ title }}<span class="rds-logo-title-small">{{ titleSmall }}</span>
+      </div>
+      <div class="rds-nav-bar-container">
+        <div class="rds-nav-bar-item" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" routerLink="/">Home</div>
+        <div class="rds-nav-bar-item" routerLinkActive="active" routerLink="/orders">Orders</div>
+      </div>
+    </div>
+    </div>
+  <!-- Header Ends-->
+  <div class="rds-order-config-container">
+    <div class="rds-order-config-main-title">{{pageLbl.lblHead}}</div>
+    <div class="rds-order-config-done-icon fas fa-check-circle"></div>
+    <div class="rds-order-config-thank-you">{{pageLbl.lblThanks}}</div>
+    <div class="rds-order-config-order">{{pageLbl.lblOrderId}} #{{id}}</div>
+    <div class="rds-order-config-btn mdc-elevation--z2" [appHoverCssClass]="'mdc-elevation--z4'" (click)="onClickHome()">{{pageLbl.btnTxt}}</div>
+  </div>
