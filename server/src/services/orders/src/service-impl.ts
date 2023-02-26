@@ -4,8 +4,8 @@ import { COLLECTIONS } from "../../../common/config/server-config";
 import { YupCls } from "../../../common/utils/yup";
 import { ORDER_STATUS, DB_ROW_STATUS, IOrder } from "../../../common/models/order";
 import { getMongodb } from "../../../common/utils/mongodb/node-mongo-wrapper";
-import { getRedisClient } from "../../../common/utils/redis/node-redis-wrapper";
 import { USERS } from "../../../common/config/constants";
+import * as OrderRepo from "../../../common//models/order-repo";
 
 
 const validateOrder = async (_order) => {
@@ -36,16 +36,20 @@ const validateOrder = async (_order) => {
 }
 
 const addOrderToRedis = async (order: IOrder) => {
+    let orderId = "";
     if (order) {
-        const redisClient = getRedisClient();
-        if (redisClient) {
-            const key = COLLECTIONS.ORDERS.collectionName + ":" + order.orderId;
-            //@ts-ignore
-            await redisClient.json.set(key, "$", order);
+        const repository = OrderRepo.getRepository();
+        if (repository) {
+            const entity = repository.createEntity(order);
+            orderId = entity.entityId;
+            entity.orderId = orderId;
+            entity.productsStr = JSON.stringify(order.products);
+            await repository.save(entity);
         }
     }
-}
 
+    return orderId;
+}
 
 const createOrder = async (order: IOrder) => {
     if (order) {
@@ -59,11 +63,17 @@ const createOrder = async (order: IOrder) => {
         order.statusCode = DB_ROW_STATUS.ACTIVE;
 
         order = await validateOrder(order);
+        //add to redis
+        const orderId = await addOrderToRedis(order);
+
+        /**
+         * In real world scenario : can use RDI/ redis gears/ any other database to database sync strategy for REDIS-> MongoDB  data transfer.
+         * To keep it simple, adding  data to MongoDB manually in the same service
+         */
         const mongodbWrapperInst = getMongodb();
-        //add to database
-        const orderId = await mongodbWrapperInst.insertOne(COLLECTIONS.ORDERS.collectionName, COLLECTIONS.ORDERS.keyName, order);
-        //add to cache
-        await addOrderToRedis(order);
+        order.orderId = orderId;
+        //add to mongodb
+        await mongodbWrapperInst.insertOne(COLLECTIONS.ORDERS.collectionName, COLLECTIONS.ORDERS.keyName, order);
 
         return orderId;
     }

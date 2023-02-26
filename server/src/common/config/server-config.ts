@@ -25,10 +25,15 @@ const SERVER_CONFIG = {
         PORT: envVariables.ORDERS_SERVICE_PORT || 3001,
         API: {
             PREFIX: "/orders",
-            CREATE_ORDER: "/createOrder",  // http://localhost:3000/orders/createOrder
+            CREATE_ORDER: "/createOrder"  // http://localhost:3000/orders/createOrder
+        }
+    },
+    ORDER_HISTORY_SERVICE: {
+        PORT: envVariables.ORDER_HISTORY_SERVICE_PORT || 3002,
+        API: {
+            PREFIX: "/orderHistory",
             VIEW_ORDER_HISTORY: "/viewOrderHistory"
         }
-
     }
 
 }

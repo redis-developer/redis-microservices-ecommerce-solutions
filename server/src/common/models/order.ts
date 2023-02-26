@@ -8,10 +8,10 @@ enum DB_ROW_STATUS {
 }
 
 enum ORDER_STATUS {
+    PAYMENT_FAIL = -2,
     DRAFT = 0,
     CREATED = 1,
-    PAYMENT_SUCCESS = 2,
-    PAYMENT_FAIL = -2
+    PAYMENT_SUCCESS = 2
 }
 
 interface IOrderProduct {
@@ -26,6 +26,7 @@ interface IOrder extends Document {
     orderStatusCode: ORDER_STATUS;
 
     products: IOrderProduct[];
+    productsStr?: string;//temp redis om
 
     _id?: ObjectId | 1 | 0 | string;
     createdOn?: string | Date; // date/ ISO string
