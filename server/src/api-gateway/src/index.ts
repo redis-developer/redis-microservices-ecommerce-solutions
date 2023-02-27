@@ -12,6 +12,9 @@ const PORT = SERVER_CONFIG.API_GATEWAY.PORT;
 
 const ORDERS_API_PREFIX = SERVER_CONFIG.ORDERS_SERVICE.API.PREFIX;
 const ORDERS_API_URL = SERVER_CONFIG.SERVER_ORIGIN + ":" + SERVER_CONFIG.ORDERS_SERVICE.PORT;
+
+const ORDER_HISTORY_API_PREFIX = SERVER_CONFIG.ORDER_HISTORY_SERVICE.API.PREFIX;
+const ORDER_HISTORY_API_URL = SERVER_CONFIG.SERVER_ORIGIN + ":" + SERVER_CONFIG.ORDER_HISTORY_SERVICE.PORT;
 //--- config ends
 
 const app: Express = express();
@@ -23,5 +26,12 @@ app.use(ORDERS_API_PREFIX, createProxyMiddleware({
     target: ORDERS_API_URL,
     changeOrigin: true
 }));
+
+
+app.use(ORDER_HISTORY_API_PREFIX, createProxyMiddleware({
+    target: ORDER_HISTORY_API_URL,
+    changeOrigin: true
+}));
+
 app.listen(PORT);
 

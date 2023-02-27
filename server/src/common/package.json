@@ -6,7 +6,8 @@
     },
     "dependencies": {
         "mongodb": "^4.8.0",
-        "redis": "^4.3.0"
+        "redis": "^4.3.0",
+        "redis-om": "^0.3.6"
     },
     "devDependencies": {
         "@types/mongodb": "^4.0.7",
