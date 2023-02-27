@@ -12,7 +12,11 @@ export default function Navbar() {
       <div
         id="main-nav"
         className="bg-gray-700 flex space-y-0 relative top-0 right-0 p-0 flex-row h-full flex-grow justify-between items-center ml-10 bg-inherit">
-        <div className="order-first flex flex-row items-start text-pink-200 space-y-0 space-x-3"></div>
+        <div className="order-first flex flex-row items-start text-pink-200 space-y-0 space-x-3">
+          <Link className="hover:text-white" href="/orders">
+            Orders
+          </Link>
+        </div>
 
         <form className="order-last mb-0 pr-8" action="">
           <input
