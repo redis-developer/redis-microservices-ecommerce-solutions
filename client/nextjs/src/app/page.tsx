@@ -10,15 +10,17 @@ export default async function Home() {
   const products = await getData();
 
   return (
-    <main>
+    <>
       <Navbar />
-      <div className="max-w-screen-xl mx-auto p-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
+      <main>
+        <div className="max-w-screen-xl mx-auto p-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </>
   );
 }
