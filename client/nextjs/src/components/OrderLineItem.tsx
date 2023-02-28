@@ -8,7 +8,7 @@ interface Props {
 export default function OrderLineItem({ item }: Props) {
   return (
     <div className="flex flex-col md:flex-row justify-start items-start md:items-center w-full border-b px-2 border-gray-200">
-      <div className="w-40">
+      <div className="w-32">
         <Image
           className="rounded-t-lg"
           src={item.styleImages.default.imageURL}
@@ -17,9 +17,9 @@ export default function OrderLineItem({ item }: Props) {
           height={640}
         />
       </div>
-      <div className="flex flex-col md:flex-row items-start w-full pb-8 space-y-4 md:space-y-0">
+      <div className="flex flex-col md:flex-row items-start w-full space-y-4 md:space-y-0">
         <div className="flex flex-col justify-start items-start w-full space-y-8">
-          <h5 className="text-xl dark:text-white xl:text-2xl font-semibold leading-6 text-gray-800">
+          <h5 className="text-lg dark:text-white font-semibold leading-6 text-gray-800">
             {item.productDisplayName}
           </h5>
         </div>

@@ -1,5 +1,6 @@
 import './globals.css';
 import type { Metadata } from 'next';
+import CartProvider from './cart-provider';
 
 export const metadata: Metadata = {
   title: 'Redis Shopping',
@@ -16,7 +17,7 @@ export default function RootLayout({
     <html lang="en">
       <head />
       <body>
-        {children}
+        <CartProvider>{children}</CartProvider>
         <link
           rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"

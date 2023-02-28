@@ -1,23 +1,24 @@
+'use client';
+
 import Image from 'next/image';
 import products from '@/data/products';
+import { useContext } from 'react';
+import { CartDispatchContext } from '@/app/cart-provider';
+import { getShortName } from '@/utils/convert';
 
 interface Props {
   product: (typeof products)[0];
 }
 
-function getShortName(str: string, len = 80) {
-  const regex = new RegExp('^(.{' + len + '}[^\\s]*).*', 'mi');
-  const noHtml = str.replace(/(<([^>]+)>)/gi, ' ').trim();
-
-  return noHtml.replace(regex, '$1').trim() + ' ...';
-}
-
 export default function ProductCard({ product }: Props) {
+  const cartDispatch = useContext(CartDispatchContext);
+
   return (
     <div className="flex justify-center">
-      <div className="block max-w-sm rounded-lg bg-white shadow-lg dark:bg-neutral-700">
+      <div className="block max-w-sm rounded bg-white shadow-lg border border-neutral-200">
         <Image
-          className="rounded-t-lg"
+          className="rounded-t-lg w-auto mx-auto"
+          style={{ height: '160px' }}
           src={product.styleImages.default.imageURL}
           alt={product.productDisplayName}
           width={480}
@@ -36,7 +37,13 @@ export default function ProductCard({ product }: Props) {
           </p>
           <button
             type="button"
-            className="inline-block rounded bg-yellow-300 hover:bg-yellow-400 px-6 pt-2.5 pb-2 text-xs font-medium uppercase leading-normal text-black">
+            onClick={() => {
+              cartDispatch({
+                item: { product: product, quantity: 1 },
+                type: 'add_to_cart',
+              });
+            }}
+            className="inline-block rounded bg-orange-300 hover:bg-orange-400 px-6 pt-2.5 pb-2 text-xs font-semibold uppercase leading-normal text-black">
             Add to cart
           </button>
         </div>
