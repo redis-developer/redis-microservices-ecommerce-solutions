@@ -3,7 +3,7 @@ import {
 
     //types
     MongoClientOptions, Db, Filter, Document, CollationOptions, Sort, ClientSession,
-    InsertOneOptions, UpdateOptions, UpdateResult, BulkWriteOptions, InsertManyResult
+    InsertOneOptions, UpdateOptions
 }
     from "mongodb";
 
@@ -16,9 +16,9 @@ class NodeMongoWrapperCls {
     globalConnection?: MongoClient | null;
     globalDB?: Db | null;
 
-    constructor(_connectionURL: string, _dbName: string) {
+    constructor(_connectionURL: string) {
         this.connectionURL = _connectionURL;
-        this.dbName = _dbName;
+        this.dbName = "";
     }
 
     getConnection(): Promise<Db> {
@@ -34,7 +34,9 @@ class NodeMongoWrapperCls {
                     };
                     MongoClient.connect(this.connectionURL, connectOptions)
                         .then((client) => {
-                            const db = client.db(this.dbName);
+                            //const db = client.db(this.dbName);
+                            const db = client.db();
+                            this.dbName = db.databaseName;
                             LoggerCls.info("node-mongo-wrapper ", "Connected successfully to DB " + this.dbName);
                             this.globalConnection = client;
                             this.globalDB = db;
@@ -334,8 +336,8 @@ class NodeMongoWrapperCls {
 
 let mongodbWrapperInst: NodeMongoWrapperCls;
 
-const setMongodb = async (_connectionURL: string, _dbName: string): Promise<Db> => {
-    mongodbWrapperInst = new NodeMongoWrapperCls(_connectionURL, _dbName);
+const setMongodb = async (_connectionURL: string): Promise<Db> => {
+    mongodbWrapperInst = new NodeMongoWrapperCls(_connectionURL);
     const conDb = await mongodbWrapperInst.getConnection();//connect mongo
     return conDb;
 };

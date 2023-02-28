@@ -1,12 +1,12 @@
 import type { OrderEntity } from "../../../common//models/order-repo";
 
-import { ORDER_STATUS, DB_ROW_STATUS } from "../../../common/models/order";
+import { ORDER_STATUS, DB_ROW_STATUS, IOrder } from "../../../common/models/order";
 import * as OrderRepo from "../../../common//models/order-repo";
 
 const viewOrderHistory = async (userId: string) => {
     if (userId) {
         const repository = OrderRepo.getRepository();
-        let orders: OrderEntity[] = [];
+        let orders: IOrder[] = [];
         if (repository) {
             const queryBuilder = repository.search()
                 .where("createdBy").eq(userId)
@@ -16,9 +16,8 @@ const viewOrderHistory = async (userId: string) => {
             console.log(queryBuilder.query);
             const result = await queryBuilder.return.all();
 
-            //@ts-ignore
             orders = result.map((elm) => {
-                return {
+                let item: IOrder = {
                     orderId: elm.orderId,
                     userId: elm.userId,
                     orderStatusCode: elm.orderStatusCode,
@@ -28,6 +27,8 @@ const viewOrderHistory = async (userId: string) => {
                     lastUpdatedOn: elm.lastUpdatedOn,
                     lastUpdatedBy: elm.lastUpdatedBy,
                 };
+
+                return item;
             });
 
         }

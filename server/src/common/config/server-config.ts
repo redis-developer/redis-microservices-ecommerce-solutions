@@ -2,6 +2,7 @@ interface IApiResponseBody {
     data: unknown,
     error: unknown
 }
+
 //@ts-ignore
 const envVariables = process.env;
 
@@ -15,13 +16,12 @@ const COLLECTIONS = {
 const SERVER_CONFIG = {
 
     MONGO_DB_URI: envVariables.MONGO_DB_CONNECTION_URI || "mongodb://localhost:27017/dbFashion",
-    MONGO_DB_NAME: envVariables.MONGO_DB_NAME || "dbFashion",
     REDIS_URI: envVariables.REDIS_CONNECTION_URI || "redis://localhost:6379",
-    SERVER_ORIGIN: "http://localhost",
     API_GATEWAY: {
         PORT: envVariables.API_GATEWAY_PORT || 3000,
     },
     ORDERS_SERVICE: {
+        SERVER_ORIGIN: envVariables.ORDERS_SERVICE_CONTAINER_ORIGIN || "http://localhost",
         PORT: envVariables.ORDERS_SERVICE_PORT || 3001,
         API: {
             PREFIX: "/orders",
@@ -29,6 +29,7 @@ const SERVER_CONFIG = {
         }
     },
     ORDER_HISTORY_SERVICE: {
+        SERVER_ORIGIN: envVariables.ORDER_HISTORY_SERVICE_CONTAINER_ORIGIN || "http://localhost",
         PORT: envVariables.ORDER_HISTORY_SERVICE_PORT || 3002,
         API: {
             PREFIX: "/orderHistory",
@@ -37,7 +38,6 @@ const SERVER_CONFIG = {
     }
 
 }
-
 
 export {
     IApiResponseBody,

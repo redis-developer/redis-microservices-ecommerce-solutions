@@ -30,6 +30,7 @@ const validateOrder = async (_order) => {
         statusCode: yup.number().required()
     });
 
+    //@ts-ignore
     _order = await YupCls.validateSchema(_order, schema);
 
     return _order;
