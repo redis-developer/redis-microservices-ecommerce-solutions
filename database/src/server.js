@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv';
-import { MongoSeederCls } from "./utils/mongo-seeder.js";
+import { MongoSeederCls } from './utils/mongo-seeder.js';
 
 dotenv.config();
 
@@ -9,20 +9,21 @@ const collectionTransformer = (_collection) => {
         for (let item of _collection.documents) {
             if (item.data && item.data.id) {
                 item._id = item.data.id;
+                item.data.styleImages.default.imageURL = `${process.env.CDN_URI}/images/${item._id}.jpg`;
             }
         }
     }
     return _collection;
-}
+};
 
 const seedDatabase = async () => {
     const mongoSeederInst = new MongoSeederCls(
-        "fashion-dataset/",
+        'fashion-dataset/',
         process.env.MONGO_DB_CONNECTION_URI,
         collectionTransformer
     );
 
     await mongoSeederInst.seedCollections();
-}
+};
 
 seedDatabase();

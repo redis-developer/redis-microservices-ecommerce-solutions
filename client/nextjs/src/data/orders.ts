@@ -21,14 +21,14 @@ const orders = [
           uidx: '12c1ae88.a2e0.4ada.8a85.2259c8f751fdEzea5ihq34',
           bio: "PUMA is the World's Fastest Sports Brand",
           name: 'PUMA',
-          image: '/assets/fashion-dataset/images/11001.jpg',
+          image: 'http://localhost:8080/images/11001.jpg',
           publicProfileId: 'PUMA',
           tagsMap:
             '{"roles":[],"labels":[],"myntraVerified":true,"invited":true,"brandUrl":"/puma"}',
         },
         styleImages: {
           default: {
-            imageURL: '/assets/fashion-dataset/images/11001.jpg',
+            imageURL: 'http://localhost:8080/images/11001.jpg',
             resolutions: {
               '1080X1440Xmini':
                 'http://assets.myntassets.com/h_1440,q_95,w_1080/v1/images/style/properties/fd4356e4df582e29159e685e13e6c205_images_mini.jpg',
@@ -262,14 +262,14 @@ const orders = [
           uidx: '12c1ae88.a2e0.4ada.8a85.2259c8f751fdEzea5ihq34',
           bio: "PUMA is the World's Fastest Sports Brand",
           name: 'PUMA',
-          image: '/assets/fashion-dataset/images/11002.jpg',
+          image: 'http://localhost:8080/images/11002.jpg',
           publicProfileId: 'PUMA',
           tagsMap:
             '{"roles":[],"labels":[],"myntraVerified":true,"invited":true,"brandUrl":"/puma"}',
         },
         styleImages: {
           default: {
-            imageURL: '/assets/fashion-dataset/images/11002.jpg',
+            imageURL: 'http://localhost:8080/images/11002.jpg',
             resolutions: {
               '1080X1440Xmini':
                 'http://assets.myntassets.com/h_1440,q_95,w_1080/v1/images/style/properties/ff906339306790bc4ebf546a9d42f85d_images_mini.jpg',
@@ -510,14 +510,14 @@ const orders = [
           uidx: '12c1ae88.a2e0.4ada.8a85.2259c8f751fdEzea5ihq34',
           bio: "PUMA is the World's Fastest Sports Brand",
           name: 'PUMA',
-          image: '/assets/fashion-dataset/images/11005.jpg',
+          image: 'http://localhost:8080/images/11005.jpg',
           publicProfileId: 'PUMA',
           tagsMap:
             '{"roles":[],"labels":[],"myntraVerified":true,"invited":true,"brandUrl":"/puma"}',
         },
         styleImages: {
           default: {
-            imageURL: '/assets/fashion-dataset/images/11005.jpg',
+            imageURL: 'http://localhost:8080/images/11005.jpg',
             resolutions: {
               '1080X1440Xmini':
                 'http://assets.myntassets.com/h_1440,q_95,w_1080/v1/images/style/properties/98d66eb79c80b66e81dc6b6530d7239b_images_mini.jpg',

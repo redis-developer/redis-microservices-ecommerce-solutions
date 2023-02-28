@@ -1,18 +1,43 @@
 version: "3.8"
 services:
   redis_server:
+    container_name: redis_server
     image: "redislabs/redismod"
     volumes:
       - redis_data:/data
     # ports: # enable to visualize data in redis insight
     #   - "6379:6379"
   mongodb_server:
+    container_name: mongodb_server
     image: "mongo"
     volumes:
       - mongodb_data:/data/db
-    # ports: # enable to visualize data in mongodb compass
-    #   - "27017:27017"
+    ports: # enable to visualize data in mongodb compass
+      - "27017:27017"
+  mongodb_seed:
+    container_name: mongodb_seed
+    build:
+       context: ./
+       dockerfile: dockerfile-mongo
+       args:
+         BUILD_BASE_PATH: database
+    env_file:
+      - ./.env
+    depends_on:
+      - mongodb_server
+  cdn:
+    container_name: cdn
+    build:
+       context: ./
+       dockerfile: dockerfile-cdn
+       args:
+         BUILD_BASE_PATH: cdn
+    volumes:
+      - ./cdn/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "8080:80"
   orders_service:
+    container_name: orders_service
     build:
        context: ./
        dockerfile: dockerfile-server
@@ -24,6 +49,7 @@ services:
       - redis_server
       - mongodb_server
   order_history_service:
+    container_name: order_history_service
     build:
        context: ./
        dockerfile: dockerfile-server
@@ -35,6 +61,7 @@ services:
       - redis_server
       - mongodb_server
   api_gateway:
+    container_name: api_gateway
     build:
        context: ./
        dockerfile: dockerfile-server
@@ -48,6 +75,7 @@ services:
       - orders_service
       - order_history_service
   client:
+    container_name: client
     build:
        context: ./
        dockerfile: dockerfile-client
@@ -55,9 +83,10 @@ services:
          BUILD_BASE_PATH: client/nextjs
     ports:
       - "${FRONTEND_CLIENT_PORT}:${FRONTEND_CLIENT_PORT}"
+    env_file:
+      - ./.env
     stdin_open: true # -i input flag
     tty: true # -t terminal flag
-    command: "npm start -- --host 0.0.0.0 --port ${FRONTEND_CLIENT_PORT}"
     depends_on:
       - api_gateway
 

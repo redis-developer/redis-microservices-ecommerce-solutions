@@ -2,7 +2,6 @@ import products from '@/data/products';
 import ProductCard from '@/components/ProductCard';
 import Navbar from '@/components/Navbar';
 import Cart from '@/components/Cart';
-import cartReducer from '@/state/cart';
 
 async function getData() {
   return Promise.resolve(products);

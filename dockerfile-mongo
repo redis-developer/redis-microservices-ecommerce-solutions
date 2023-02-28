@@ -1,9 +1,8 @@
 FROM node:18-alpine
 
 ARG BUILD_BASE_PATH
-ARG FRONTEND_CLIENT_PORT
 
-WORKDIR /app
+WORKDIR /data
 
 COPY $BUILD_BASE_PATH/package.json  .
 
@@ -11,6 +10,4 @@ RUN npm install
 
 COPY $BUILD_BASE_PATH/ .
 
-RUN npm run build
-
-CMD npm start -- -p $FRONTEND_CLIENT_PORT
+CMD [ "npm", "start" ]

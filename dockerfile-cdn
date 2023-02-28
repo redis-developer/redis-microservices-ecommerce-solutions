@@ -1,0 +1,7 @@
+FROM nginx:1.23.3-alpine
+
+ARG BUILD_BASE_PATH
+
+WORKDIR /www/data
+
+COPY $BUILD_BASE_PATH/fashion-dataset/  .
