@@ -1,4 +1,4 @@
-FROM node:14-alpine
+FROM node:18-alpine
 
 ARG BUILD_BASE_PATH
 
@@ -10,7 +10,4 @@ RUN npm install
 
 COPY $BUILD_BASE_PATH/ .
 
-# CMD in compose file
-
-
-
+RUN npm run build
