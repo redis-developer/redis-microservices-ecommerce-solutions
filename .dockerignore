@@ -8,3 +8,6 @@
 # System files
 .DS_Store
 Thumbs.db
+
+# Miscellaneous
+/.angular/cache

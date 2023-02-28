@@ -1,9 +1,15 @@
-## Run application
+### Run application
 
 ```sh
 # to start
 docker compose up -d
+```
 
+- Open **"http://localhost:4200/"** in browser
+
+### Other commands
+
+```sh
 # to stop
 docker-compose down
 
@@ -13,6 +19,10 @@ docker-compose up --build -d
 # to stop & also delete volumes (mongodb & redis data)
 docker-compose down -v
 ```
+
+Note:
+
+- can change (external) environment variables in .env file if different ports to be used by application
 
 ## API docs
 

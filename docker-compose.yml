@@ -47,17 +47,19 @@ services:
     depends_on:
       - orders_service 
       - order_history_service    
-
-  # frontend:
-  #   build: ./frontend
-  #   ports:
-  #     - "3000:3000"
-  #   volumes:
-  #     - ./frontend/src:/app/src
-  #   stdin_open: true # -i input flag
-  #   tty: true # -t terminal flag
-  #   depends_on:
-  #     - api_gateway
+  client:
+    build:
+       context: ./
+       dockerfile: dockerfile-client 
+       args:
+         BUILD_BASE_PATH: client/temp-angular
+    ports:
+      - "${FRONTEND_CLIENT_PORT}:${FRONTEND_CLIENT_PORT}" 
+    stdin_open: true # -i input flag
+    tty: true # -t terminal flag
+    command: "npm start -- --host 0.0.0.0 --port ${FRONTEND_CLIENT_PORT}"
+    depends_on:
+      - api_gateway
 
 volumes:
   redis_data:
