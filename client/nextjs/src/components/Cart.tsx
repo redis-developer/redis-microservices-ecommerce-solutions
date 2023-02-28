@@ -1,6 +1,6 @@
 'use client';
 
-import { CartContext, CartDispatchContext } from '@/app/cart-provider';
+import { CartContext, CartDispatchContext } from '@/components/CartProvider';
 import { useContext, useRef, useState } from 'react';
 import CartItem from './CartItem';
 

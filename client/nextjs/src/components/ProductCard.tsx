@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import products from '@/data/products';
 import { useContext } from 'react';
-import { CartDispatchContext } from '@/app/cart-provider';
+import { CartDispatchContext } from '@/components/CartProvider';
 import { getShortName } from '@/utils/convert';
 
 interface Props {

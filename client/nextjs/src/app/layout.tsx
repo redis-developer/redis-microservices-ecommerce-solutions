@@ -1,6 +1,6 @@
 import './globals.css';
 import type { Metadata } from 'next';
-import CartProvider from './cart-provider';
+import CartProvider from '@/components/CartProvider';
 
 export const metadata: Metadata = {
   title: 'Redis Shopping',
