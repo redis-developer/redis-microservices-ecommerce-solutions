@@ -1,4 +1,3 @@
-//@ts-ignore
 import { ObjectId, Document } from "mongodb";
 
 enum DB_ROW_STATUS {
@@ -25,13 +24,13 @@ interface IOrder extends Document {
     userId: string;
     orderStatusCode: ORDER_STATUS;
 
-    products: IOrderProduct[];
+    products?: IOrderProduct[];
     productsStr?: string;//temp redis om
 
     _id?: ObjectId | 1 | 0 | string;
-    createdOn?: string | Date; // date/ ISO string
+    createdOn?: string | Date | number; // date/ ISO string
     createdBy?: string;
-    lastUpdatedOn?: string | Date | null;
+    lastUpdatedOn?: string | Date | null | number;
     lastUpdatedBy?: string | null;
     statusCode?: DB_ROW_STATUS;
 }

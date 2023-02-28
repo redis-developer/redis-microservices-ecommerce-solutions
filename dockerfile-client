@@ -1,0 +1,16 @@
+FROM node:14-alpine
+
+ARG BUILD_BASE_PATH
+
+WORKDIR /app
+
+COPY $BUILD_BASE_PATH/package.json  .
+
+RUN npm install
+
+COPY $BUILD_BASE_PATH/ .
+
+# CMD in compose file
+
+
+

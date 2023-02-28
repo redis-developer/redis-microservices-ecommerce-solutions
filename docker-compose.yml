@@ -1,0 +1,66 @@
+version: "3.8"
+services:
+  redis_server: 
+    image: "redislabs/redismod" 
+    volumes:
+      - redis_data:/data
+    # ports: # enable to visualize data in redis insight 
+    #   - "6379:6379"    
+  mongodb_server: 
+    image: "mongo" 
+    volumes:
+      - mongodb_data:/data/db 
+    # ports: # enable to visualize data in mongodb compass 
+    #   - "27017:27017"   
+  orders_service:
+    build:
+       context: ./
+       dockerfile: dockerfile-server 
+       args:
+         BUILD_BASE_PATH: server/src/services/orders
+    env_file:
+      - ./.env
+    depends_on:
+      - redis_server 
+      - mongodb_server
+  order_history_service:
+    build:
+       context: ./
+       dockerfile: dockerfile-server 
+       args:
+         BUILD_BASE_PATH: server/src/services/order-history
+    env_file:
+      - ./.env
+    depends_on:
+      - redis_server 
+      - mongodb_server
+  api_gateway:
+    build:
+       context: ./
+       dockerfile: dockerfile-server 
+       args:
+         BUILD_BASE_PATH: server/src/api-gateway
+    ports:
+      - "${API_GATEWAY_PORT}:${API_GATEWAY_PORT}" 
+    env_file:
+      - ./.env
+    depends_on:
+      - orders_service 
+      - order_history_service    
+  client:
+    build:
+       context: ./
+       dockerfile: dockerfile-client 
+       args:
+         BUILD_BASE_PATH: client/temp-angular
+    ports:
+      - "${FRONTEND_CLIENT_PORT}:${FRONTEND_CLIENT_PORT}" 
+    stdin_open: true # -i input flag
+    tty: true # -t terminal flag
+    command: "npm start -- --host 0.0.0.0 --port ${FRONTEND_CLIENT_PORT}"
+    depends_on:
+      - api_gateway
+
+volumes:
+  redis_data:
+  mongodb_data:

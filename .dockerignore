@@ -1,0 +1,13 @@
+.git
+
+**/node_modules
+**/dist
+
+**/*-lock.json
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Miscellaneous
+/.angular/cache
