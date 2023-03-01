@@ -79,6 +79,9 @@ services:
        dockerfile: dockerfile-client
        args:
          BUILD_BASE_PATH: client/nextjs
+         API_GATEWAY_URI: ${API_GATEWAY_URI}
+         CDN_HOST: ${CDN_HOST}
+         CDN_PORT: ${CDN_PORT}
     ports:
       - "${FRONTEND_CLIENT_PORT}:${FRONTEND_CLIENT_PORT}"
     env_file:
