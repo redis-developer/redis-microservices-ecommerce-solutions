@@ -1,7 +1,7 @@
 import type { OrderEntity } from "../../../common//models/order-repo";
 
 import { ORDER_STATUS, DB_ROW_STATUS, IOrder } from "../../../common/models/order";
-import * as OrderRepo from "../../../common//models/order-repo";
+import * as OrderRepo from "../../../common/models/order-repo";
 
 const viewOrderHistory = async (userId: string) => {
     if (userId) {

@@ -5,7 +5,7 @@ import { YupCls } from "../../../common/utils/yup";
 import { ORDER_STATUS, DB_ROW_STATUS, IOrder } from "../../../common/models/order";
 import { getMongodb } from "../../../common/utils/mongodb/node-mongo-wrapper";
 import { USERS } from "../../../common/config/constants";
-import * as OrderRepo from "../../../common//models/order-repo";
+import * as OrderRepo from "../../../common/models/order-repo";
 
 
 const validateOrder = async (_order) => {

@@ -10,7 +10,10 @@ const USERS = {
     DEFAULT: "ADMIN"
 }
 
+const MAX_DOCUMENTS_FETCH_LIMIT = 1000;
+
 export {
     HTTP_STATUS_CODES,
-    USERS
+    USERS,
+    MAX_DOCUMENTS_FETCH_LIMIT
 };
