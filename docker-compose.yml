@@ -13,12 +13,12 @@ services:
     volumes:
       - mongodb_data:/data/db
     ports: # enable to visualize data in mongodb compass
-      - "27017:27017"
+      - "${MONGODB_COMPASS_PORT}:27017"
   mongodb_seed:
     container_name: mongodb_seed
     build:
        context: ./
-       dockerfile: dockerfile-mongo
+       dockerfile: dockerfile-mongodb-seed
        args:
          BUILD_BASE_PATH: database
     env_file:

@@ -15,7 +15,7 @@ class MongoSeederCls {
             const config = {
                 database: _dbConnectionUrl,
                 dropCollections: true, //drop collection before insert
-                dropDatabase: true,
+                //dropDatabase: true,
             };
             this.seederLib = new Seeder(config);
         }
