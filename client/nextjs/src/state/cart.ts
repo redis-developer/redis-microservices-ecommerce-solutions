@@ -1,16 +1,7 @@
-import products from '@/data/products';
-
-export interface CartItem {
-  product: (typeof products)[0];
-  quantity: number;
-}
-
-export interface CartAction {
-  type: 'add_to_cart' | 'update_quantity' | 'remove_from_cart';
-  item: CartItem;
-}
-
-export default function cartReducer(cart: CartItem[], action: CartAction) {
+export default function cartReducer(
+  cart: models.CartItem[],
+  action: actions.CartAction,
+) {
   switch (action.type) {
     case 'add_to_cart': {
       let found = false;
@@ -46,8 +37,11 @@ export default function cartReducer(cart: CartItem[], action: CartAction) {
     case 'remove_from_cart': {
       return cart.filter((i) => i.product.id !== action.item.product.id);
     }
+    case 'clear_cart': {
+        return [];
+    }
     default: {
-      throw Error('Unknown action: ' + action.type);
+      throw Error('Unknown action: ' + (action as any).type);
     }
   }
 }

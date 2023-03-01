@@ -1,9 +1,9 @@
 'use client';
-import cartReducer, { CartAction, CartItem } from '@/state/cart';
+import cartReducer from '@/state/cart';
 import { createContext, Dispatch, useReducer } from 'react';
 
-export const CartContext = createContext<CartItem[]>([]);
-export const CartDispatchContext = createContext<Dispatch<CartAction>>(
+export const CartContext = createContext<models.CartItem[]>([]);
+export const CartDispatchContext = createContext<Dispatch<actions.CartAction>>(
   () => {},
 );
 

@@ -19,6 +19,34 @@ export default function Cart() {
     setOpen(!open);
   }
 
+  async function submitOrder() {
+    await fetch(
+      `${process.env.NEXT_PUBLIC_API_GATEWAY_URI}/orders/createOrder`,
+      {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          products: cart.map((item) => {
+            return {
+              productId: item.product.id,
+              qty: item.quantity,
+              productPrice: item.product.price,
+            };
+          }) as models.OrderItem[],
+        }),
+      },
+    );
+
+    cartDispatch({
+      type: 'clear_cart',
+    });
+
+    toggleOpen();
+  }
+
   return (
     <>
       <div
@@ -73,7 +101,11 @@ export default function Cart() {
                 );
               })}
             </div>
-            <button className="flex justify-center items-center self-center m-3 p-2 bg-orange-300 rounded font-semibold uppercase text-sm">
+            <button
+              onClick={() => {
+                void submitOrder();
+              }}
+              className="flex justify-center items-center self-center m-3 p-2 bg-orange-300 rounded font-semibold uppercase text-sm">
               Buy Now
             </button>
           </div>
