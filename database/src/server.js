@@ -9,7 +9,7 @@ const collectionTransformer = (_collection) => {
         for (let item of _collection.documents) {
             if (item.data && item.data.id) {
                 item._id = item.data.id;
-                item.data.styleImages.default.imageURL = `${process.env.CDN_URI}/images/${item._id}.jpg`;
+                item.data.styleImages.default.imageURL = `http://${process.env.CDN_HOST}:${process.env.CDN_PORT}/images/${item._id}.jpg`;
             }
         }
     }

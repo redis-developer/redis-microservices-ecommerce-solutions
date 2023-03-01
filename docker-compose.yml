@@ -32,10 +32,8 @@ services:
        dockerfile: dockerfile-cdn
        args:
          BUILD_BASE_PATH: cdn
-    volumes:
-      - ./cdn/nginx.conf:/etc/nginx/nginx.conf:ro
     ports:
-      - "8080:80"
+      - "${CDN_PORT}:80"
   orders_service:
     container_name: orders_service
     build:
