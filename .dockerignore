@@ -11,3 +11,5 @@ Thumbs.db
 
 # Miscellaneous
 /.angular/cache
+**/.next
+.vscode

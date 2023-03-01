@@ -16,14 +16,14 @@ const products = [
       uidx: '12c1ae88.a2e0.4ada.8a85.2259c8f751fdEzea5ihq34',
       bio: "PUMA is the World's Fastest Sports Brand",
       name: 'PUMA',
-      image: 'http://host.docker.internal:8080/images/11001.jpg',
+      image: `http://${process.env.CDN_HOST}:${process.env.CDN_PORT}/images/11001.jpg`,
       publicProfileId: 'PUMA',
       tagsMap:
         '{"roles":[],"labels":[],"myntraVerified":true,"invited":true,"brandUrl":"/puma"}',
     },
     styleImages: {
       default: {
-        imageURL: 'http://host.docker.internal:8080/images/11001.jpg',
+        imageURL: `http://${process.env.CDN_HOST}:${process.env.CDN_PORT}/images/11001.jpg`,
         resolutions: {
           '1080X1440Xmini':
             'http://assets.myntassets.com/h_1440,q_95,w_1080/v1/images/style/properties/fd4356e4df582e29159e685e13e6c205_images_mini.jpg',
@@ -257,14 +257,14 @@ const products = [
       uidx: '12c1ae88.a2e0.4ada.8a85.2259c8f751fdEzea5ihq34',
       bio: "PUMA is the World's Fastest Sports Brand",
       name: 'PUMA',
-      image: 'http://host.docker.internal:8080/images/11002.jpg',
+      image: `http://${process.env.CDN_HOST}:${process.env.CDN_PORT}/images/11002.jpg`,
       publicProfileId: 'PUMA',
       tagsMap:
         '{"roles":[],"labels":[],"myntraVerified":true,"invited":true,"brandUrl":"/puma"}',
     },
     styleImages: {
       default: {
-        imageURL: 'http://host.docker.internal:8080/images/11002.jpg',
+        imageURL: `http://${process.env.CDN_HOST}:${process.env.CDN_PORT}/images/11002.jpg`,
         resolutions: {
           '1080X1440Xmini':
             'http://assets.myntassets.com/h_1440,q_95,w_1080/v1/images/style/properties/ff906339306790bc4ebf546a9d42f85d_images_mini.jpg',
@@ -498,14 +498,14 @@ const products = [
       uidx: '12c1ae88.a2e0.4ada.8a85.2259c8f751fdEzea5ihq34',
       bio: "PUMA is the World's Fastest Sports Brand",
       name: 'PUMA',
-      image: 'http://host.docker.internal:8080/images/11003.jpg',
+      image: `http://${process.env.CDN_HOST}:${process.env.CDN_PORT}/images/11003.jpg`,
       publicProfileId: 'PUMA',
       tagsMap:
         '{"roles":[],"labels":[],"myntraVerified":true,"invited":true,"brandUrl":"/puma"}',
     },
     styleImages: {
       default: {
-        imageURL: 'http://host.docker.internal:8080/images/11003.jpg',
+        imageURL: `http://${process.env.CDN_HOST}:${process.env.CDN_PORT}/images/11003.jpg`,
         resolutions: {
           '1080X1440Xmini':
             'http://assets.myntassets.com/h_1440,q_95,w_1080/v1/images/style/properties/1b7d93f1c155844d9149f1d3ba7e0688_images_mini.jpg',
@@ -739,14 +739,14 @@ const products = [
       uidx: '12c1ae88.a2e0.4ada.8a85.2259c8f751fdEzea5ihq34',
       bio: "PUMA is the World's Fastest Sports Brand",
       name: 'PUMA',
-      image: 'http://host.docker.internal:8080/images/11004.jpg',
+      image: `http://${process.env.CDN_HOST}:${process.env.CDN_PORT}/images/11004.jpg`,
       publicProfileId: 'PUMA',
       tagsMap:
         '{"roles":[],"labels":[],"myntraVerified":true,"invited":true,"brandUrl":"/puma"}',
     },
     styleImages: {
       default: {
-        imageURL: 'http://host.docker.internal:8080/images/11004.jpg',
+        imageURL: `http://${process.env.CDN_HOST}:${process.env.CDN_PORT}/images/11004.jpg`,
         resolutions: {
           '1080X1440Xmini':
             'http://assets.myntassets.com/h_1440,q_95,w_1080/v1/images/style/properties/b23c16f6e7cd7ef77906a349beed92cf_images_mini.jpg',
@@ -980,14 +980,14 @@ const products = [
       uidx: '12c1ae88.a2e0.4ada.8a85.2259c8f751fdEzea5ihq34',
       bio: "PUMA is the World's Fastest Sports Brand",
       name: 'PUMA',
-      image: 'http://host.docker.internal:8080/images/11005.jpg',
+      image: `http://${process.env.CDN_HOST}:${process.env.CDN_PORT}/images/11005.jpg`,
       publicProfileId: 'PUMA',
       tagsMap:
         '{"roles":[],"labels":[],"myntraVerified":true,"invited":true,"brandUrl":"/puma"}',
     },
     styleImages: {
       default: {
-        imageURL: 'http://host.docker.internal:8080/images/11005.jpg',
+        imageURL: `http://${process.env.CDN_HOST}:${process.env.CDN_PORT}/images/11005.jpg`,
         resolutions: {
           '1080X1440Xmini':
             'http://assets.myntassets.com/h_1440,q_95,w_1080/v1/images/style/properties/98d66eb79c80b66e81dc6b6530d7239b_images_mini.jpg',
@@ -1221,14 +1221,14 @@ const products = [
       uidx: '12c1ae88.a2e0.4ada.8a85.2259c8f751fdEzea5ihq34',
       bio: "PUMA is the World's Fastest Sports Brand",
       name: 'PUMA',
-      image: 'http://host.docker.internal:8080/images/11006.jpg',
+      image: `http://${process.env.CDN_HOST}:${process.env.CDN_PORT}/images/11006.jpg`,
       publicProfileId: 'PUMA',
       tagsMap:
         '{"roles":[],"labels":[],"myntraVerified":true,"invited":true,"brandUrl":"/puma"}',
     },
     styleImages: {
       default: {
-        imageURL: 'http://host.docker.internal:8080/images/11006.jpg',
+        imageURL: `http://${process.env.CDN_HOST}:${process.env.CDN_PORT}/images/11006.jpg`,
         resolutions: {
           '1080X1440Xmini':
             'http://assets.myntassets.com/h_1440,q_95,w_1080/v1/images/style/properties/41a7fb3cda478f5432def21fc52a5a8d_images_mini.jpg',
@@ -1462,14 +1462,14 @@ const products = [
       uidx: '12c1ae88.a2e0.4ada.8a85.2259c8f751fdEzea5ihq34',
       bio: "PUMA is the World's Fastest Sports Brand",
       name: 'PUMA',
-      image: 'http://host.docker.internal:8080/images/11007.jpg',
+      image: `http://${process.env.CDN_HOST}:${process.env.CDN_PORT}/images/11007.jpg`,
       publicProfileId: 'PUMA',
       tagsMap:
         '{"roles":[],"labels":[],"myntraVerified":true,"invited":true,"brandUrl":"/puma"}',
     },
     styleImages: {
       default: {
-        imageURL: 'http://host.docker.internal:8080/images/11007.jpg',
+        imageURL: `http://${process.env.CDN_HOST}:${process.env.CDN_PORT}/images/11007.jpg`,
         resolutions: {
           '1080X1440Xmini':
             'http://assets.myntassets.com/h_1440,q_95,w_1080/v1/images/style/properties/705aa471f4f1b62ed538d907f4160f7d_images_mini.jpg',
@@ -1702,7 +1702,7 @@ const products = [
     brandUserProfile: {},
     styleImages: {
       default: {
-        imageURL: 'http://host.docker.internal:8080/images/11008.jpg',
+        imageURL: `http://${process.env.CDN_HOST}:${process.env.CDN_PORT}/images/11008.jpg`,
         resolutions: {
           '1080X1440Xmini':
             'http://assets.myntassets.com/h_1440,q_95,w_1080/v1/images/style/properties/7a3e4f2cab50d5b90b2ff16e40815faf_images_mini.jpg',
@@ -1906,7 +1906,7 @@ const products = [
     brandUserProfile: {},
     styleImages: {
       default: {
-        imageURL: 'http://host.docker.internal:8080/images/11009.jpg',
+        imageURL: `http://${process.env.CDN_HOST}:${process.env.CDN_PORT}/images/11009.jpg`,
         resolutions: {
           '1080X1440Xmini':
             'http://assets.myntassets.com/h_1440,q_95,w_1080/v1/images/style/properties/341ac59abad5a8063cec056ede780079_images_mini.jpg',
@@ -2111,7 +2111,7 @@ const products = [
       uidx: 'b55b498e.8a78.4f5b.847d.1e76c1a0707bTQB0qVwNqO',
       bio: 'Wrangler empowers you to discover your free spirit',
       name: 'Wrangler',
-      image: 'http://host.docker.internal:8080/images/11010.jpg',
+      image: `http://${process.env.CDN_HOST}:${process.env.CDN_PORT}/images/11010.jpg`,
       publicProfileId: 'Wrangler.India',
       imageJsonEntryMap: {
         '1': '{"id":17582431,"createdBy":"b55b498e.8a78.4f5b.847d.1e76c1a0707bTQB0qVwNqO","createdOn":1472711641000,"lastModifiedOn":1472711641000,"version":0,"format":"JPEG","isCompressed":false,"resolution":"720X544","aspectRatio":"45:34","viewtype":"front","client_id":4,"client_description":"video_migration_script","client_reference_id":"17582431","imgs":{"S3":{"id":30599348,"relativePath":"assets/images/2016/9/1/11472711641193-18820-apix1u.jpg","size":99643,"domain":"http://myntra.myntassets.com/","securedDomain":"https://myntrawebimages.s3.amazonaws.com/","resolutionFormula":"assets/images/2016/9/1/11472711641193-18820-apix1u_($width)_($height).jpg","path":"http://myntra.myntassets.com/assets/images/2016/9/1/11472711641193-18820-apix1u.jpg","storedUploaderType":"S3","servingUploaderType":"S3"},"CL":{"id":30599347,"relativePath":"assets/images/2016/9/1/11472711641193-18820-apix1u.jpg","size":99643,"domain":"http://assets.myntassets.com/","securedDomain":"https://secureassets.myntassets.com/","resolutionFormula":"h_($height),q_($qualityPercentage),w_($width)/v1/assets/images/2016/9/1/11472711641193-18820-apix1u.jpg","path":"http://assets.myntassets.com/assets/images/2016/9/1/11472711641193-18820-apix1u.jpg","storedUploaderType":"CL","servingUploaderType":"CL"}},"path":"assets/images/2016/9/1/11472711641193-18820-apix1u.jpg","securedDomain":"https://secureassets.myntassets.com/","domain":"http://assets.myntassets.com/","storedUploaderType":"CL","servingUploaderType":"CL","resolutionFormula":"h_($height),q_($qualityPercentage),w_($width)/v1/assets/images/2016/9/1/11472711641193-18820-apix1u.jpg"}',
@@ -2121,7 +2121,7 @@ const products = [
     },
     styleImages: {
       default: {
-        imageURL: 'http://host.docker.internal:8080/images/11010.jpg',
+        imageURL: `http://${process.env.CDN_HOST}:${process.env.CDN_PORT}/images/11010.jpg`,
         resolutions: {
           '1080X1440Xmini':
             'http://assets.myntassets.com/h_1440,q_95,w_1080/v1/images/style/properties/acada18ae143589bc53ca71d305b2091_images_mini.jpg',

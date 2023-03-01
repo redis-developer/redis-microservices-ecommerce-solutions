@@ -87,6 +87,7 @@ services:
     tty: true # -t terminal flag
     depends_on:
       - api_gateway
+      - cdn
 
 volumes:
   redis_data:

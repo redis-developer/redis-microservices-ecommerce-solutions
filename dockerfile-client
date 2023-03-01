@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:18.14.2-alpine
 
 ARG BUILD_BASE_PATH
 ARG FRONTEND_CLIENT_PORT
@@ -10,6 +10,7 @@ COPY $BUILD_BASE_PATH/package.json  .
 RUN npm install
 
 COPY $BUILD_BASE_PATH/ .
+COPY .env .env.production
 
 RUN npm run build
 
