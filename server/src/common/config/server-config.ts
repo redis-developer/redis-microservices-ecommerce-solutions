@@ -10,6 +10,10 @@ const COLLECTIONS = {
     ORDERS: {
         collectionName: "orders",
         keyName: "orderId"
+    },
+    PRODUCTS: {
+        collectionName: "products",
+        keyName: "productId"
     }
 };
 
@@ -35,8 +39,15 @@ const SERVER_CONFIG = {
             PREFIX: "/orderHistory",
             VIEW_ORDER_HISTORY: "/viewOrderHistory"
         }
+    },
+    PRODUCTS_SERVICE: {
+        SERVER_ORIGIN: envVariables.PRODUCTS_SERVICE_CONTAINER_ORIGIN || "http://localhost",
+        PORT: envVariables.PRODUCTS_SERVICE_PORT || 3003,
+        API: {
+            PREFIX: "/products",
+            GET_PRODUCTS_BY_FILTER: "/getProductsByFilter"
+        }
     }
-
 }
 
 export {

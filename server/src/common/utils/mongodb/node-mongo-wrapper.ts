@@ -352,5 +352,6 @@ export {
 };
 
 export type {
-    NodeMongoWrapperCls
+    NodeMongoWrapperCls,
+    Document
 };
