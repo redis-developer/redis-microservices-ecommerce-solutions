@@ -38,6 +38,7 @@ const getProductsByFilter = async (productFilter: IProductFilter) => {
         "data.gender": 1,
         "data.displayCategories": 1,
         "data.styleImages.default.imageURL": 1,
+        "data.productDescriptors.description.value": 1,
 
     }
     const limit = MAX_DOCUMENTS_FETCH_LIMIT;

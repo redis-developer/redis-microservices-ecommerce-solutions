@@ -1,18 +1,19 @@
 import Image from 'next/image';
-import orders from '@/data/orders';
 
 interface Props {
-  item: (typeof orders)[0]['items'][0];
+  item: models.OrderItem;
 }
 
 export default function OrderLineItem({ item }: Props) {
+  const product = item.product;
+
   return (
     <div className="flex flex-col md:flex-row justify-start items-start md:items-center w-full border-b px-2 border-gray-200">
       <div className="w-32">
         <Image
           className="rounded-t-lg"
-          src={item.styleImages.default.imageURL}
-          alt={item.productDisplayName}
+          src={product.styleImages.default.imageURL}
+          alt={product.productDisplayName}
           width={480}
           height={640}
         />
@@ -20,15 +21,15 @@ export default function OrderLineItem({ item }: Props) {
       <div className="flex flex-col md:flex-row items-start w-full space-y-4 md:space-y-0">
         <div className="flex flex-col justify-start items-start w-full space-y-8">
           <h5 className="text-lg dark:text-white font-semibold leading-6 text-gray-800">
-            {item.productDisplayName}
+            {product.productDisplayName}
           </h5>
         </div>
         <div className="flex space-x-8 justify-end items-start w-full">
           <p className="text-base dark:text-white xl:text-lg leading-6">
-            ${Number(item.price).toLocaleString('en')} x 1
+            ${Number(product.price).toLocaleString('en')} x {item.qty}
           </p>
           <p className="text-base dark:text-white xl:text-lg leading-6 font-semibold">
-            ${Number(item.price).toLocaleString('en')}
+            ${Number(product.price * item.qty).toLocaleString('en')}
           </p>
         </div>
       </div>

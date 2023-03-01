@@ -1,9 +1,41 @@
-import orders from '@/data/orders';
 import OrderLineItem from '@/components/OrderLineItem';
 import Navbar from '@/components/Navbar';
+import { orderTotal } from '@/utils/calculate';
+import { stringDateToFormattedDate } from '@/utils/convert';
 
 async function getData() {
-  return Promise.resolve(orders);
+  const response = await fetch(
+    `${process.env.API_GATEWAY_URI}/orderHistory/viewOrderHistory?userId=ADMIN`,
+    {
+      next: {
+        revalidate: 15,
+      },
+    },
+  );
+  const productResponse = await fetch(
+    `${process.env.API_GATEWAY_URI}/products/getProductsByFilter`,
+    {
+      method: 'POST',
+      next: {
+        revalidate: 15,
+      },
+    },
+  );
+  const productResults: api.ProductResponse = await productResponse.json();
+  const products = productResults.data.map((product) => product.data);
+  const result: api.OrderHistoryResponse = await response.json();
+
+  return result.data.map((order) => {
+    order.products = order.products.map((item) => {
+      item.product = products.find((product) => {
+        return product.id === item.productId;
+      }) as models.Product;
+
+      return item;
+    });
+
+    return order;
+  });
 }
 
 export default async function Home() {
@@ -27,17 +59,19 @@ export default async function Home() {
                   </div>
                   <div className="self-end">
                     <h5 className="text-md font-bold uppercase">Placed</h5>
-                    <p className="text-sm">{order.orderDate}</p>
+                    <p className="text-sm">
+                      {stringDateToFormattedDate(order.createdOn)}
+                    </p>
                   </div>
                   <div className="self-end">
                     <h5 className="text-md font-bold uppercase">Total</h5>
                     <p className="text-sm">
-                      ${Number(order.total).toLocaleString('en')}
+                      ${Number(orderTotal(order)).toLocaleString('en')}
                     </p>
                   </div>
                 </div>
-                {order.items.map((item) => (
-                  <OrderLineItem key={item.id} item={item} />
+                {order.products.map((item) => (
+                  <OrderLineItem key={item.productId} item={item} />
                 ))}
               </div>
             );

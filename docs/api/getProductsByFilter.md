@@ -31,6 +31,12 @@ POST http://localhost:3000/products/getProductsByFilter
           "default": {
             "imageURL": "http://host.docker.internal:8080/images/11000.jpg"
           }
+        },
+        "productDescriptors": {
+          "description": {
+            "value":
+              "<p style=\"text-align: justify;\">This watch from puma comes in a clean sleek design. This active watch is perfect for urban wear and can serve you well in the gym or a night of clubbing.<br /><strong><br />Case diamete</strong>r: 40 mm&lt;</p>"
+          }
         }
       }
     }

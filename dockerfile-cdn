@@ -3,5 +3,3 @@ FROM nginx:1.23.3-alpine
 ARG BUILD_BASE_PATH
 
 COPY $BUILD_BASE_PATH/fashion-dataset/  /usr/share/nginx/html/
-
-

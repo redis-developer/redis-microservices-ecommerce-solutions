@@ -4,3 +4,7 @@ export function getShortName(str: string, len = 80) {
 
   return noHtml.replace(regex, '$1').trim() + ' ...';
 }
+
+export function stringDateToFormattedDate(dateStr: string) {
+  return new Date(dateStr).toLocaleString();
+}

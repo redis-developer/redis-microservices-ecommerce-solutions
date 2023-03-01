@@ -1,10 +1,19 @@
-import products from '@/data/products';
 import ProductCard from '@/components/ProductCard';
 import Navbar from '@/components/Navbar';
 import Cart from '@/components/Cart';
 
 async function getData() {
-  return Promise.resolve(products);
+  const response = await fetch(
+    `${process.env.API_GATEWAY_URI}/products/getProductsByFilter`,
+    {
+      method: 'POST',
+      next: {
+        revalidate: 15,
+      },
+    },
+  );
+  const result: api.ProductResponse = await response.json();
+  return result.data.map((product) => product.data);
 }
 
 export default async function Home() {
