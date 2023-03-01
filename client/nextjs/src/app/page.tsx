@@ -8,12 +8,12 @@ async function getData() {
     {
       method: 'POST',
       next: {
-        revalidate: 15,
+        revalidate: 300,
       },
     },
   );
   const result: api.ProductResponse = await response.json();
-  return result.data.map((product) => product.data);
+  return result.data?.map((product) => product.data) ?? [];
 }
 
 export default async function Home() {

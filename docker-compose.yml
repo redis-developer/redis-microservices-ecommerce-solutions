@@ -5,8 +5,8 @@ services:
     image: "redislabs/redismod"
     volumes:
       - redis_data:/data
-    # ports: # enable to visualize data in redis insight
-    #   - "6379:6379"
+    ports: # enable to visualize data in redis insight
+      - "6379:6379"
   mongodb_server:
     container_name: mongodb_server
     image: "mongo"

@@ -6,18 +6,14 @@ import { stringDateToFormattedDate } from '@/utils/convert';
 async function getData() {
   const response = await fetch(
     `${process.env.API_GATEWAY_URI}/orderHistory/viewOrderHistory?userId=ADMIN`,
-    {
-      next: {
-        revalidate: 15,
-      },
-    },
+    { cache: 'no-store' },
   );
   const productResponse = await fetch(
     `${process.env.API_GATEWAY_URI}/products/getProductsByFilter`,
     {
       method: 'POST',
       next: {
-        revalidate: 15,
+        revalidate: 300,
       },
     },
   );
@@ -25,14 +21,14 @@ async function getData() {
   const products = productResults.data.map((product) => product.data);
   const result: api.OrderHistoryResponse = await response.json();
 
-  return result.data.map((order) => {
+  return result.data?.map((order) => {
     order.products = order.products.map((item) => {
       item.product = products.find((product) => {
         return product.id === item.productId;
       }) as models.Product;
 
       return item;
-    });
+    }) ?? [];
 
     return order;
   });
