@@ -1,8 +1,7 @@
 import Image from 'next/image';
-import { CartItem as ICartItem } from '@/state/cart';
 import { getShortName } from '@/utils/convert';
 
-interface CartItemProps extends ICartItem {
+interface CartItemProps extends models.CartItem {
   handleChange: (value: number) => unknown;
   handleDelete: () => unknown;
 }
