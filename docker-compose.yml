@@ -7,6 +7,8 @@ services:
       - redis_data:/data
     ports: # enable to visualize data in redis insight
       - "${REDIS_INSIGHT_PORT}:6379"
+    profiles:
+      - backend
   mongodb_server:
     container_name: mongodb_server
     image: "mongo"
@@ -14,6 +16,8 @@ services:
       - mongodb_data:/data/db
     ports: # enable to visualize data in mongodb compass
       - "${MONGODB_COMPASS_PORT}:27017"
+    profiles:
+      - backend
   mongodb_seed:
     container_name: mongodb_seed
     build:
@@ -25,6 +29,8 @@ services:
       - ./.env
     depends_on:
       - mongodb_server
+    profiles:
+      - backend
   cdn:
     container_name: cdn
     build:
@@ -34,6 +40,8 @@ services:
          BUILD_BASE_PATH: cdn
     ports:
       - "${CDN_PORT}:80"
+    profiles:
+      - backend
   orders_service:
     container_name: orders_service
     build:
@@ -46,6 +54,8 @@ services:
     depends_on:
       - redis_server
       - mongodb_server
+    profiles:
+      - backend
   order_history_service:
     container_name: order_history_service
     build:
@@ -58,6 +68,8 @@ services:
     depends_on:
       - redis_server
       - mongodb_server
+    profiles:
+      - backend
   products_service:
     container_name: products_service
     build:
@@ -70,6 +82,8 @@ services:
     depends_on:
       - redis_server
       - mongodb_server
+    profiles:
+      - backend
   api_gateway:
     container_name: api_gateway
     build:
@@ -84,24 +98,29 @@ services:
     depends_on:
       - orders_service
       - order_history_service
-  # client:
-  #   container_name: client
-  #   build:
-  #      context: ./
-  #      dockerfile: dockerfile-client
-  #      args:
-  #        BUILD_BASE_PATH: client/nextjs
-  #        API_GATEWAY_URI: ${API_GATEWAY_URI}
-  #        NEXT_PUBLIC_API_GATEWAY_URI: ${NEXT_PUBLIC_API_GATEWAY_URI}
-  #   ports:
-  #     - "${FRONTEND_CLIENT_PORT}:${FRONTEND_CLIENT_PORT}"
-  #   env_file:
-  #     - ./.env
-  #   stdin_open: true # -i input flag
-  #   tty: true # -t terminal flag
-  #   depends_on:
-  #     - api_gateway
-  #     - cdn
+      - products_service
+    profiles:
+      - backend
+  client:
+    container_name: client
+    build:
+       context: ./
+       dockerfile: dockerfile-client
+       args:
+         BUILD_BASE_PATH: client/nextjs
+         API_GATEWAY_URI: ${API_GATEWAY_URI}
+         NEXT_PUBLIC_API_GATEWAY_URI: ${NEXT_PUBLIC_API_GATEWAY_URI}
+    ports:
+      - "${FRONTEND_CLIENT_PORT}:${FRONTEND_CLIENT_PORT}"
+    env_file:
+      - ./.env
+    stdin_open: true # -i input flag
+    tty: true # -t terminal flag
+    depends_on:
+      - api_gateway
+      - cdn
+    profiles:
+      - frontend
 
 volumes:
   redis_data:
