@@ -1,4 +1,5 @@
 import type { Document } from "../../../common/utils/mongodb/node-mongo-wrapper";
+import type { IProduct } from "../../../common/models/product";
 
 import { COLLECTIONS } from "../../../common/config/server-config";
 import { DB_ROW_STATUS } from "../../../common/models/order";
@@ -27,20 +28,30 @@ const getProductsByFilter = async (productFilter: IProductFilter) => {
         }
     }
 
-
-    const projection = {
-        "data.id": 1,
-        "data.price": 1,
-        "data.productDisplayName": 1,
-        "data.variantName": 1,
-        "data.brandName": 1,
-        "data.ageGroup": 1,
-        "data.gender": 1,
-        "data.displayCategories": 1,
-        "data.styleImages.default.imageURL": 1,
-        "data.productDescriptors.description.value": 1,
-
+    const projection: IProduct = {
+        productId: 1,
+        data: {
+            id: 1,
+            price: 1,
+            productDisplayName: 1,
+            variantName: 1,
+            brandName: 1,
+            ageGroup: 1,
+            gender: 1,
+            displayCategories: 1,
+            styleImages: {
+                default: {
+                    imageURL: 1,
+                }
+            },
+            productDescriptors: {
+                description: {
+                    value: 1
+                }
+            }
+        }
     }
+
     const limit = MAX_DOCUMENTS_FETCH_LIMIT;
     const sort = {};
     const products = await mongodbWrapperInst.find(COLLECTIONS.PRODUCTS.collectionName, filter, projection, limit, sort);

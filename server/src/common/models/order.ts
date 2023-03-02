@@ -1,10 +1,9 @@
-import { ObjectId, Document } from "mongodb";
+import type { IProductData } from "./product";
 
-enum DB_ROW_STATUS {
-    ACTIVE = 1,
-    INACTIVE = 0,
-    TO_BE_PURGED = -1
-}
+import { Document } from "mongodb";
+
+import { DB_ROW_STATUS, ICommonFields } from "./misc";
+
 
 enum ORDER_STATUS {
     PAYMENT_FAIL = -2,
@@ -17,22 +16,16 @@ interface IOrderProduct {
     productId: number;
     qty: number;
     productPrice: number;
+    productData?: IProductData;
 }
 
-interface IOrder extends Document {
+interface IOrder extends Document, ICommonFields {
     orderId: string;
     userId: string;
     orderStatusCode: ORDER_STATUS;
 
     products?: IOrderProduct[];
     productsStr?: string;//temp redis om
-
-    _id?: ObjectId | 1 | 0 | string;
-    createdOn?: string | Date | number; // date/ ISO string
-    createdBy?: string;
-    lastUpdatedOn?: string | Date | null | number;
-    lastUpdatedBy?: string | null;
-    statusCode?: DB_ROW_STATUS;
 }
 
 export {

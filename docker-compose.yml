@@ -84,24 +84,24 @@ services:
     depends_on:
       - orders_service
       - order_history_service
-  client:
-    container_name: client
-    build:
-       context: ./
-       dockerfile: dockerfile-client
-       args:
-         BUILD_BASE_PATH: client/nextjs
-         API_GATEWAY_URI: ${API_GATEWAY_URI}
-         NEXT_PUBLIC_API_GATEWAY_URI: ${NEXT_PUBLIC_API_GATEWAY_URI}
-    ports:
-      - "${FRONTEND_CLIENT_PORT}:${FRONTEND_CLIENT_PORT}"
-    env_file:
-      - ./.env
-    stdin_open: true # -i input flag
-    tty: true # -t terminal flag
-    depends_on:
-      - api_gateway
-      - cdn
+  # client:
+  #   container_name: client
+  #   build:
+  #      context: ./
+  #      dockerfile: dockerfile-client
+  #      args:
+  #        BUILD_BASE_PATH: client/nextjs
+  #        API_GATEWAY_URI: ${API_GATEWAY_URI}
+  #        NEXT_PUBLIC_API_GATEWAY_URI: ${NEXT_PUBLIC_API_GATEWAY_URI}
+  #   ports:
+  #     - "${FRONTEND_CLIENT_PORT}:${FRONTEND_CLIENT_PORT}"
+  #   env_file:
+  #     - ./.env
+  #   stdin_open: true # -i input flag
+  #   tty: true # -t terminal flag
+  #   depends_on:
+  #     - api_gateway
+  #     - cdn
 
 volumes:
   redis_data:
