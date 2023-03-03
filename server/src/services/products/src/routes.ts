@@ -2,6 +2,8 @@ import express, { Request, Response } from 'express';
 
 import { HTTP_STATUS_CODES } from '../../../common/config/constants';
 import { LoggerCls } from '../../../common/utils/logger';
+import { RedisCacheAside } from '../../../common/utils/redis/redis-cache-aside';
+
 import {
   SERVER_CONFIG,
   IApiResponseBody,
@@ -18,10 +20,23 @@ router.post(
     const result: IApiResponseBody = {
       data: null,
       error: null,
+      isFromCache: false
     };
 
     try {
-      result.data = await getProductsByFilter(body);
+      const cachedData = await RedisCacheAside.getDataFromRedis(body);
+      if (cachedData && cachedData.length) {
+        result.data = cachedData;
+        result.isFromCache = true;
+      }
+      else {
+        const dbData = await getProductsByFilter(body);
+
+        if (body && body.productDisplayName && dbData.length) { //skipping cache for default empty search
+          RedisCacheAside.setDataInRedis(body, dbData, SERVER_CONFIG.CACHE_ASIDE_EXPIRY); //set async
+        }
+        result.data = dbData;
+      }
     } catch (err) {
       const pureErr = LoggerCls.getPureError(err);
       result.error = pureErr;
