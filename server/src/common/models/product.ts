@@ -1,35 +1,31 @@
-import { Document } from "mongodb";
-import { ICommonFields } from "./misc";
-
+import { Document } from 'mongodb';
+import { ICommonFields } from './misc';
 
 interface IProductData {
-    id: number;
-    price: number;
-    productDisplayName: string | number; //number for mongo projection 
-    variantName?: string | number;
-    brandName?: string | number;
-    ageGroup?: string | number;
-    gender?: string | number;
-    displayCategories?: string | number;
-    styleImages: {
-        default: {
-            imageURL: string | number;
-        }
-    },
-    productDescriptors: {
-        description: {
-            value: string | number;
-        }
-    }
+  id: number;
+  price: number;
+  productDisplayName: string | number; //number for mongo projection
+  variantName?: string | number;
+  brandName?: string | number;
+  ageGroup?: string | number;
+  gender?: string | number;
+  displayCategories?: string | number;
+  styleImages: {
+    default: {
+      imageURL: string | number;
+    };
+  };
+  productDescriptors: {
+    description: {
+      value: string | number;
+    };
+  };
 }
 
 interface IProduct extends Document, ICommonFields {
-    //fashion dataset schema
-    productId?: number;
-    data?: IProductData
+  //fashion dataset schema
+  productId?: number;
+  data?: IProductData;
 }
 
-export type {
-    IProduct,
-    IProductData
-}
+export type { IProduct, IProductData };

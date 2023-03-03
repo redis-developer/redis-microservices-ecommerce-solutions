@@ -1,11 +1,11 @@
-import express, { Express, Request, Response } from "express";
-import dotenv from "dotenv";
+import express, { Express, Request, Response } from 'express';
+import dotenv from 'dotenv';
 
-import { setMongodb } from "../../../common/utils/mongodb/node-mongo-wrapper";
-import { setRedis } from "../../../common/utils/redis/redis-wrapper";
-import { SERVER_CONFIG } from "../../../common/config/server-config";
+import { setMongodb } from '../../../common/utils/mongodb/node-mongo-wrapper';
+import { setRedis } from '../../../common/utils/redis/redis-wrapper';
+import { SERVER_CONFIG } from '../../../common/config/server-config';
 
-import { listenToOrdersStream } from "./service-impl";
+import { listenToOrdersStream } from './service-impl';
 
 dotenv.config();
 
@@ -20,16 +20,15 @@ const app: Express = express();
 
 app.use(express.json());
 
-
-app.get("/", (req: Request, res: Response) => {
-    res.send("Express Server for " + API_PREFIX);
+app.get('/', (req: Request, res: Response) => {
+  res.send('Express Server for ' + API_PREFIX);
 });
 
 app.listen(PORT, async () => {
-    await setMongodb(MONGO_DB_URI);
-    await setRedis(REDIS_URI);
+  await setMongodb(MONGO_DB_URI);
+  await setRedis(REDIS_URI);
 
-    listenToOrdersStream();
+  listenToOrdersStream();
 
-    console.log(`Server is running at http://localhost:${PORT}`);
+  console.log(`Server is running at http://localhost:${PORT}`);
 });

@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { Routes, RouterModule } from '@angular/router'
+import { Routes, RouterModule } from '@angular/router';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -14,8 +14,8 @@ import { Orderconfirmation } from './components/order-confirmation/order-confirm
 const appRouter: Routes = [
   { path: '', component: HomeComponent },
   { path: 'orders', component: OrderComponent },
-  { path: 'orderconfirm/:id', component: Orderconfirmation }
-]
+  { path: 'orderconfirm/:id', component: Orderconfirmation },
+];
 
 @NgModule({
   declarations: [
@@ -23,15 +23,15 @@ const appRouter: Routes = [
     HoverCssDirective,
     HomeComponent,
     OrderComponent,
-    Orderconfirmation
+    Orderconfirmation,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     FormsModule,
-    RouterModule.forRoot(appRouter)
+    RouterModule.forRoot(appRouter),
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

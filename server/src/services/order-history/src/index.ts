@@ -1,10 +1,10 @@
-import express, { Express, Request, Response } from "express";
-import dotenv from "dotenv";
+import express, { Express, Request, Response } from 'express';
+import dotenv from 'dotenv';
 
-import { setRedis } from "../../../common/utils/redis/redis-wrapper";
-import { SERVER_CONFIG } from "../../../common/config/server-config";
-import * as OrderRepo from "../../../common//models/order-repo";
-import { router } from "./routes";
+import { setRedis } from '../../../common/utils/redis/redis-wrapper';
+import { SERVER_CONFIG } from '../../../common/config/server-config';
+import * as OrderRepo from '../../../common//models/order-repo';
+import { router } from './routes';
 
 dotenv.config();
 
@@ -19,13 +19,13 @@ const app: Express = express();
 app.use(express.json());
 app.use(API_PREFIX, router);
 
-app.get("/", (req: Request, res: Response) => {
-    res.send("Express Server for " + API_PREFIX);
+app.get('/', (req: Request, res: Response) => {
+  res.send('Express Server for ' + API_PREFIX);
 });
 
 app.listen(PORT, async () => {
-    await setRedis(REDIS_URI);
-    await OrderRepo.createRedisIndex();
+  await setRedis(REDIS_URI);
+  await OrderRepo.createRedisIndex();
 
-    console.log(`Server is running at http://localhost:${PORT}`);
+  console.log(`Server is running at http://localhost:${PORT}`);
 });

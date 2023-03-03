@@ -1,84 +1,79 @@
+import { createClient, commandOptions } from 'redis';
 import {
-    createClient, commandOptions
-} from "redis";
-import {
-    Client as RedisOmClient,
-    Entity as RedisEntity,
-    Schema as RedisSchema
-} from "redis-om";
+  Client as RedisOmClient,
+  Entity as RedisEntity,
+  Schema as RedisSchema,
+} from 'redis-om';
 
 type NodeRedisClientType = ReturnType<typeof createClient>;
 
-import { LoggerCls } from "../logger";
+import { LoggerCls } from '../logger';
 
 class RedisWrapperCls {
-    connectionURL: string;
-    nodeRedisClient: NodeRedisClientType | null;
-    redisOmClient: RedisOmClient | null;
+  connectionURL: string;
+  nodeRedisClient: NodeRedisClientType | null;
+  redisOmClient: RedisOmClient | null;
 
-    constructor(_connectionURL: string) {
-        this.connectionURL = _connectionURL;
-        this.nodeRedisClient = null;
-        this.redisOmClient = null;
+  constructor(_connectionURL: string) {
+    this.connectionURL = _connectionURL;
+    this.nodeRedisClient = null;
+    this.redisOmClient = null;
+  }
+
+  async getConnection() {
+    if (!this.nodeRedisClient && this.connectionURL) {
+      this.nodeRedisClient = createClient({ url: this.connectionURL });
+
+      this.nodeRedisClient.on('error', (err) => {
+        LoggerCls.error('Redis Client Error', err);
+      });
+
+      await this.nodeRedisClient.connect();
+      LoggerCls.info('redis-wrapper ', 'Connected successfully to Redis');
     }
+    return this.nodeRedisClient;
+  }
 
-    async getConnection() {
-        if (!this.nodeRedisClient && this.connectionURL) {
-            this.nodeRedisClient = createClient({ url: this.connectionURL });
-
-            this.nodeRedisClient.on('error', (err) => {
-                LoggerCls.error("Redis Client Error", err)
-            });
-
-            await this.nodeRedisClient.connect();
-            LoggerCls.info("redis-wrapper ", "Connected successfully to Redis");
-        }
-        return this.nodeRedisClient;
+  async closeConnection(): Promise<void> {
+    if (this.nodeRedisClient) {
+      await this.nodeRedisClient.disconnect();
     }
-
-
-    async closeConnection(): Promise<void> {
-        if (this.nodeRedisClient) {
-            await this.nodeRedisClient.disconnect();
-        }
-    }
+  }
 }
 
 let redisWrapperInst: RedisWrapperCls;
 
 const setRedis = async (_connectionURL: string) => {
-    redisWrapperInst = new RedisWrapperCls(_connectionURL);
-    const nodeRedisClient = await redisWrapperInst.getConnection();
+  redisWrapperInst = new RedisWrapperCls(_connectionURL);
+  const nodeRedisClient = await redisWrapperInst.getConnection();
 
-    //---RedisOM
-    if (nodeRedisClient) {
-        const redisOmPromObj = new RedisOmClient().use(nodeRedisClient);
-        redisWrapperInst.redisOmClient = await redisOmPromObj;
-    }
-    //---
-    return nodeRedisClient;
+  //---RedisOM
+  if (nodeRedisClient) {
+    const redisOmPromObj = new RedisOmClient().use(nodeRedisClient);
+    redisWrapperInst.redisOmClient = await redisOmPromObj;
+  }
+  //---
+  return nodeRedisClient;
 };
 
 const getRedis = (): RedisWrapperCls => {
-    return redisWrapperInst;
+  return redisWrapperInst;
 };
 const getNodeRedisClient = () => {
-    return redisWrapperInst.nodeRedisClient;
+  return redisWrapperInst.nodeRedisClient;
 };
 const getRedisOmClient = () => {
-    return redisWrapperInst.redisOmClient;
+  return redisWrapperInst.redisOmClient;
 };
 
 export {
-    setRedis,
-    getRedis,
-    getNodeRedisClient, commandOptions,
-    getRedisOmClient,
-    RedisEntity,
-    RedisSchema,
+  setRedis,
+  getRedis,
+  getNodeRedisClient,
+  commandOptions,
+  getRedisOmClient,
+  RedisEntity,
+  RedisSchema,
 };
 
-export type {
-    RedisWrapperCls,
-    NodeRedisClientType
-};
+export type { RedisWrapperCls, NodeRedisClientType };

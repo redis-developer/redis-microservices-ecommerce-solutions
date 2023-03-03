@@ -1,0 +1,17 @@
+{
+  "name": "redis-solutions-demo1",
+  "version": "1.0.0",
+  "description": "```sh # to start docker compose --profile backend up -d",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "format": "prettier --write ."
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "prettier": "^2.8.4"
+  }
+}

@@ -1,8 +1,8 @@
 declare namespace models {
-    interface CartItem {
-        product: Product;
-        quantity: number;
-    }
+  interface CartItem {
+    product: Product;
+    quantity: number;
+  }
   interface OrderItem {
     productId: number;
     qty: number;

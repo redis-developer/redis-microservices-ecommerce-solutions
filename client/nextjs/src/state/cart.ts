@@ -38,7 +38,7 @@ export default function cartReducer(
       return cart.filter((i) => i.product.id !== action.item.product.id);
     }
     case 'clear_cart': {
-        return [];
+      return [];
     }
     default: {
       throw Error('Unknown action: ' + (action as any).type);

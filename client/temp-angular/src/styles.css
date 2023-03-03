@@ -1,177 +1,178 @@
 /* You can add global styles to this file, and also import other style files */
-html,body {
-    height: 100%;
+html,
+body {
+  height: 100%;
 }
 body {
-    --rds-bg-1:#ECEFF1;
-    --rds-clr-1:#000000;
-    --rds-bg-2:#CFD8DC;
-    --rds-clr-2:#000000;
-    --rds-bg-3:#B0BEC5;
-    --rds-clr-3:#000000;
-    --rds-bg-4:#90A4AE;
-    --rds-clr-4:#000000;
-    --rds-bg-5:#78909C;
-    --rds-clr-5:#000000;
-    --rds-bg-6:#607D8B;
-    --rds-clr-6:#000000;
-    --rds-bg-7:#546E7A;
-    --rds-clr-7:#ffffff;
-    --rds-bg-8:#455A64;
-    --rds-clr-8:#ffffff;
-    --rds-bg-9:#37474F;
-    --rds-clr-9:#ffffff;
-    --rds-bg-10:#263238;
-    --rds-clr-10:#ffffff;
-    --rds-sec-bg-1:#FFF3E0;
-    --rds-sec-clr-1:#000000;
-    --rds-sec-bg-2:#FFE0B2;
-    --rds-sec-clr-2:#000000;
-    --rds-sec-bg-3:#FFCC80;
-    --rds-sec-clr-3:#000000;
-    --rds-sec-bg-4:#FFB74D;
-    --rds-sec-clr-4:#000000;
-    --rds-sec-bg-5:#FFA726;
-    --rds-sec-clr-5:#000000;
-    --rds-sec-bg-6:#FF9800;
-    --rds-sec-clr-6:#000000;
-    --rds-sec-bg-7:#FB8C00;
-    --rds-sec-clr-7:#000000;
-    --rds-sec-bg-8:#F57C00;
-    --rds-sec-clr-8:#000000;
-    --rds-sec-bg-9:#EF6C00;
-    --rds-sec-clr-9:#000000;
-    --rds-sec-bg-10:#E65100;
-    --rds-sec-clr-10:#000000;
-    --rds-space-1:2px;
-    --rds-space-2:4px;
-    --rds-space-3:8px;
-    --rds-space-4:12px;
-    --rds-space-5:16px;
-    --rds-space-6:20px;
-    --rds-space-7:24px;
-    --rds-space-8:32px;
-    --rds-space-9:40px;
-    --rds-space-10:48px;
-    --rds-font-1:10px;
-    --rds-font-2:12px;
-    --rds-font-3:14px;
-    --rds-font-4:16px;
-    --rds-font-5:18px;
-    --rds-font-6:20px;
-    --rds-font-7:24px;
-    --rds-font-8:32px;
-    --rds-font-9:40px;
-    --rds-font-10:48px;
-    display: flex;
-    flex-direction: column;
-    margin: 0;
-    padding: 0;
-    font-family: 'Roboto';
-    font-size: var(--rds-font-2);
+  --rds-bg-1: #eceff1;
+  --rds-clr-1: #000000;
+  --rds-bg-2: #cfd8dc;
+  --rds-clr-2: #000000;
+  --rds-bg-3: #b0bec5;
+  --rds-clr-3: #000000;
+  --rds-bg-4: #90a4ae;
+  --rds-clr-4: #000000;
+  --rds-bg-5: #78909c;
+  --rds-clr-5: #000000;
+  --rds-bg-6: #607d8b;
+  --rds-clr-6: #000000;
+  --rds-bg-7: #546e7a;
+  --rds-clr-7: #ffffff;
+  --rds-bg-8: #455a64;
+  --rds-clr-8: #ffffff;
+  --rds-bg-9: #37474f;
+  --rds-clr-9: #ffffff;
+  --rds-bg-10: #263238;
+  --rds-clr-10: #ffffff;
+  --rds-sec-bg-1: #fff3e0;
+  --rds-sec-clr-1: #000000;
+  --rds-sec-bg-2: #ffe0b2;
+  --rds-sec-clr-2: #000000;
+  --rds-sec-bg-3: #ffcc80;
+  --rds-sec-clr-3: #000000;
+  --rds-sec-bg-4: #ffb74d;
+  --rds-sec-clr-4: #000000;
+  --rds-sec-bg-5: #ffa726;
+  --rds-sec-clr-5: #000000;
+  --rds-sec-bg-6: #ff9800;
+  --rds-sec-clr-6: #000000;
+  --rds-sec-bg-7: #fb8c00;
+  --rds-sec-clr-7: #000000;
+  --rds-sec-bg-8: #f57c00;
+  --rds-sec-clr-8: #000000;
+  --rds-sec-bg-9: #ef6c00;
+  --rds-sec-clr-9: #000000;
+  --rds-sec-bg-10: #e65100;
+  --rds-sec-clr-10: #000000;
+  --rds-space-1: 2px;
+  --rds-space-2: 4px;
+  --rds-space-3: 8px;
+  --rds-space-4: 12px;
+  --rds-space-5: 16px;
+  --rds-space-6: 20px;
+  --rds-space-7: 24px;
+  --rds-space-8: 32px;
+  --rds-space-9: 40px;
+  --rds-space-10: 48px;
+  --rds-font-1: 10px;
+  --rds-font-2: 12px;
+  --rds-font-3: 14px;
+  --rds-font-4: 16px;
+  --rds-font-5: 18px;
+  --rds-font-6: 20px;
+  --rds-font-7: 24px;
+  --rds-font-8: 32px;
+  --rds-font-9: 40px;
+  --rds-font-10: 48px;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto';
+  font-size: var(--rds-font-2);
 }
 
 .rds-main-container {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
 }
 
 /* Header Starts */
 .rds-main-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background-color: var(--rds-bg-10);
-    color: var(--rds-clr-10);
-    z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--rds-bg-10);
+  color: var(--rds-clr-10);
+  z-index: 4;
 }
 
 .rds-header-left {
-    display: flex;
+  display: flex;
 }
 
 .rds-logo {
-    padding: var(--rds-space-3);
-    font-weight: 600;
-    font-size: var(--rds-font-7);
-    font-style: italic;
-    cursor: pointer;
+  padding: var(--rds-space-3);
+  font-weight: 600;
+  font-size: var(--rds-font-7);
+  font-style: italic;
+  cursor: pointer;
 }
 
 .rds-logo-title-small {
-    font-family: cursive;
-    font-size: var(--rds-space-4);
+  font-family: cursive;
+  font-size: var(--rds-space-4);
 }
 
 .rds-nav-bar-container {
-    display: flex;
-    margin-left: var(--rds-space-8);
+  display: flex;
+  margin-left: var(--rds-space-8);
 }
 
 .rds-nav-bar-item {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100px;
-    font-size: var(--rds-font-3);
-    font-weight: 600;
-    cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  font-size: var(--rds-font-3);
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .rds-nav-bar-item:hover {
-    background-color: var(--rds-sec-bg-8);
-    color: var(--rds-sec-clr-8);
+  background-color: var(--rds-sec-bg-8);
+  color: var(--rds-sec-clr-8);
 }
 
 .rds-nav-bar-item.active {
-    box-shadow: inset 0px -4px 0px 0px var(--rds-sec-bg-8);
+  box-shadow: inset 0px -4px 0px 0px var(--rds-sec-bg-8);
 }
 
 .rds-search-container {
-    display: flex;
-    background-color: #ffffff;
-    width: 30%;
-    border-radius: 8px;
+  display: flex;
+  background-color: #ffffff;
+  width: 30%;
+  border-radius: 8px;
 }
 
 .rds-search-txt {
-    flex-grow: 1;
-    padding: var(--rds-space-3);
-    color: #000000;
-    border: none;
-    outline: none;
-    border-radius: 8px 0 0 8px;
+  flex-grow: 1;
+  padding: var(--rds-space-3);
+  color: #000000;
+  border: none;
+  outline: none;
+  border-radius: 8px 0 0 8px;
 }
 
 .rds-search-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    padding: var(--rds-space-3);
-    background-color: var(--rds-sec-bg-7);
-    color: var(--rds-sec-clr-7);
-    border-radius: 0 8px 8px 0;
-    box-sizing: border-box;
-    font-size: var(--rds-font-4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  padding: var(--rds-space-3);
+  background-color: var(--rds-sec-bg-7);
+  color: var(--rds-sec-clr-7);
+  border-radius: 0 8px 8px 0;
+  box-sizing: border-box;
+  font-size: var(--rds-font-4);
 }
 
 .rds-search-btn:hover {
-    background-color: var(--rds-sec-bg-10);
-    color: var(--rds-sec-clr-10);
-    cursor: pointer;
+  background-color: var(--rds-sec-bg-10);
+  color: var(--rds-sec-clr-10);
+  cursor: pointer;
 }
 
 /* Header Ends */
 
 /* No Data Starts  */
 .rds-no-data {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-grow: 1;
-    color: #868686;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+  color: #868686;
 }
 
 /* No Data Ends */

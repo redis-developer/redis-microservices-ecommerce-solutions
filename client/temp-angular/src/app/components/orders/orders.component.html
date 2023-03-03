@@ -5,44 +5,70 @@
       {{ title }}<span class="rds-logo-title-small">{{ titleSmall }}</span>
     </div>
     <div class="rds-nav-bar-container">
-      <div class="rds-nav-bar-item" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" routerLink="/">Home</div>
-      <div class="rds-nav-bar-item" routerLinkActive="active" routerLink="/orders">Orders</div>
+      <div
+        class="rds-nav-bar-item"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        routerLink="/">
+        Home
+      </div>
+      <div
+        class="rds-nav-bar-item"
+        routerLinkActive="active"
+        routerLink="/orders">
+        Orders
+      </div>
     </div>
   </div>
-  </div>
+</div>
 <!-- Header Ends-->
 <div class="rds-order-container">
   <div class="rds-app-order-head">{{ heading }}</div>
   <div class="rds-app-order-body" *ngIf="orders && orders.length">
-    <div class="rds-app-order-tile-container mdc-elevation--z2"*ngFor="let item of orders; let i = index">
-      <div class="rds-app-order-tile-title {{i%2 != 0 ? 'rds-app-order-tile-title-odd' : ''}}">
+    <div
+      class="rds-app-order-tile-container mdc-elevation--z2"
+      *ngFor="let item of orders; let i = index">
+      <div
+        class="rds-app-order-tile-title {{
+          i % 2 != 0 ? 'rds-app-order-tile-title-odd' : ''
+        }}">
         <div class="rds-app-order-tile-title-left">
           <div class="rds-app-order-tile-title-left-title">ORDER</div>
-          <div>#{{item.orderId}}</div>
+          <div>#{{ item.orderId }}</div>
         </div>
         <div class="rds-app-order-tile-title-right">
           <div class="rds-app-order-tile-title-col">
             <div class="rds-app-order-tile-title-left-title">ORDER PLACED</div>
-            <div>{{item.orderDate}}</div>
+            <div>{{ item.orderDate }}</div>
           </div>
           <div class="rds-app-order-tile-title-col">
             <div class="rds-app-order-tile-title-left-title">TOTAL</div>
-            <div>${{item.total}}</div>
+            <div>${{ item.total }}</div>
           </div>
         </div>
       </div>
       <div class="rds-app-order-tile-body">
-        <div class="rds-app-order-tile-body-item" *ngFor="let childItem of item.items">
-            <div class="rds-app-order-tile-body-item-left">
-              <img class="rds-app-order-tile-body-item-img" src="{{childItem.styleImages.default.imageURL}}" />
+        <div
+          class="rds-app-order-tile-body-item"
+          *ngFor="let childItem of item.items">
+          <div class="rds-app-order-tile-body-item-left">
+            <img
+              class="rds-app-order-tile-body-item-img"
+              src="{{ childItem.styleImages.default.imageURL }}" />
+          </div>
+          <div class="rds-app-order-tile-body-item-right">
+            <div class="rds-app-order-tile-body-item-title">
+              {{ childItem.productDisplayName }}
             </div>
-            <div class="rds-app-order-tile-body-item-right">
-              <div class="rds-app-order-tile-body-item-title">{{ childItem.productDisplayName }}</div>
-              <div class="rds-app-order-tile-body-item-price">${{ childItem.price }}</div>
+            <div class="rds-app-order-tile-body-item-price">
+              ${{ childItem.price }}
             </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-  <div class="rds-no-data" *ngIf="!orders || !orders.length">{{ lblNoData }}</div>
+  <div class="rds-no-data" *ngIf="!orders || !orders.length">
+    {{ lblNoData }}
+  </div>
 </div>

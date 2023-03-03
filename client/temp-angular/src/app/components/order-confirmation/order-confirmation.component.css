@@ -1,53 +1,53 @@
 .rds-order-config-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    flex-grow: 1;
-    background-color: var(--rds-bg-1);
-    color: var(--rds-clr-1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+  background-color: var(--rds-bg-1);
+  color: var(--rds-clr-1);
 }
 
 .rds-order-config-main-title {
-    font-size: var(--rds-font-9);
+  font-size: var(--rds-font-9);
 }
 
-.rds-order-config-done-icon{
-    margin: var(--rds-space-5) 0;
-    color: #008000;
-    font-size: var(--rds-font-10);
-    animation: icon .5s;
+.rds-order-config-done-icon {
+  margin: var(--rds-space-5) 0;
+  color: #008000;
+  font-size: var(--rds-font-10);
+  animation: icon 0.5s;
 }
 
 .rds-order-config-thank-you {
-    font-size: 24px;
-    margin-bottom: 12px;
+  font-size: 24px;
+  margin-bottom: 12px;
 }
-.rds-order-config-btn{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    align-self: center;
-    margin: var(--rds-space-4) 0;
-    padding: var(--rds-space-2) var(--rds-space-5);
-    background: var(--rds-sec-bg-4);
-    color: var(--rds-sec-clr-4);
-    border-radius: 20px;
-    font-size: var(--rds-font-4);
+.rds-order-config-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  margin: var(--rds-space-4) 0;
+  padding: var(--rds-space-2) var(--rds-space-5);
+  background: var(--rds-sec-bg-4);
+  color: var(--rds-sec-clr-4);
+  border-radius: 20px;
+  font-size: var(--rds-font-4);
 }
 .rds-order-config-btn:hover {
-    background: var(--rds-sec-bg-6);
-    color: var(--rds-sec-clr-6);
-    cursor: pointer;
+  background: var(--rds-sec-bg-6);
+  color: var(--rds-sec-clr-6);
+  cursor: pointer;
 }
 @keyframes icon {
-    0% {
-        transform: scale(.5);
-    }
-    50% {
-        transform: scale(1.5);
-    }
-    100% {
-        transform: scale(1);
-    }
+  0% {
+    transform: scale(0.5);
+  }
+  50% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(1);
+  }
 }

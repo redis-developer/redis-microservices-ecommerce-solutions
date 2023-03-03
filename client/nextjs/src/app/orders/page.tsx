@@ -22,13 +22,14 @@ async function getData() {
   const result: api.OrderHistoryResponse = await response.json();
 
   return result.data?.map((order) => {
-    order.products = order.products.map((item) => {
-      item.product = products.find((product) => {
-        return product.id === item.productId;
-      }) as models.Product;
+    order.products =
+      order.products.map((item) => {
+        item.product = products.find((product) => {
+          return product.id === item.productId;
+        }) as models.Product;
 
-      return item;
-    }) ?? [];
+        return item;
+      }) ?? [];
 
     return order;
   });

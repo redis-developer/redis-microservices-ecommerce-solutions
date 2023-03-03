@@ -1,0 +1,11 @@
+node_modules
+.next
+.vscode
+public
+.angular
+
+cdn/
+database/fashion-dataset
+
+next-env.d.ts
+package-lock.json

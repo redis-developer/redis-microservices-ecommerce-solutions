@@ -31,3 +31,14 @@ Note:
 
 - [create-order](docs/api/create-order.md)
 - [view-order-history](docs/api/view-order-history.md)
+
+
+## Repo formatting
+
+Run prettier on all the files with the following:
+
+```sh
+npm i
+
+npm run format
+```
