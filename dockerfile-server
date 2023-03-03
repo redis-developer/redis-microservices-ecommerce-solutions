@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:18.14.2-alpine
 
 ARG INITIAL_WORK_DIR=/app
 ARG COMMON_BASE_PATH=server/src/common

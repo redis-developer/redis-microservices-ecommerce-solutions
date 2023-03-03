@@ -115,7 +115,7 @@ class NodeMongoWrapperCls {
                                     filter: _filter,
                                     stats: (endNow - startNow)
                                 };
-                                LoggerCls.info("find perf-", logData);
+                                // LoggerCls.info("find perf-", logData);
                                 //--perf ends--
                                 resolve(data);
                             })

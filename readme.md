@@ -14,13 +14,13 @@ docker compose --profile frontend up -d
 
 ```sh
 # to stop
-docker compose down
-
-# to rebuild image & start (after any code changes)
-docker compose up --build -d
+docker compose --profile backend down
 
 # to stop & also delete volumes (mongodb & redis data)
-docker compose down -v
+docker compose --profile backend down -v
+
+# to rebuild image & start (after any code changes)
+docker compose --profile backend --build up -d
 ```
 
 Note:

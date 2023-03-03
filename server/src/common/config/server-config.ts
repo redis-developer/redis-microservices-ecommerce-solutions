@@ -6,6 +6,19 @@ interface IApiResponseBody {
 //@ts-ignore
 const envVariables = process.env;
 
+const REDIS_STREAMS = {
+    ORDERS: {
+        STREAM_NAME: "ORDERS_STREAM",
+        CONSUMER_GROUP_NAME: "ORDERS_CON_GROUP",
+        PAYMENTS_CONSUMER_NAME: "PAYMENTS_CON",
+    },
+    PAYMENTS: {
+        STREAM_NAME: "PAYMENTS_STREAM",
+        CONSUMER_GROUP_NAME: "PAYMENTS_CON_GROUP",
+        ORDERS_CONSUMER_NAME: "ORDERS_CON",
+    }
+}
+
 const COLLECTIONS = {
     ORDERS: {
         collectionName: "orders",
@@ -47,11 +60,19 @@ const SERVER_CONFIG = {
             PREFIX: "/products",
             GET_PRODUCTS_BY_FILTER: "/getProductsByFilter"
         }
+    },
+    PAYMENTS_SERVICE: {
+        SERVER_ORIGIN: envVariables.PAYMENTS_SERVICE_CONTAINER_ORIGIN || "http://localhost",
+        PORT: envVariables.PAYMENTS_SERVICE_PORT || 3004,
+        API: {
+            PREFIX: "/payments"
+        }
     }
 }
 
 export {
     IApiResponseBody,
     SERVER_CONFIG,
-    COLLECTIONS
+    COLLECTIONS,
+    REDIS_STREAMS
 }

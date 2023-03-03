@@ -1,14 +1,19 @@
 import type { Document } from "../../../common/utils/mongodb/node-mongo-wrapper";
+import type { IMessageHandler } from "../../../common/utils/redis/redis-streams";
 import type { IProduct } from "../../../common/models/product";
 
 import * as yup from "yup";
 
-import { COLLECTIONS } from "../../../common/config/server-config";
-import { YupCls } from "../../../common/utils/yup";
+import { COLLECTIONS, REDIS_STREAMS } from "../../../common/config/server-config";
 import { ORDER_STATUS, DB_ROW_STATUS, IOrder } from "../../../common/models/order";
-import { getMongodb } from "../../../common/utils/mongodb/node-mongo-wrapper";
 import { USERS, MAX_DOCUMENTS_FETCH_LIMIT } from "../../../common/config/constants";
+
+import { YupCls } from "../../../common/utils/yup";
+import { LoggerCls } from "../../../common/utils/logger";
+import { getMongodb } from "../../../common/utils/mongodb/node-mongo-wrapper";
+import { getNodeRedisClient } from "../../../common/utils/redis/redis-wrapper";
 import * as OrderRepo from "../../../common/models/order-repo";
+import { listenToStream } from "../../../common/utils/redis/redis-streams";
 
 
 
@@ -120,6 +125,18 @@ const addOrderToMongoDB = async (order: IOrder) => {
     await mongodbWrapperInst.insertOne(COLLECTIONS.ORDERS.collectionName, COLLECTIONS.ORDERS.keyName, order);
 }
 
+const addOrderIdToStream = async (orderId: string) => {
+    const nodeRedisClient = getNodeRedisClient();
+    if (orderId && nodeRedisClient) {
+        const streamKeyName = REDIS_STREAMS.ORDERS.STREAM_NAME;
+        const entry = {
+            "orderId": orderId
+        }
+        const id = "*"; //* = auto generate
+        await nodeRedisClient.xAdd(streamKeyName, id, entry)
+    }
+}
+
 const createOrder = async (order: IOrder) => {
     if (order) {
         order.orderStatusCode = ORDER_STATUS.CREATED;
@@ -144,6 +161,8 @@ const createOrder = async (order: IOrder) => {
          */
         await addOrderToMongoDB(order);
 
+        await addOrderIdToStream(orderId);
+
         return orderId;
     }
     else {
@@ -151,6 +170,27 @@ const createOrder = async (order: IOrder) => {
     }
 }
 
+
+const updateOrderStatus: IMessageHandler = async (message, messageId) => {
+
+    if (message && message.orderId && message.paymentId) {
+        //TODO: update payment status in order mongoDB & Redis
+        LoggerCls.info(`payment received ${message.paymentId}`);
+    }
+
+}
+
+const listenToPaymentsStream = () => {
+
+    listenToStream({
+        streamKeyName: REDIS_STREAMS.PAYMENTS.STREAM_NAME,
+        groupName: REDIS_STREAMS.PAYMENTS.CONSUMER_GROUP_NAME,
+        consumerName: REDIS_STREAMS.PAYMENTS.ORDERS_CONSUMER_NAME,
+        processMessageCallback: updateOrderStatus
+    });
+}
+
 export {
-    createOrder
+    createOrder,
+    listenToPaymentsStream
 }

@@ -1,5 +1,5 @@
 import {
-    createClient
+    createClient, commandOptions
 } from "redis";
 import {
     Client as RedisOmClient,
@@ -72,7 +72,7 @@ const getRedisOmClient = () => {
 export {
     setRedis,
     getRedis,
-    getNodeRedisClient,
+    getNodeRedisClient, commandOptions,
     getRedisOmClient,
     RedisEntity,
     RedisSchema,
