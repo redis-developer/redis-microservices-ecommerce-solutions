@@ -1,13 +1,20 @@
 import type { IMessageHandler } from '../../../common/utils/redis/redis-streams';
 
-import { REDIS_STREAMS } from '../../../common/config/server-config';
+import {
+  COLLECTIONS,
+  REDIS_STREAMS,
+} from '../../../common/config/server-config';
 import { LoggerCls } from '../../../common/utils/logger';
+import { getMongodb } from '../../../common/utils/mongodb/node-mongo-wrapper';
+import { USERS } from '../../../common/config/constants';
+
 import {
   getNodeRedisClient,
   commandOptions,
 } from '../../../common/utils/redis/redis-wrapper';
 import { listenToStream } from '../../../common/utils/redis/redis-streams';
-import { ORDER_STATUS } from '../../../common/models/order';
+import { ORDER_STATUS, DB_ROW_STATUS } from '../../../common/models/order';
+import { IPayment } from '../../../common/models/payment';
 
 const addPaymentIdToStream = async (
   orderId: string,
@@ -31,17 +38,33 @@ const processPaymentForNewOrders: IMessageHandler = async (
   message,
   messageId,
 ) => {
-  if (message && message.orderId) {
+  if (message && message.orderId && message.orderAmount) {
     LoggerCls.info(`order received ${message.orderId}`);
 
-    //assuming payment is successful & entry in payments collection is made against that orderId
-    const paymentId = 'PAY_' + message.orderId;
+    //assume payment is processed successfully
+    const paymentStatus = ORDER_STATUS.PAYMENT_SUCCESS;
+    const orderAmount = parseFloat(message.orderAmount);
+    const payment: IPayment = {
+      orderId: message.orderId,
+      orderAmount: orderAmount,
+      paidAmount: orderAmount,
+      orderStatusCode: paymentStatus,
+      userId: USERS.DEFAULT,
+      createdOn: new Date(),
+      createdBy: USERS.DEFAULT,
+      lastUpdatedOn: null,
+      lastUpdatedBy: null,
+      statusCode: DB_ROW_STATUS.ACTIVE,
+    };
 
-    await addPaymentIdToStream(
-      message.orderId,
-      paymentId,
-      ORDER_STATUS.PAYMENT_SUCCESS,
+    const mongodbWrapperInst = getMongodb();
+    const paymentId = await mongodbWrapperInst.insertOne(
+      COLLECTIONS.PAYMENTS.collectionName,
+      COLLECTIONS.PAYMENTS.keyName,
+      payment,
     );
+
+    await addPaymentIdToStream(message.orderId, paymentId, paymentStatus);
   }
 };
 

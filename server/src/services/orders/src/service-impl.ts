@@ -147,12 +147,13 @@ const addOrderToMongoDB = async (order: IOrder) => {
   );
 };
 
-const addOrderIdToStream = async (orderId: string) => {
+const addOrderIdToStream = async (orderId: string, orderAmount: number) => {
   const nodeRedisClient = getNodeRedisClient();
   if (orderId && nodeRedisClient) {
     const streamKeyName = REDIS_STREAMS.ORDERS.STREAM_NAME;
     const entry = {
       orderId: orderId,
+      orderAmount: orderAmount.toFixed(2),
     };
     const id = '*'; //* = auto generate
     await nodeRedisClient.xAdd(streamKeyName, id, entry);
@@ -183,7 +184,11 @@ const createOrder = async (order: IOrder) => {
      */
     await addOrderToMongoDB(order);
 
-    await addOrderIdToStream(orderId);
+    let orderAmount = 0;
+    order.products?.forEach((product) => {
+      orderAmount += product.productPrice * product.qty;
+    });
+    await addOrderIdToStream(orderId, orderAmount);
 
     return orderId;
   } else {

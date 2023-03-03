@@ -28,6 +28,10 @@ const COLLECTIONS = {
     collectionName: 'products',
     keyName: 'productId',
   },
+  PAYMENTS: {
+    collectionName: 'payments',
+    keyName: 'paymentId',
+  },
 };
 
 const SERVER_CONFIG = {
