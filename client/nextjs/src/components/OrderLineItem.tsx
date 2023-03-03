@@ -5,7 +5,7 @@ interface Props {
 }
 
 export default function OrderLineItem({ item }: Props) {
-  const product = item.product;
+  const product = item.productData;
 
   return (
     <div className="flex flex-col md:flex-row justify-start items-start md:items-center w-full border-b px-2 border-gray-200">

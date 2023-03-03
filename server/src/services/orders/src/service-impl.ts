@@ -162,9 +162,9 @@ const addOrderIdToStream = async (orderId: string) => {
 const createOrder = async (order: IOrder) => {
   if (order) {
     order.orderStatusCode = ORDER_STATUS.CREATED;
-    order.userId = USERS.DEFAULT; //temp as no login/ users functionality
+    order.userId = order.userId ?? USERS.DEFAULT; //temp as no login/ users functionality
     order.createdOn = new Date();
-    order.createdBy = order.userId;
+    order.createdBy = order.userId ?? USERS.DEFAULT;
     order.lastUpdatedOn = null;
     order.lastUpdatedBy = null;
     order.statusCode = DB_ROW_STATUS.ACTIVE;

@@ -14,11 +14,12 @@ const API_NAMES = SERVER_CONFIG.ORDER_HISTORY_SERVICE.API;
 router.get(
   API_NAMES.VIEW_ORDER_HISTORY,
   async (req: Request, res: Response) => {
-    let userId = <string>req.query.userId;
     const result: IApiResponseBody = {
       data: null,
       error: null,
     };
+    const userId = JSON.parse(req.header('x-session') as string)
+      .userId as string;
 
     try {
       result.data = await viewOrderHistory(userId);

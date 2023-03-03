@@ -1,6 +1,7 @@
 'use client';
 
 import { CartContext, CartDispatchContext } from '@/components/CartProvider';
+import { createOrder } from '@/utils/services';
 import { useContext, useRef, useState } from 'react';
 import CartItem from './CartItem';
 
@@ -20,24 +21,14 @@ export default function Cart() {
   }
 
   async function submitOrder() {
-    await fetch(
-      `${process.env.NEXT_PUBLIC_API_GATEWAY_URI}/orders/createOrder`,
-      {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          products: cart.map((item) => {
-            return {
-              productId: item.product.id,
-              qty: item.quantity,
-              productPrice: item.product.price,
-            };
-          }) as models.OrderItem[],
-        }),
-      },
+    await createOrder(
+      cart.map((item) => {
+        return {
+          productId: item.product.id,
+          qty: item.quantity,
+          productPrice: item.product.price,
+        };
+      }),
     );
 
     cartDispatch({

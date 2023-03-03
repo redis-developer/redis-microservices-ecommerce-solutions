@@ -17,9 +17,13 @@ router.post(API_NAMES.CREATE_ORDER, async (req: Request, res: Response) => {
     data: null,
     error: null,
   };
+  const userId = JSON.parse(req.header('x-session') as string).userId as string;
 
   try {
-    result.data = await createOrder(body);
+    result.data = await createOrder({
+      ...body,
+      userId,
+    });
   } catch (err) {
     const pureErr = LoggerCls.getPureError(err);
     result.error = pureErr;

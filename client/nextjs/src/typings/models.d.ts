@@ -7,7 +7,7 @@ declare namespace models {
     productId: number;
     qty: number;
     productPrice: number;
-    product: Product;
+    productData: Product;
   }
 
   interface Order {

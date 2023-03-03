@@ -2,39 +2,10 @@ import OrderLineItem from '@/components/OrderLineItem';
 import Navbar from '@/components/Navbar';
 import { orderTotal } from '@/utils/calculate';
 import { stringDateToFormattedDate } from '@/utils/convert';
-
-async function getData() {
-  const response = await fetch(
-    `${process.env.API_GATEWAY_URI}/orderHistory/viewOrderHistory?userId=ADMIN`,
-    { cache: 'no-store' },
-  );
-  const productResponse = await fetch(
-    `${process.env.API_GATEWAY_URI}/products/getProductsByFilter`,
-    {
-      method: 'POST',
-      cache: 'no-store',
-    },
-  );
-  const productResults: api.ProductResponse = await productResponse.json();
-  const products = productResults.data.map((product) => product.data);
-  const result: api.OrderHistoryResponse = await response.json();
-
-  return result.data?.map((order) => {
-    order.products =
-      order.products.map((item) => {
-        item.product = products.find((product) => {
-          return product.id === item.productId;
-        }) as models.Product;
-
-        return item;
-      }) ?? [];
-
-    return order;
-  });
-}
+import { getOrderHistory } from '@/utils/services';
 
 export default async function Home() {
-  const orders = await getData();
+  const orders = await getOrderHistory();
 
   return (
     <>

@@ -1,21 +1,10 @@
 import ProductCard from '@/components/ProductCard';
 import Navbar from '@/components/Navbar';
 import Cart from '@/components/Cart';
-
-async function getData() {
-  const response = await fetch(
-    `${process.env.API_GATEWAY_URI}/products/getProductsByFilter`,
-    {
-      method: 'POST',
-      cache: 'no-store',
-    },
-  );
-  const result: api.ProductResponse = await response.json();
-  return result.data?.map((product) => product.data) ?? [];
-}
+import { getProducts } from '@/utils/services';
 
 export default async function Home() {
-  const products = await getData();
+  const products = await getProducts();
 
   return (
     <>
