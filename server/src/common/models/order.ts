@@ -20,9 +20,10 @@ interface IOrderProduct {
 }
 
 interface IOrder extends Document, ICommonFields {
-    orderId: string;
-    userId: string;
-    orderStatusCode: ORDER_STATUS;
+    orderId?: string;
+    userId?: string;
+    orderStatusCode?: ORDER_STATUS;
+    paymentId?: string;
 
     products?: IOrderProduct[];
     productsStr?: string;//temp redis om

@@ -171,11 +171,49 @@ const createOrder = async (order: IOrder) => {
 }
 
 
+const updateOrderStatusInRedis = async (orderId: string, paymentId: string, orderStatus: number) => {
+    const repository = OrderRepo.getRepository();
+    if (orderId && paymentId && repository) {
+        const order = await repository.fetch(orderId);
+        order.orderStatusCode = orderStatus;
+        order.paymentId = paymentId;
+        order.lastUpdatedOn = new Date();
+        order.lastUpdatedBy = USERS.DEFAULT;
+
+        await repository.save(order);
+    }
+}
+
+const updateOrderStatusInMongoDB = async (orderId: string, paymentId: string, orderStatus: number) => {
+    const mongodbWrapperInst = getMongodb();
+
+    const filter: Document = {
+        "_id": orderId
+    }
+    const updateDocument: IOrder = {
+        orderStatusCode: orderStatus,
+        paymentId: paymentId,
+        lastUpdatedOn: new Date(),
+        lastUpdatedBy: USERS.DEFAULT
+    }
+    const updateProp = {
+        $set: updateDocument
+    };
+
+    await mongodbWrapperInst.updateOne(COLLECTIONS.ORDERS.collectionName, filter, updateProp);
+}
+
 const updateOrderStatus: IMessageHandler = async (message, messageId) => {
 
-    if (message && message.orderId && message.paymentId) {
-        //TODO: update payment status in order mongoDB & Redis
+    if (message && message.orderId && message.paymentId && message.orderStatusCode) {
         LoggerCls.info(`payment received ${message.paymentId}`);
+
+        updateOrderStatusInRedis(message.orderId, message.paymentId, parseInt(message.orderStatusCode));
+        /**
+        * In real world scenario : can use RDI/ redis gears/ any other database to database sync strategy for REDIS-> MongoDB  data transfer.
+        * To keep it simple, adding  data to MongoDB manually in the same service
+        */
+        updateOrderStatusInMongoDB(message.orderId, message.paymentId, parseInt(message.orderStatusCode));
     }
 
 }

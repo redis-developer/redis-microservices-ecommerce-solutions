@@ -4,14 +4,16 @@ import { REDIS_STREAMS } from "../../../common/config/server-config";
 import { LoggerCls } from "../../../common/utils/logger";
 import { getNodeRedisClient, commandOptions } from "../../../common/utils/redis/redis-wrapper";
 import { listenToStream } from "../../../common/utils/redis/redis-streams";
+import { ORDER_STATUS } from "../../../common/models/order";
 
-const addPaymentIdToStream = async (orderId: string, paymentId: string) => {
+const addPaymentIdToStream = async (orderId: string, paymentId: string, orderStatus: number) => {
     const nodeRedisClient = getNodeRedisClient();
     if (orderId && nodeRedisClient) {
         const streamKeyName = REDIS_STREAMS.PAYMENTS.STREAM_NAME;
         const entry = {
             "orderId": orderId,
-            "paymentId": paymentId
+            "paymentId": paymentId,
+            "orderStatusCode": orderStatus.toString()
         }
         const id = "*"; //* = auto generate
         await nodeRedisClient.xAdd(streamKeyName, id, entry)
@@ -21,12 +23,12 @@ const addPaymentIdToStream = async (orderId: string, paymentId: string) => {
 const processPaymentForNewOrders: IMessageHandler = async (message, messageId) => {
 
     if (message && message.orderId) {
-        //TODO: make fake payment entry
-        const paymentId = "PAID" + message.orderId;
-
         LoggerCls.info(`order received ${message.orderId}`);
 
-        await addPaymentIdToStream(message.orderId, paymentId);
+        //assuming payment is successful & entry in payments collection is made against that orderId
+        const paymentId = "PAY_" + message.orderId;
+
+        await addPaymentIdToStream(message.orderId, paymentId, ORDER_STATUS.PAYMENT_SUCCESS);
     }
 
 }
