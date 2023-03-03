@@ -20,7 +20,7 @@ router.post(
     const result: IApiResponseBody = {
       data: null,
       error: null,
-      isFromCache: false
+      isFromCache: false,
     };
 
     try {
@@ -28,12 +28,16 @@ router.post(
       if (cachedData && cachedData.length) {
         result.data = cachedData;
         result.isFromCache = true;
-      }
-      else {
+      } else {
         const dbData = await getProductsByFilter(body);
 
-        if (body && body.productDisplayName && dbData.length) { //skipping cache for default empty search
-          RedisCacheAside.setDataInRedis(body, dbData, SERVER_CONFIG.CACHE_ASIDE_EXPIRY); //set async
+        if (body && body.productDisplayName && dbData.length) {
+          //skipping cache for default empty search
+          RedisCacheAside.setDataInRedis(
+            body,
+            dbData,
+            SERVER_CONFIG.CACHE_ASIDE_EXPIRY,
+          ); //set async
         }
         result.data = dbData;
       }
