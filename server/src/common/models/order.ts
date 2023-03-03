@@ -5,10 +5,11 @@ import { Document } from 'mongodb';
 import { DB_ROW_STATUS, ICommonFields } from './misc';
 
 enum ORDER_STATUS {
-  PAYMENT_FAIL = -2,
+  PAYMENT_FAIL = -3,
   DRAFT = 0,
   CREATED = 1,
-  PAYMENT_SUCCESS = 2,
+  PAYMENT_INITIATED = 2,
+  PAYMENT_SUCCESS = 3,
 }
 
 interface IOrderProduct {

@@ -5,6 +5,7 @@
     "comments": "Just to support import types for utils folder"
   },
   "dependencies": {
+    "crypto": "^1.0.1",
     "mongodb": "^4.8.0",
     "redis": "^4.3.0",
     "redis-om": "^0.3.6",

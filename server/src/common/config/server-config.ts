@@ -1,6 +1,7 @@
 interface IApiResponseBody {
   data: unknown;
   error: unknown;
+  isFromCache?: boolean;
 }
 
 //@ts-ignore
@@ -28,9 +29,14 @@ const COLLECTIONS = {
     collectionName: 'products',
     keyName: 'productId',
   },
+  PAYMENTS: {
+    collectionName: 'payments',
+    keyName: 'paymentId',
+  },
 };
 
 const SERVER_CONFIG = {
+  CACHE_ASIDE_EXPIRY: 30,   //in seconds
   MONGO_DB_URI:
     envVariables.MONGO_DB_CONNECTION_URI ||
     'mongodb://localhost:27017/dbFashion',
