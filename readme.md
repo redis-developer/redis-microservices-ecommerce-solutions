@@ -2,10 +2,7 @@
 
 ```sh
 # to start
-docker compose --profile backend up -d
-
-# frontend static build depends on backend, so it needs to happen after
-docker compose --profile frontend up -d
+docker compose up -d
 ```
 
 - Open **"http://localhost:4200/"** in browser
@@ -14,13 +11,13 @@ docker compose --profile frontend up -d
 
 ```sh
 # to stop
-docker compose --profile backend down
+docker compose down
 
 # to stop & also delete volumes (mongodb & redis data)
-docker compose --profile backend down -v
+docker compose down -v
 
 # to rebuild image & start (after any code changes)
-docker compose --profile backend --build up -d
+docker compose --build up -d
 ```
 
 Note:
@@ -31,7 +28,6 @@ Note:
 
 - [create-order](docs/api/create-order.md)
 - [view-order-history](docs/api/view-order-history.md)
-
 
 ## Repo formatting
 

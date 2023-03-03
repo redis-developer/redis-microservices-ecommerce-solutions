@@ -7,9 +7,7 @@ async function getData() {
     `${process.env.API_GATEWAY_URI}/products/getProductsByFilter`,
     {
       method: 'POST',
-      next: {
-        revalidate: 300,
-      },
+      cache: 'no-store',
     },
   );
   const result: api.ProductResponse = await response.json();
