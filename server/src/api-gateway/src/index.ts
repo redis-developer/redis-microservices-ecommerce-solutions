@@ -7,14 +7,11 @@ import { SERVER_CONFIG } from '../../common/config/server-config';
 import {
   setRedis,
   getNodeRedisClient,
-  NodeRedisClientType,
 } from '../../common/utils/redis/redis-wrapper';
 
 import {
   createProxyMiddleware,
-  Filter,
-  Options,
-  RequestHandler,
+  responseInterceptor,
 } from 'http-proxy-middleware';
 import { randomUUID } from 'crypto';
 
@@ -51,10 +48,33 @@ app.use(async (req, res, next) => {
 
   if (sessionInfo?.sessionData && sessionInfo?.sessionId) {
     req.session = sessionInfo?.sessionData; //req.session custom property
-    res.setHeader('set-authorization', sessionInfo?.sessionId);
+    req.sessionId = sessionInfo?.sessionId;
   }
   next();
 });
+
+const applyAuthToResponse = responseInterceptor(
+  async (responseBuffer, proxyRes, req, res) => {
+    // detect json responses
+    if (
+      !!proxyRes.headers['content-type'] &&
+      proxyRes.headers['content-type'].includes('application/json')
+    ) {
+      let data = JSON.parse(responseBuffer.toString('utf8'));
+
+      // manipulate JSON data here
+      if (!!(req as Request).sessionId) {
+        data = Object.assign({}, data, { auth: (req as Request).sessionId });
+      }
+
+      // return manipulated JSON
+      return JSON.stringify(data);
+    }
+
+    // return other content-types as-is
+    return responseBuffer;
+  },
+);
 
 app.use(
   ORDERS_API_PREFIX,
@@ -62,9 +82,11 @@ app.use(
     // http://localhost:3000/orders/bar -> http://localhost:3001/orders/bar
     target: ORDERS_API_URL,
     changeOrigin: true,
+    selfHandleResponse: true,
     onProxyReq(proxyReq, req, res) {
       proxyReq.setHeader('x-session', req.session);
     },
+    onProxyRes: applyAuthToResponse,
   }),
 );
 
@@ -73,10 +95,11 @@ app.use(
   createProxyMiddleware({
     target: ORDER_HISTORY_API_URL,
     changeOrigin: true,
-    cookieDomainRewrite: 'localhost',
+    selfHandleResponse: true,
     onProxyReq(proxyReq, req, res) {
       proxyReq.setHeader('x-session', req.session);
     },
+    onProxyRes: applyAuthToResponse,
   }),
 );
 
@@ -94,7 +117,6 @@ app.listen(PORT, async () => {
   console.log(`Server is running at http://localhost:${PORT}`);
 });
 
-
 const getSessionInfo = async (authHeader?: string) => {
   let sessionId = '';
   let sessionData: string | null = '';
@@ -109,13 +131,16 @@ const getSessionInfo = async (authHeader?: string) => {
   if (nodeRedisClient) {
     const exists = await nodeRedisClient.exists(sessionId);
     if (!exists) {
-      await nodeRedisClient.set(sessionId, JSON.stringify({ userId: 'USR_' + randomUUID() })); //random new userId
+      await nodeRedisClient.set(
+        sessionId,
+        JSON.stringify({ userId: 'USR_' + randomUUID() }),
+      ); //random new userId
     }
     sessionData = await nodeRedisClient.get(sessionId);
   }
 
   return {
     sessionId: sessionId,
-    sessionData: sessionData
-  }
-}
+    sessionData: sessionData,
+  };
+};

@@ -116,8 +116,6 @@ services:
         BUILD_BASE_PATH: client/nextjs
         API_GATEWAY_URI: ${API_GATEWAY_URI}
         NEXT_PUBLIC_API_GATEWAY_URI: ${NEXT_PUBLIC_API_GATEWAY_URI}
-        USER: ${USER}
-        NEXT_PUBLIC_USER: ${NEXT_PUBLIC_USER}
     ports:
       - '${FRONTEND_CLIENT_PORT}:${FRONTEND_CLIENT_PORT}'
     env_file:

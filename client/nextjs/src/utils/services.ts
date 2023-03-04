@@ -1,22 +1,17 @@
 let authorization: string;
 
 async function request(input: RequestInfo | URL, init: RequestInit = {}) {
-  if (!authorization) {
-    if (
-      typeof process.env.NEXT_PUBLIC_USER === 'string' &&
-      process.env.NEXT_PUBLIC_USER.length > 0
-    ) {
-      authorization = process.env.NEXT_PUBLIC_USER;
-    } else if (!!process.env.USER) {
-      authorization = process.env.USER;
-    }
-  }
+  const clientSide = typeof window !== 'undefined';
 
   init.headers = {
     ...init.headers,
     Accept: 'application/json',
     'Content-Type': 'application/json',
   };
+
+  if (clientSide) {
+    init.credentials = 'include';
+  }
 
   if (!!authorization) {
     (init.headers as any).Authorization = `Bearer ${authorization}`;
@@ -25,21 +20,19 @@ async function request(input: RequestInfo | URL, init: RequestInit = {}) {
   init.cache = 'no-store';
 
   const response = await fetch(input, init);
-  const auth = response.headers.get('set-authorization');
+  const result = await response.json();
 
-  if (!!auth) {
-    authorization = auth;
+  if (!!result.auth && clientSide) {
+    authorization = result.auth;
   }
 
-  return response;
+  return result;
 }
 
 export async function getOrderHistory(): Promise<models.Order[]> {
-  const response = await request(
-    `${process.env.API_GATEWAY_URI}/orderHistory/viewOrderHistory`,
+  const results: api.OrderHistoryResponse = await request(
+    `${process.env.NEXT_PUBLIC_API_GATEWAY_URI}/orderHistory/viewOrderHistory`,
   );
-
-  const results: api.OrderHistoryResponse = await response.json();
 
   return results.data;
 }
@@ -59,12 +52,12 @@ export async function createOrder(
 }
 
 export async function getProducts(): Promise<models.Product[]> {
-  const response = await request(
+  const result: api.ProductResponse = await request(
     `${process.env.API_GATEWAY_URI}/products/getProductsByFilter`,
     {
       method: 'POST',
     },
   );
-  const result: api.ProductResponse = await response.json();
+
   return result.data?.map((product) => product.data) ?? [];
 }

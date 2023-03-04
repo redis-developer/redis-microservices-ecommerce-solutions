@@ -1,11 +1,24 @@
+'use client';
+
 import OrderLineItem from '@/components/OrderLineItem';
 import Navbar from '@/components/Navbar';
 import { orderTotal } from '@/utils/calculate';
 import { stringDateToFormattedDate } from '@/utils/convert';
 import { getOrderHistory } from '@/utils/services';
+import { useEffect, useState } from 'react';
 
-export default async function Home() {
-  const orders = await getOrderHistory();
+export default function Home() {
+  const [orders, setOrders] = useState<models.Order[]>();
+
+  useEffect(() => {
+    (async () => {
+      setOrders(await getOrderHistory());
+    })();
+  }, []);
+
+  if (!orders) {
+    return;
+  }
 
   return (
     <>

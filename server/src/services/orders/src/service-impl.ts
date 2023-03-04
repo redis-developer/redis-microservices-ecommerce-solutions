@@ -147,14 +147,18 @@ const addOrderToMongoDB = async (order: IOrder) => {
   );
 };
 
-const addOrderIdToStream = async (orderId: string, orderAmount: number, userId: string) => {
+const addOrderIdToStream = async (
+  orderId: string,
+  orderAmount: number,
+  userId: string,
+) => {
   const nodeRedisClient = getNodeRedisClient();
   if (orderId && nodeRedisClient) {
     const streamKeyName = REDIS_STREAMS.ORDERS.STREAM_NAME;
     const entry = {
       orderId: orderId,
       orderAmount: orderAmount.toFixed(2),
-      userId: userId
+      userId: userId,
     };
     const id = '*'; //* = auto generate
     await nodeRedisClient.xAdd(streamKeyName, id, entry);
@@ -203,7 +207,7 @@ const updateOrderStatusInRedis = async (
   orderId: string,
   paymentId: string,
   orderStatus: number,
-  userId: string
+  userId: string,
 ) => {
   const repository = OrderRepo.getRepository();
   if (orderId && paymentId && repository) {
@@ -221,7 +225,7 @@ const updateOrderStatusInMongoDB = async (
   orderId: string,
   paymentId: string,
   orderStatus: number,
-  userId: string
+  userId: string,
 ) => {
   const mongodbWrapperInst = getMongodb();
 
@@ -259,7 +263,7 @@ const updateOrderStatus: IMessageHandler = async (message, messageId) => {
       message.orderId,
       message.paymentId,
       parseInt(message.orderStatusCode),
-      message.userId
+      message.userId,
     );
     /**
      * In real world scenario : can use RDI/ redis gears/ any other database to database sync strategy for REDIS-> MongoDB  data transfer.
@@ -269,7 +273,7 @@ const updateOrderStatus: IMessageHandler = async (message, messageId) => {
       message.orderId,
       message.paymentId,
       parseInt(message.orderStatusCode),
-      message.userId
+      message.userId,
     );
   }
 };

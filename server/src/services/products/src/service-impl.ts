@@ -10,7 +10,7 @@ interface IProductFilter {
   productDisplayName: string;
 }
 
-const getProductsByFilter = async (productFilter: IProductFilter) => {
+async function getProductsByFilter(productFilter: IProductFilter) {
   const mongodbWrapperInst = getMongodb();
   const filter: Document = {
     statusCode: {
@@ -59,6 +59,6 @@ const getProductsByFilter = async (productFilter: IProductFilter) => {
     sort,
   );
   return products;
-};
+}
 
 export { getProductsByFilter };
