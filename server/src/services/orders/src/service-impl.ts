@@ -147,13 +147,14 @@ const addOrderToMongoDB = async (order: IOrder) => {
   );
 };
 
-const addOrderIdToStream = async (orderId: string, orderAmount: number) => {
+const addOrderIdToStream = async (orderId: string, orderAmount: number, userId: string) => {
   const nodeRedisClient = getNodeRedisClient();
   if (orderId && nodeRedisClient) {
     const streamKeyName = REDIS_STREAMS.ORDERS.STREAM_NAME;
     const entry = {
       orderId: orderId,
       orderAmount: orderAmount.toFixed(2),
+      userId: userId
     };
     const id = '*'; //* = auto generate
     await nodeRedisClient.xAdd(streamKeyName, id, entry);
@@ -162,10 +163,12 @@ const addOrderIdToStream = async (orderId: string, orderAmount: number) => {
 
 const createOrder = async (order: IOrder) => {
   if (order) {
+    const userId = order.userId || USERS.DEFAULT; //temp as no login/ users functionality;
+
     order.orderStatusCode = ORDER_STATUS.CREATED;
-    order.userId = order.userId ?? USERS.DEFAULT; //temp as no login/ users functionality
+    order.userId = userId;
     order.createdOn = new Date();
-    order.createdBy = order.userId ?? USERS.DEFAULT;
+    order.createdBy = userId;
     order.lastUpdatedOn = null;
     order.lastUpdatedBy = null;
     order.statusCode = DB_ROW_STATUS.ACTIVE;
@@ -188,7 +191,7 @@ const createOrder = async (order: IOrder) => {
     order.products?.forEach((product) => {
       orderAmount += product.productPrice * product.qty;
     });
-    await addOrderIdToStream(orderId, orderAmount);
+    await addOrderIdToStream(orderId, orderAmount, userId);
 
     return orderId;
   } else {
@@ -200,6 +203,7 @@ const updateOrderStatusInRedis = async (
   orderId: string,
   paymentId: string,
   orderStatus: number,
+  userId: string
 ) => {
   const repository = OrderRepo.getRepository();
   if (orderId && paymentId && repository) {
@@ -207,7 +211,7 @@ const updateOrderStatusInRedis = async (
     order.orderStatusCode = orderStatus;
     order.paymentId = paymentId;
     order.lastUpdatedOn = new Date();
-    order.lastUpdatedBy = USERS.DEFAULT;
+    order.lastUpdatedBy = userId;
 
     await repository.save(order);
   }
@@ -217,6 +221,7 @@ const updateOrderStatusInMongoDB = async (
   orderId: string,
   paymentId: string,
   orderStatus: number,
+  userId: string
 ) => {
   const mongodbWrapperInst = getMongodb();
 
@@ -227,7 +232,7 @@ const updateOrderStatusInMongoDB = async (
     orderStatusCode: orderStatus,
     paymentId: paymentId,
     lastUpdatedOn: new Date(),
-    lastUpdatedBy: USERS.DEFAULT,
+    lastUpdatedBy: userId,
   };
   const updateProp = {
     $set: updateDocument,
@@ -245,7 +250,8 @@ const updateOrderStatus: IMessageHandler = async (message, messageId) => {
     message &&
     message.orderId &&
     message.paymentId &&
-    message.orderStatusCode
+    message.orderStatusCode &&
+    message.userId
   ) {
     LoggerCls.info(`payment received ${message.paymentId}`);
 
@@ -253,6 +259,7 @@ const updateOrderStatus: IMessageHandler = async (message, messageId) => {
       message.orderId,
       message.paymentId,
       parseInt(message.orderStatusCode),
+      message.userId
     );
     /**
      * In real world scenario : can use RDI/ redis gears/ any other database to database sync strategy for REDIS-> MongoDB  data transfer.
@@ -262,6 +269,7 @@ const updateOrderStatus: IMessageHandler = async (message, messageId) => {
       message.orderId,
       message.paymentId,
       parseInt(message.orderStatusCode),
+      message.userId
     );
   }
 };

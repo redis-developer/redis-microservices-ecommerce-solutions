@@ -89,6 +89,7 @@ services:
     depends_on:
       - redis_server
       - mongodb_server
+      - orders_service
 
   api_gateway:
     container_name: api_gateway

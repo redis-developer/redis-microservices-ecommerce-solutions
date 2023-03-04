@@ -47,23 +47,12 @@ const app: Express = express();
 app.use(cors());
 app.use(async (req, res, next) => {
   const authorizationHeader = req.header('Authorization');
-  let sessionId = '';
+  const sessionInfo = await getSessionInfo(authorizationHeader);
 
-  if (!!authorizationHeader) {
-    sessionId = authorizationHeader.split(/\s/)[1] as string;
-  } else {
-    sessionId = randomUUID();
+  if (sessionInfo?.sessionData && sessionInfo?.sessionId) {
+    req.session = sessionInfo?.sessionData; //req.session custom property
+    res.setHeader('set-authorization', sessionInfo?.sessionId);
   }
-
-  const redis = getNodeRedisClient() as NodeRedisClientType;
-
-  if (!(await redis.exists(sessionId))) {
-    await redis.set(sessionId, JSON.stringify({ userId: randomUUID() }));
-  }
-
-  req.session = (await redis.get(sessionId)) as string;
-  res.setHeader('set-authorization', sessionId);
-
   next();
 });
 
@@ -104,3 +93,29 @@ app.listen(PORT, async () => {
 
   console.log(`Server is running at http://localhost:${PORT}`);
 });
+
+
+const getSessionInfo = async (authHeader?: string) => {
+  let sessionId = '';
+  let sessionData: string | null = '';
+
+  if (!!authHeader) {
+    sessionId = authHeader.split(/\s/)[1];
+  } else {
+    sessionId = 'SES_' + randomUUID(); //random new sessionId
+  }
+
+  const nodeRedisClient = getNodeRedisClient();
+  if (nodeRedisClient) {
+    const exists = await nodeRedisClient.exists(sessionId);
+    if (!exists) {
+      await nodeRedisClient.set(sessionId, JSON.stringify({ userId: 'USR_' + randomUUID() })); //random new userId
+    }
+    sessionData = await nodeRedisClient.get(sessionId);
+  }
+
+  return {
+    sessionId: sessionId,
+    sessionData: sessionData
+  }
+}

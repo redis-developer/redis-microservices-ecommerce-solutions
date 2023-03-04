@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 
-import { HTTP_STATUS_CODES } from '../../../common/config/constants';
+import { HTTP_STATUS_CODES, USERS } from '../../../common/config/constants';
 import { LoggerCls } from '../../../common/utils/logger';
 import {
   SERVER_CONFIG,
@@ -17,13 +17,14 @@ router.post(API_NAMES.CREATE_ORDER, async (req: Request, res: Response) => {
     data: null,
     error: null,
   };
-  const userId = JSON.parse(req.header('x-session') as string).userId as string;
 
+  const sessionData = req.header('x-session');
+  const userId = sessionData ? JSON.parse(sessionData).userId : USERS.DEFAULT;
+  if (body && userId) {
+    body.userId = userId;
+  }
   try {
-    result.data = await createOrder({
-      ...body,
-      userId,
-    });
+    result.data = await createOrder(body);
   } catch (err) {
     const pureErr = LoggerCls.getPureError(err);
     result.error = pureErr;

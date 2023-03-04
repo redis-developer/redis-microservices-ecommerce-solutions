@@ -3,8 +3,10 @@
 ## Request
 
 ```json
-GET http://localhost:3000/orderHistory/viewOrderHistory?userId=ADMIN
+GET http://localhost:3000/orderHistory/viewOrderHistory
 ```
+
+Note : auth header Bearer token required
 
 ## Response
 

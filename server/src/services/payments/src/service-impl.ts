@@ -20,6 +20,7 @@ const addPaymentIdToStream = async (
   orderId: string,
   paymentId: string,
   orderStatus: number,
+  userId: string
 ) => {
   const nodeRedisClient = getNodeRedisClient();
   if (orderId && nodeRedisClient) {
@@ -28,6 +29,7 @@ const addPaymentIdToStream = async (
       orderId: orderId,
       paymentId: paymentId,
       orderStatusCode: orderStatus.toString(),
+      userId: userId
     };
     const id = '*'; //* = auto generate
     await nodeRedisClient.xAdd(streamKeyName, id, entry);
@@ -39,6 +41,7 @@ const processPaymentForNewOrders: IMessageHandler = async (
   messageId,
 ) => {
   if (message && message.orderId && message.orderAmount) {
+    const userId = message.userId;
     LoggerCls.info(`order received ${message.orderId}`);
 
     //assume payment is processed successfully
@@ -49,9 +52,9 @@ const processPaymentForNewOrders: IMessageHandler = async (
       orderAmount: orderAmount,
       paidAmount: orderAmount,
       orderStatusCode: paymentStatus,
-      userId: USERS.DEFAULT,
+      userId: userId,
       createdOn: new Date(),
-      createdBy: USERS.DEFAULT,
+      createdBy: userId,
       lastUpdatedOn: null,
       lastUpdatedBy: null,
       statusCode: DB_ROW_STATUS.ACTIVE,
@@ -64,7 +67,7 @@ const processPaymentForNewOrders: IMessageHandler = async (
       payment,
     );
 
-    await addPaymentIdToStream(message.orderId, paymentId, paymentStatus);
+    await addPaymentIdToStream(message.orderId, paymentId, paymentStatus, userId);
   }
 };
 
