@@ -20,15 +20,15 @@ export default function OrderLineItem({ item }: Props) {
       </div>
       <div className="flex flex-col md:flex-row items-start w-full space-y-4 md:space-y-0">
         <div className="flex flex-col justify-start items-start w-full space-y-8">
-          <h5 className="text-lg dark:text-white font-semibold leading-6 text-gray-800">
+          <h5 className="text-lg font-semibold leading-6 text-gray-800">
             {product.productDisplayName}
           </h5>
         </div>
         <div className="flex space-x-8 justify-end items-start w-full">
-          <p className="text-base dark:text-white xl:text-lg leading-6">
+          <p className="text-base xl:text-lg leading-6">
             ${Number(product.price).toLocaleString('en')} x {item.qty}
           </p>
-          <p className="text-base dark:text-white xl:text-lg leading-6 font-semibold">
+          <p className="text-base xl:text-lg leading-6 font-semibold">
             ${Number(product.price * item.qty).toLocaleString('en')}
           </p>
         </div>

@@ -9,10 +9,6 @@ async function request(input: RequestInfo | URL, init: RequestInit = {}) {
     'Content-Type': 'application/json',
   };
 
-  if (clientSide) {
-    init.credentials = 'include';
-  }
-
   if (!!authorization) {
     (init.headers as any).Authorization = `Bearer ${authorization}`;
   }

@@ -25,13 +25,13 @@ export default function ProductCard({ product }: Props) {
         />
         <hr />
         <div className="p-6 bg-slate-100">
-          <h5 className="mb-2 h-20 text-xl font-medium leading-tight text-neutral-800 dark:text-neutral-50">
+          <h5 className="mb-2 h-20 text-xl font-medium leading-tight text-neutral-800">
             {product.productDisplayName}
           </h5>
-          <p className="mb-4 text-base text-neutral-600 dark:text-neutral-200">
+          <p className="mb-4 text-base text-neutral-600">
             {getShortName(product.productDescriptors.description.value)}
           </p>
-          <p className="mb-4 text-base font-bold text-neutral-600 dark:text-neutral-200">
+          <p className="mb-4 text-base font-bold text-neutral-600">
             ${Number(product.price).toLocaleString('en')}
           </p>
           <button

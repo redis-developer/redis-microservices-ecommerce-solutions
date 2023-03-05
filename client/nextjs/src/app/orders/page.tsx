@@ -31,7 +31,7 @@ export default function Home() {
               <div
                 key={order.orderId}
                 className="flex flex-col justify-start items-start my-4 w-full shadow-lg">
-                <div className="w-full flex flex-row justify-between items-start dark:text-white leading-6 xl:leading-5 text-gray-800 bg-gray-200 p-2">
+                <div className="w-full flex flex-row justify-between items-start leading-6 xl:leading-5 text-gray-800 bg-gray-200 p-2">
                   <div>
                     <h5 className="text-md font-bold uppercase">Order</h5>
                     <p className="text-sm">#{order.orderId}</p>
