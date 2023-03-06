@@ -1,4 +1,7 @@
 declare namespace models {
+  interface Alert {
+    message: string;
+  }
   interface CartItem {
     product: Product;
     quantity: number;

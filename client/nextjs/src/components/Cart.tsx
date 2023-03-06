@@ -1,12 +1,15 @@
 'use client';
 
 import { CartContext, CartDispatchContext } from '@/components/CartProvider';
+import Alert from '@/components/Alert';
 import { createOrder } from '@/utils/services';
 import { useContext, useRef, useState } from 'react';
 import CartItem from './CartItem';
+import { createPortal } from 'react-dom';
 
 export default function Cart() {
   const [open, setOpen] = useState(false);
+  const [notification, setNotification] = useState({ title: '', message: '' });
   const overlay = useRef<HTMLDivElement>(null);
   const cart = useContext(CartContext);
   const cartDispatch = useContext(CartDispatchContext);
@@ -21,7 +24,7 @@ export default function Cart() {
   }
 
   async function submitOrder() {
-    await createOrder(
+    const order = await createOrder(
       cart.map((item) => {
         return {
           productId: item.product.id,
@@ -36,6 +39,12 @@ export default function Cart() {
     });
 
     toggleOpen();
+
+    setNotification({
+      title: `Order #${order.data}`,
+      message:
+        'Order placed, click on the "Orders" tab to see your order status!',
+    });
   }
 
   return (
@@ -102,6 +111,9 @@ export default function Cart() {
           </div>
         </div>
       )}
+      {!!notification &&
+        typeof window !== 'undefined' &&
+        createPortal(<Alert {...notification} />, document.body)}
     </>
   );
 }

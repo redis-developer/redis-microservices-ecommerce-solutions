@@ -35,8 +35,8 @@ export async function getOrderHistory(): Promise<models.Order[]> {
 
 export async function createOrder(
   order: Omit<models.OrderItem, 'productData'>[],
-): Promise<void> {
-  await request(
+): Promise<{ data: string }> {
+  return await request(
     `${process.env.NEXT_PUBLIC_API_GATEWAY_URI}/orders/createOrder`,
     {
       method: 'POST',
@@ -52,9 +52,11 @@ export async function getProducts(search?: string): Promise<models.Product[]> {
     `${process.env.API_GATEWAY_URI}/products/getProductsByFilter`,
     {
       method: 'POST',
-      body: !search ? undefined : JSON.stringify({
-        productDisplayName: search
-      })
+      body: !search
+        ? undefined
+        : JSON.stringify({
+            productDisplayName: search,
+          }),
     },
   );
 
