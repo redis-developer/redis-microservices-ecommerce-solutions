@@ -14,6 +14,7 @@ async function request(input: RequestInfo | URL, init: RequestInit = {}) {
   }
 
   init.cache = 'no-store';
+  init.next = { revalidate: 0 };
 
   const response = await fetch(input, init);
   const result = await response.json();

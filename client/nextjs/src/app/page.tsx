@@ -3,8 +3,13 @@ import Navbar from '@/components/Navbar';
 import Cart from '@/components/Cart';
 import { getProducts } from '@/utils/services';
 
-export default async function Home({ params }: { params: { search: string } }) {
-  const products = await getProducts(params?.search);
+export default async function Home({
+  searchParams,
+}: {
+  params: { search: string };
+  searchParams: { search: string };
+}) {
+  const products = await getProducts(searchParams?.search);
 
   return (
     <>

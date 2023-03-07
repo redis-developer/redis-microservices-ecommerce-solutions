@@ -18,7 +18,10 @@ export default function Navbar({ path = '' }: NavbarProps) {
   return (
     <nav className="fixed w-full px-5 flex justify-between items-center h-14 bg-slate-600 drop-shadow-md">
       <div>
-        <Link href="/" className="text-white text-2xl font-semibold italic">
+        <Link
+          prefetch={false}
+          href="/"
+          className="text-white text-2xl font-semibold italic">
           Redis Shopping
         </Link>
       </div>
@@ -27,7 +30,7 @@ export default function Navbar({ path = '' }: NavbarProps) {
         id="main-nav"
         className="bg-gray-700 flex space-y-0 relative top-0 right-0 p-0 flex-row h-full flex-grow justify-between items-center ml-10 bg-inherit">
         <div className="order-first flex flex-row items-center h-full text-white space-y-0 space-x-3">
-          <Link className={ordersClass} href="/orders">
+          <Link prefetch={false} className={ordersClass} href="/orders">
             Orders
           </Link>
         </div>

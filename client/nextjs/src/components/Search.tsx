@@ -12,7 +12,8 @@ export default function Search() {
         const data: { search: string } = Object.fromEntries(
           new FormData(ev.currentTarget),
         ) as { search: string };
-        router.push(`/products/${data.search}`);
+        router.push(`/?search=${data.search}`);
+        router.replace(`/?search=${data.search}`);
       }}
       className="order-last mb-0 pr-8"
       action="">
