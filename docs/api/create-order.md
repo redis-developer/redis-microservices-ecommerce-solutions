@@ -23,6 +23,7 @@ POST http://localhost:3000/orders/createOrder
 ```json
 {
   "data": "63f5f8dc3696d145a45775a6", //orderId
-  "error": null
+  "error": null,
+  "auth": "SES_94ff24a8-65b5-4795-9227-99906a43884e"
 }
 ```

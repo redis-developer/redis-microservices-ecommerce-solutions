@@ -6,7 +6,9 @@
 GET http://localhost:3000/orderHistory/viewOrderHistory
 ```
 
-Note : auth header Bearer token required
+Note : Need Bearer token authentication for viewing order history.
+
+Request Header -> Authorization (type) -> Bearer Token -> use "auth" Token received from [createOrder](./create-order.md) API response
 
 ## Response
 
