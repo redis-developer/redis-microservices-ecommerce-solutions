@@ -1,8 +1,9 @@
+import type { ICommonFields } from './misc';
 import type { IProductData } from './product';
 
 import { Document } from 'mongodb';
 
-import { DB_ROW_STATUS, ICommonFields } from './misc';
+import { DB_ROW_STATUS } from './misc';
 
 enum ORDER_STATUS {
   PAYMENT_FAIL = -3,
@@ -29,4 +30,5 @@ interface IOrder extends Document, ICommonFields {
   productsStr?: string; //temp redis om
 }
 
-export { IOrder, ORDER_STATUS, DB_ROW_STATUS };
+export { ORDER_STATUS, DB_ROW_STATUS };
+export type { IOrder };

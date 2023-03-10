@@ -1,6 +1,7 @@
+import type { ICommonFields } from './misc';
+
 import { Document } from 'mongodb';
 
-import { ICommonFields } from './misc';
 import { ORDER_STATUS } from './order';
 
 interface IPayment extends Document, ICommonFields {

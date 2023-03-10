@@ -1,11 +1,10 @@
-import express, { Express, Request, Response } from 'express';
 import dotenv from 'dotenv';
-
-import { setMongodb } from '../../../common/utils/mongodb/node-mongo-wrapper';
-import { setRedis } from '../../../common/utils/redis/redis-wrapper';
-import { SERVER_CONFIG } from '../../../common/config/server-config';
+import express, { Express, Request, Response } from 'express';
 
 import { listenToOrdersStream } from './service-impl';
+import { SERVER_CONFIG } from '../../../common/config/server-config';
+import { setMongodb } from '../../../common/utils/mongodb/node-mongo-wrapper';
+import { setRedis } from '../../../common/utils/redis/redis-wrapper';
 
 dotenv.config();
 

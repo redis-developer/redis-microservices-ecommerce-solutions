@@ -1,28 +1,24 @@
+import type { IProduct } from '../../../common/models/product';
+import type { IOrder } from '../../../common/models/order';
 import type { Document } from '../../../common/utils/mongodb/node-mongo-wrapper';
 import type { IMessageHandler } from '../../../common/utils/redis/redis-streams';
-import type { IProduct } from '../../../common/models/product';
 
 import * as yup from 'yup';
 
+import * as OrderRepo from '../../../common/models/order-repo';
+import { ORDER_STATUS, DB_ROW_STATUS } from '../../../common/models/order';
 import {
   COLLECTIONS,
   REDIS_STREAMS,
 } from '../../../common/config/server-config';
 import {
-  ORDER_STATUS,
-  DB_ROW_STATUS,
-  IOrder,
-} from '../../../common/models/order';
-import {
   USERS,
   MAX_DOCUMENTS_FETCH_LIMIT,
 } from '../../../common/config/constants';
-
 import { YupCls } from '../../../common/utils/yup';
 import { LoggerCls } from '../../../common/utils/logger';
 import { getMongodb } from '../../../common/utils/mongodb/node-mongo-wrapper';
 import { getNodeRedisClient } from '../../../common/utils/redis/redis-wrapper';
-import * as OrderRepo from '../../../common/models/order-repo';
 import { listenToStream } from '../../../common/utils/redis/redis-streams';
 
 const validateOrder = async (_order) => {

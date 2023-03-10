@@ -1,11 +1,11 @@
-import express, { Express, Request, Response } from 'express';
 import dotenv from 'dotenv';
+import express, { Express, Request, Response } from 'express';
 
-import { setMongodb } from '../../../common/utils/mongodb/node-mongo-wrapper';
-import { setRedis } from '../../../common/utils/redis/redis-wrapper';
-import { SERVER_CONFIG } from '../../../common/config/server-config';
 import { router } from './routes';
 import { listenToPaymentsStream } from './service-impl';
+import { SERVER_CONFIG } from '../../../common/config/server-config';
+import { setMongodb } from '../../../common/utils/mongodb/node-mongo-wrapper';
+import { setRedis } from '../../../common/utils/redis/redis-wrapper';
 
 dotenv.config();
 

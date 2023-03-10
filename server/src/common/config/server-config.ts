@@ -81,4 +81,6 @@ const SERVER_CONFIG = {
   },
 };
 
-export { IApiResponseBody, SERVER_CONFIG, COLLECTIONS, REDIS_STREAMS };
+export { SERVER_CONFIG, COLLECTIONS, REDIS_STREAMS };
+
+export type { IApiResponseBody };

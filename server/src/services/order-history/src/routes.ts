@@ -1,12 +1,11 @@
+import type { IApiResponseBody } from '../../../common/config/server-config';
+
 import express, { Request, Response } from 'express';
 
-import { HTTP_STATUS_CODES, USERS } from '../../../common/config/constants';
-import { LoggerCls } from '../../../common/utils/logger';
-import {
-  SERVER_CONFIG,
-  IApiResponseBody,
-} from '../../../common/config/server-config';
 import { viewOrderHistory } from './service-impl';
+import { HTTP_STATUS_CODES, USERS } from '../../../common/config/constants';
+import { SERVER_CONFIG } from '../../../common/config/server-config';
+import { LoggerCls } from '../../../common/utils/logger';
 
 const router = express.Router();
 const API_NAMES = SERVER_CONFIG.ORDER_HISTORY_SERVICE.API;

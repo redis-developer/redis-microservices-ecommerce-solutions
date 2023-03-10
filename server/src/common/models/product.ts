@@ -1,5 +1,6 @@
+import type { ICommonFields } from './misc';
+
 import { Document } from 'mongodb';
-import { ICommonFields } from './misc';
 
 interface IProductData {
   id: number;

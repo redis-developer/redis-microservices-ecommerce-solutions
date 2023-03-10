@@ -1,4 +1,4 @@
-import { ObjectId, Document } from 'mongodb';
+import { ObjectId } from 'mongodb';
 
 enum DB_ROW_STATUS {
   ACTIVE = 1,
@@ -15,4 +15,5 @@ interface ICommonFields {
   statusCode?: DB_ROW_STATUS;
 }
 
-export { DB_ROW_STATUS, ICommonFields };
+export { DB_ROW_STATUS };
+export type { ICommonFields };

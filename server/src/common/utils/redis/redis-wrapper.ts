@@ -5,9 +5,9 @@ import {
   Schema as RedisSchema,
 } from 'redis-om';
 
-type NodeRedisClientType = ReturnType<typeof createClient>;
-
 import { LoggerCls } from '../logger';
+
+type NodeRedisClientType = ReturnType<typeof createClient>;
 
 class RedisWrapperCls {
   connectionURL: string;

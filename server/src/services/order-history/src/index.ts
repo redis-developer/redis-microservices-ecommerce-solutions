@@ -1,10 +1,10 @@
 import express, { Express, Request, Response } from 'express';
 import dotenv from 'dotenv';
 
-import { setRedis } from '../../../common/utils/redis/redis-wrapper';
-import { SERVER_CONFIG } from '../../../common/config/server-config';
-import * as OrderRepo from '../../../common//models/order-repo';
 import { router } from './routes';
+import * as OrderRepo from '../../../common/models/order-repo';
+import { SERVER_CONFIG } from '../../../common/config/server-config';
+import { setRedis } from '../../../common/utils/redis/redis-wrapper';
 
 dotenv.config();
 

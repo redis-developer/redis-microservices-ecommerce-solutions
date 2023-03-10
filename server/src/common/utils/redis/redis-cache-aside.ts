@@ -1,7 +1,7 @@
 import type { Document } from '../mongodb/node-mongo-wrapper';
 
-import { getNodeRedisClient } from './redis-wrapper';
 import { CryptoCls } from '../crypto';
+import { getNodeRedisClient } from './redis-wrapper';
 
 class RedisCacheAside {
   static getHashKey(_filter: Document) {

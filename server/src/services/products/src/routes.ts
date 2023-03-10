@@ -1,14 +1,12 @@
+import type { IApiResponseBody } from '../../../common/config/server-config';
+
 import express, { Request, Response } from 'express';
 
+import { getProductsByFilter } from './service-impl';
 import { HTTP_STATUS_CODES } from '../../../common/config/constants';
+import { SERVER_CONFIG } from '../../../common/config/server-config';
 import { LoggerCls } from '../../../common/utils/logger';
 import { RedisCacheAside } from '../../../common/utils/redis/redis-cache-aside';
-
-import {
-  SERVER_CONFIG,
-  IApiResponseBody,
-} from '../../../common/config/server-config';
-import { getProductsByFilter } from './service-impl';
 
 const router = express.Router();
 const API_NAMES = SERVER_CONFIG.PRODUCTS_SERVICE.API;

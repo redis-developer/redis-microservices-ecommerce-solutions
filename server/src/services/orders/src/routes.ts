@@ -1,12 +1,11 @@
+import type { IApiResponseBody } from '../../../common/config/server-config';
+
 import express, { Request, Response } from 'express';
 
+import { createOrder } from './service-impl';
+import { SERVER_CONFIG } from '../../../common/config/server-config';
 import { HTTP_STATUS_CODES, USERS } from '../../../common/config/constants';
 import { LoggerCls } from '../../../common/utils/logger';
-import {
-  SERVER_CONFIG,
-  IApiResponseBody,
-} from '../../../common/config/server-config';
-import { createOrder } from './service-impl';
 
 const router = express.Router();
 const API_NAMES = SERVER_CONFIG.ORDERS_SERVICE.API;

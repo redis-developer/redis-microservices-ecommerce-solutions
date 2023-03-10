@@ -1,4 +1,4 @@
-import { IOrder } from './order';
+import type { IOrder } from './order';
 import {
   getRedisOmClient,
   RedisEntity,
@@ -57,4 +57,4 @@ const createRedisIndex = async () => {
 
 export { getRepository, createRedisIndex };
 
-export type { OrderEntity };
+export type { OrderEntity, IOrder };
