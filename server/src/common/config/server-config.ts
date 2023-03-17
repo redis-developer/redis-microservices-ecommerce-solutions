@@ -18,6 +18,12 @@ const REDIS_STREAMS = {
     CONSUMER_GROUP_NAME: 'PAYMENTS_CON_GROUP',
     ORDERS_CONSUMER_NAME: 'ORDERS_CON',
   },
+  TRANSACTION_RISK: {
+    STREAM_NAME: 'TRANSACTION_RISK_STREAM',
+    CONSUMER_GROUP_NAME: 'TRANSACTION_RISK_CON_GROUP',
+    //ORDERS_CONSUMER_NAME: 'ORDERS_CON',
+    IDENTITY_CONSUMER_NAME: 'IDENTITY_CON',
+  },
 };
 
 const COLLECTIONS = {
@@ -32,7 +38,7 @@ const COLLECTIONS = {
   PAYMENTS: {
     collectionName: 'payments',
     keyName: 'paymentId',
-  },
+  }
 };
 
 const SERVER_CONFIG = {
@@ -77,6 +83,14 @@ const SERVER_CONFIG = {
     PORT: envVariables.PAYMENTS_SERVICE_PORT || 3004,
     API: {
       PREFIX: '/payments',
+    },
+  },
+  DIGITAL_IDENTITY_SERVICE: {
+    SERVER_ORIGIN:
+      envVariables.DIGITAL_IDENTITY_SERVICE_CONTAINER_ORIGIN || 'http://localhost',
+    PORT: envVariables.DIGITAL_IDENTITY_SERVICE_PORT || 3005,
+    API: {
+      PREFIX: '/digital-identity',
     },
   },
 };

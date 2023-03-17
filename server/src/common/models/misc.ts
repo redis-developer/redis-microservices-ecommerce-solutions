@@ -15,5 +15,29 @@ interface ICommonFields {
   statusCode?: DB_ROW_STATUS;
 }
 
-export { DB_ROW_STATUS };
-export type { ICommonFields };
+enum RiskStreamActions {
+  INSERT_LOGIN_IDENTITY = "INSERT_LOGIN_IDENTITY",
+  CALCULATE_IDENTITY_SCORE = "CALCULATE_IDENTITY_SCORE",
+  LOG_IDENTITY_SCORE = "LOG_IDENTITY_SCORE",
+  LOG = "LOG",
+}
+
+interface IRiskStreamMessage {
+  userId?: string;
+  sessionId?: string;
+  action: RiskStreamActions;
+  logMessage?: string;
+
+  identityBrowserAgent?: string;
+  identityIpAddress?: string;
+  identityScore?: string;
+
+  profileScore?: string;
+  mlScore?: string; //AI/ ML
+  finalFraudScore?: string;
+
+  others?: string;
+}
+
+export { DB_ROW_STATUS, RiskStreamActions };
+export type { ICommonFields, IRiskStreamMessage };

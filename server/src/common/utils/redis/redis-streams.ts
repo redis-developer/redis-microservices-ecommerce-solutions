@@ -92,6 +92,16 @@ const listenToStream = async (options: listenStreamOptions) => {
   }
 };
 
-export { listenToStream };
+const addMessageToStream = async (message, streamKeyName) => {
+
+  const nodeRedisClient = getNodeRedisClient();
+  if (nodeRedisClient && message && streamKeyName) {
+    const id = '*'; //* = auto generate
+    await nodeRedisClient.xAdd(streamKeyName, id, message);
+  }
+
+};
+
+export { listenToStream, addMessageToStream };
 
 export type { IMessageHandler };

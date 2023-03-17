@@ -35,6 +35,7 @@ const processPaymentForNewOrders: IMessageHandler = async (
   message,
   messageId,
 ) => {
+  //TODO : can check identity score for the userId
   if (message && message.orderId && message.orderAmount) {
     const userId = message.userId;
     LoggerCls.info(`order received ${message.orderId}`);
