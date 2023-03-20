@@ -50,7 +50,7 @@ export async function createOrder(
 
 export async function getProducts(search?: string): Promise<models.Product[]> {
   const result: api.ProductResponse = await request(
-    `${process.env.API_GATEWAY_URI}/products/getProductsByFilter`,
+    `${process.env.NEXT_PUBLIC_API_GATEWAY_URI}/products/getProductsByFilter`,
     {
       method: 'POST',
       body: !search
