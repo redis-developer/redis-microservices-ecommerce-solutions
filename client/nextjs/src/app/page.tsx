@@ -11,7 +11,8 @@ export default function Home() {
 
   useEffect(() => {
     (async () => {
-      setProduct(await getProducts(window?.location?.search));
+      const search = window?.location?.search ?? '';
+      setProduct(await getProducts(search.replace(/\?search=/g, '')));
     })();
   }, []);
 
