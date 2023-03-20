@@ -1,19 +1,28 @@
-import type { IRiskStreamMessage } from '../../../common/models/misc';
+import type { ITransactionStreamMessage } from '../../../common/models/misc';
 import type { IDigitalIdentity } from '../../../common/models/digital-identity';
 import type { IMessageHandler } from '../../../common/utils/redis/redis-streams';
 
-import { RiskStreamActions, DB_ROW_STATUS } from '../../../common/models/misc';
+import { TransactionStreamActions, DB_ROW_STATUS } from '../../../common/models/misc';
 import * as digitalIdentityRepo from '../../../common/models/digital-identity-repo';
 import { REDIS_STREAMS } from '../../../common/config/server-config';
 import { CryptoCls } from '../../../common/utils/crypto';
 import { listenToStream, addMessageToStream } from '../../../common/utils/redis/redis-streams';
 
-const addMessageToTransactionRiskStream = async (message: IRiskStreamMessage) => {
-  const streamKeyName = REDIS_STREAMS.TRANSACTION_RISK.STREAM_NAME;
+const addOrderDetailsToStream = async (message: ITransactionStreamMessage) => {
+  const streamKeyName = REDIS_STREAMS.ORDERS.STREAM_NAME;
+  let orderDetails = message.identityTransactionDetails;
+  if (orderDetails) {
+    orderDetails = JSON.parse(orderDetails);
+  }
+  await addMessageToStream(orderDetails, streamKeyName);
+};
+
+const addMessageToTransactionStream = async (message: ITransactionStreamMessage) => {
+  const streamKeyName = REDIS_STREAMS.TRANSACTION.STREAM_NAME;
   await addMessageToStream(message, streamKeyName);
 }
 
-const addDigitalIdentityToRedis = async (message: IRiskStreamMessage) => {
+const addDigitalIdentityToRedis = async (message: ITransactionStreamMessage) => {
   let insertedKey = "";
   if (message && message.userId) {
 
@@ -55,7 +64,7 @@ const addDigitalIdentityToRedis = async (message: IRiskStreamMessage) => {
   return insertedKey;
 };
 
-const calculateIdentityScore = async (message: IRiskStreamMessage) => {
+const calculateIdentityScore = async (message: ITransactionStreamMessage) => {
   let identityScore = 0;
   const repository = digitalIdentityRepo.getRepository();
 
@@ -65,7 +74,7 @@ const calculateIdentityScore = async (message: IRiskStreamMessage) => {
       .where('userId')
       .eq(message.userId)
       .and('action')
-      .eq(RiskStreamActions.INSERT_LOGIN_IDENTITY)
+      .eq(TransactionStreamActions.INSERT_LOGIN_IDENTITY)
       .and('statusCode')
       .eq(DB_ROW_STATUS.ACTIVE);
 
@@ -101,51 +110,64 @@ const calculateIdentityScore = async (message: IRiskStreamMessage) => {
   return identityScore; // identityScore value from 0 to 1
 }
 
-const processTransactionRiskStream: IMessageHandler = async (
-  message: IRiskStreamMessage,
+const processTransactionStream: IMessageHandler = async (
+  message: ITransactionStreamMessage,
   messageId,
 ) => {
   if (message) {
-    if (message.action == RiskStreamActions.INSERT_LOGIN_IDENTITY) {
-      //step 1 - add login identity JSON to redis
+    if (message.action == TransactionStreamActions.INSERT_LOGIN_IDENTITY) {
+      //step 1 - add login digital identity to redis
       const insertedKey = await addDigitalIdentityToRedis(message);
-
-      //step 2 - add confirmation log to redis stream
-      await addMessageToTransactionRiskStream({
+      await addMessageToTransactionStream({ //adding log To TransactionStream
         userId: message.userId,
         sessionId: message.sessionId,
-        action: RiskStreamActions.LOG,
-        logMessage: `New Login Identity added for the user ${message.userId} at key ${insertedKey}`
+        action: TransactionStreamActions.LOG,
+        logMessage: `New Login Digital Identity added to Redis (JSON) at key  ${insertedKey} for the user ${message.userId}`
       });
     }
-    else if (message.action == RiskStreamActions.CALCULATE_IDENTITY_SCORE) {
-      //step 1 - calculate score for validation identity
+    else if (message.action == TransactionStreamActions.CALCULATE_IDENTITY_SCORE) {
+      //step 1 - calculate score for validation digital identity
       const identityScore = await calculateIdentityScore(message);
       message.identityScore = identityScore.toString();
-
-      //step 2 - add validation identity JSON to redis
-      const insertedKey = await addDigitalIdentityToRedis(message);
-
-      //step 3 - add confirmation log to redis stream
-      await addMessageToTransactionRiskStream({
+      await addMessageToTransactionStream({//adding log To TransactionStream
+        action: TransactionStreamActions.LOG_IDENTITY_SCORE,
+        logMessage: `${identityScore} is the digital identity score for the user ${message.userId}`,
         userId: message.userId,
         sessionId: message.sessionId,
-        action: RiskStreamActions.LOG_IDENTITY_SCORE,
-        logMessage: `Validation Identity received for the user ${message.userId} at key ${insertedKey} and calculated identity score for it is ${identityScore}`,
         identityScore: identityScore.toString()
+      });
+
+      //step 2 - add validation digital identity to redis
+      const insertedKey = await addDigitalIdentityToRedis(message);
+      await addMessageToTransactionStream({//adding log To TransactionStream
+        userId: message.userId,
+        sessionId: message.sessionId,
+        action: TransactionStreamActions.LOG,
+        logMessage: `Validation Digital Identity added to Redis (JSON) at key ${insertedKey} for the user ${message.userId}`,
+        identityScore: identityScore.toString()
+      });
+
+      //step 3 - trigger "payment consumer" for the order
+      await addOrderDetailsToStream(message);
+      await addMessageToTransactionStream({//adding log To TransactionStream
+        userId: message.userId,
+        sessionId: message.sessionId,
+        action: TransactionStreamActions.LOG,
+        logMessage: `To process payment, order details are added to ${REDIS_STREAMS.ORDERS.STREAM_NAME} for the user ${message.userId}`,
+        identityTransactionDetails: message.identityTransactionDetails
       });
     }
   }
 
 };
 
-const listenToTransactionRiskStream = () => {
+const listenToTransactionStream = () => {
   listenToStream({
-    streamKeyName: REDIS_STREAMS.TRANSACTION_RISK.STREAM_NAME,
-    groupName: REDIS_STREAMS.TRANSACTION_RISK.CONSUMER_GROUP_NAME,
-    consumerName: REDIS_STREAMS.TRANSACTION_RISK.IDENTITY_CONSUMER_NAME,
-    processMessageCallback: processTransactionRiskStream,
+    streamKeyName: REDIS_STREAMS.TRANSACTION.STREAM_NAME,
+    groupName: REDIS_STREAMS.TRANSACTION.CONSUMER_GROUP_NAME,
+    consumerName: REDIS_STREAMS.TRANSACTION.IDENTITY_CONSUMER_NAME,
+    processMessageCallback: processTransactionStream,
   });
 };
 
-export { listenToTransactionRiskStream };
+export { listenToTransactionStream };

@@ -15,22 +15,23 @@ interface ICommonFields {
   statusCode?: DB_ROW_STATUS;
 }
 
-enum RiskStreamActions {
+enum TransactionStreamActions {
   INSERT_LOGIN_IDENTITY = "INSERT_LOGIN_IDENTITY",
   CALCULATE_IDENTITY_SCORE = "CALCULATE_IDENTITY_SCORE",
   LOG_IDENTITY_SCORE = "LOG_IDENTITY_SCORE",
   LOG = "LOG",
 }
 
-interface IRiskStreamMessage {
+interface ITransactionStreamMessage {
+  action: TransactionStreamActions;
+  logMessage?: string;
   userId?: string;
   sessionId?: string;
-  action: RiskStreamActions;
-  logMessage?: string;
 
   identityBrowserAgent?: string;
   identityIpAddress?: string;
   identityScore?: string;
+  identityTransactionDetails?: string,
 
   profileScore?: string;
   mlScore?: string; //AI/ ML
@@ -39,5 +40,7 @@ interface IRiskStreamMessage {
   others?: string;
 }
 
-export { DB_ROW_STATUS, RiskStreamActions };
-export type { ICommonFields, IRiskStreamMessage };
+//TODO: add IOrder & IPayment StreamMessage
+
+export { DB_ROW_STATUS, TransactionStreamActions };
+export type { ICommonFields, ITransactionStreamMessage };

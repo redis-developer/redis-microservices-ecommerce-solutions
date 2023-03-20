@@ -1,11 +1,13 @@
 import type { IProduct } from '../../../common/models/product';
 import type { IOrder } from '../../../common/models/order';
+import type { ITransactionStreamMessage } from '../../../common/models/misc';
 import type { Document } from '../../../common/utils/mongodb/node-mongo-wrapper';
 import type { IMessageHandler } from '../../../common/utils/redis/redis-streams';
 
 import * as yup from 'yup';
 
 import * as OrderRepo from '../../../common/models/order-repo';
+import { TransactionStreamActions } from '../../../common/models/misc';
 import { ORDER_STATUS, DB_ROW_STATUS } from '../../../common/models/order';
 import {
   COLLECTIONS,
@@ -18,8 +20,8 @@ import {
 import { YupCls } from '../../../common/utils/yup';
 import { LoggerCls } from '../../../common/utils/logger';
 import { getMongodb } from '../../../common/utils/mongodb/node-mongo-wrapper';
-import { getNodeRedisClient } from '../../../common/utils/redis/redis-wrapper';
 import { listenToStream } from '../../../common/utils/redis/redis-streams';
+import { addMessageToStream } from '../../../common/utils/redis/redis-streams';
 
 const validateOrder = async (_order) => {
   const schema = yup.object().shape({
@@ -143,25 +145,18 @@ const addOrderToMongoDB = async (order: IOrder) => {
   );
 };
 
-const addOrderIdToStream = async (
-  orderId: string,
-  orderAmount: number,
-  userId: string,
-) => {
-  const nodeRedisClient = getNodeRedisClient();
-  if (orderId && nodeRedisClient) {
-    const streamKeyName = REDIS_STREAMS.ORDERS.STREAM_NAME;
-    const entry = {
-      orderId: orderId,
-      orderAmount: orderAmount.toFixed(2),
-      userId: userId,
-    };
-    const id = '*'; //* = auto generate
-    await nodeRedisClient.xAdd(streamKeyName, id, entry);
+const addMessageToTransactionStream = async (message: ITransactionStreamMessage) => {
+  if (message) {
+    const streamKeyName = REDIS_STREAMS.TRANSACTION.STREAM_NAME;
+    await addMessageToStream(message, streamKeyName);
   }
+}
+const addOrderDetailsToStream = async (orderDetails) => {
+  const streamKeyName = REDIS_STREAMS.ORDERS.STREAM_NAME;
+  await addMessageToStream(orderDetails, streamKeyName);
 };
 
-const createOrder = async (order: IOrder) => {
+const createOrder = async (order: IOrder, browserAgent: string, ipAddress: string, sessionId: string) => {
   if (order) {
     const userId = order.userId || USERS.DEFAULT; //temp as no login/ users functionality;
 
@@ -187,11 +182,35 @@ const createOrder = async (order: IOrder) => {
      */
     await addOrderToMongoDB(order);
 
+    await addMessageToTransactionStream({ //adding log To TransactionStream
+      action: TransactionStreamActions.LOG,
+      logMessage: `order created with id ${orderId} for the user ${userId}`,
+      userId: userId,
+      sessionId: sessionId,
+    });
+
+
     let orderAmount = 0;
     order.products?.forEach((product) => {
       orderAmount += product.productPrice * product.qty;
     });
-    await addOrderIdToStream(orderId, orderAmount, userId);
+
+    const orderDetails = {
+      orderId: orderId,
+      orderAmount: orderAmount.toFixed(2),
+      userId: userId,
+      sessionId: sessionId,
+    }
+    // await addOrderDetailsToStream(orderDetails); //Now, addOrderDetailsToStream is called from digital-identity service
+    await addMessageToTransactionStream({ //adding Identity To TransactionStream
+      action: TransactionStreamActions.CALCULATE_IDENTITY_SCORE,
+      logMessage: `Digital identity to be validated/ scored for the user ${userId}`,
+      userId: userId,
+      sessionId: sessionId,
+      identityBrowserAgent: browserAgent,
+      identityIpAddress: ipAddress,
+      identityTransactionDetails: orderDetails ? JSON.stringify(orderDetails) : "",
+    });
 
     return orderId;
   } else {
@@ -271,6 +290,13 @@ const updateOrderStatus: IMessageHandler = async (message, messageId) => {
       parseInt(message.orderStatusCode),
       message.userId,
     );
+
+    await addMessageToTransactionStream({ //adding log To TransactionStream
+      action: TransactionStreamActions.LOG,
+      logMessage: `Order status updated after payment for orderId ${message.orderId} and user ${message.userId}`,
+      userId: message.userId,
+      sessionId: message.sessionId,
+    });
   }
 };
 

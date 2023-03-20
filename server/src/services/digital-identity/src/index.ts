@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import express, { Express, Request, Response } from 'express';
 
-import { listenToTransactionRiskStream } from './service-impl';
+import { listenToTransactionStream } from './service-impl';
 import * as digitalIdentityRepo from '../../../common/models/digital-identity-repo';
 import { SERVER_CONFIG } from '../../../common/config/server-config';
 import { setMongodb } from '../../../common/utils/mongodb/node-mongo-wrapper';
@@ -29,7 +29,7 @@ app.listen(PORT, async () => {
   await setRedis(REDIS_URI);
   await digitalIdentityRepo.createRedisIndex();
 
-  listenToTransactionRiskStream();
+  listenToTransactionStream();
 
   console.log(`Server is running at http://localhost:${PORT}`);
 });

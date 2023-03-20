@@ -28,7 +28,7 @@ const listenToStream = async (options: listenStreamOptions) => {
       });
       LoggerCls.info(`Created consumer group ${groupName}`);
     } catch (err) {
-      LoggerCls.error('Consumer group already exists !', err);
+      LoggerCls.error('Consumer group already exists !');//, err
     }
 
     console.log(`Starting consumer ${consumerName}.`);
@@ -51,7 +51,7 @@ const listenToStream = async (options: listenStreamOptions) => {
           ],
           {
             COUNT: readMaxCount, // Read n entries at a time
-            BLOCK: 0, //block for 0 (infinite) seconds if there are none.
+            BLOCK: 5, //block for 0 (infinite) seconds if there are none.
           },
         );
 
@@ -93,13 +93,18 @@ const listenToStream = async (options: listenStreamOptions) => {
 };
 
 const addMessageToStream = async (message, streamKeyName) => {
-
-  const nodeRedisClient = getNodeRedisClient();
-  if (nodeRedisClient && message && streamKeyName) {
-    const id = '*'; //* = auto generate
-    await nodeRedisClient.xAdd(streamKeyName, id, message);
+  try {
+    const nodeRedisClient = getNodeRedisClient();
+    if (nodeRedisClient && message && streamKeyName) {
+      const id = '*'; //* = auto generate
+      await nodeRedisClient.xAdd(streamKeyName, id, message);
+    }
   }
+  catch (err) {
+    LoggerCls.error('addMessageToStream error !', err);
+    LoggerCls.error(streamKeyName, message);
 
+  }
 };
 
 export { listenToStream, addMessageToStream };

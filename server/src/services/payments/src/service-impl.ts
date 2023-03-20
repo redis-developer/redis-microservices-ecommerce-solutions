@@ -1,33 +1,29 @@
 import type { IMessageHandler } from '../../../common/utils/redis/redis-streams';
+import type { ITransactionStreamMessage } from '../../../common/models/misc';
 
 import { IPayment } from '../../../common/models/payment';
 import { ORDER_STATUS, DB_ROW_STATUS } from '../../../common/models/order';
+import { TransactionStreamActions } from '../../../common/models/misc';
 import {
   COLLECTIONS,
   REDIS_STREAMS,
 } from '../../../common/config/server-config';
 import { LoggerCls } from '../../../common/utils/logger';
 import { getMongodb } from '../../../common/utils/mongodb/node-mongo-wrapper';
-import { getNodeRedisClient } from '../../../common/utils/redis/redis-wrapper';
 import { listenToStream } from '../../../common/utils/redis/redis-streams';
+import { addMessageToStream } from '../../../common/utils/redis/redis-streams';
 
-const addPaymentIdToStream = async (
-  orderId: string,
-  paymentId: string,
-  orderStatus: number,
-  userId: string,
-) => {
-  const nodeRedisClient = getNodeRedisClient();
-  if (orderId && nodeRedisClient) {
+const addMessageToTransactionStream = async (message: ITransactionStreamMessage) => {
+  if (message) {
+    const streamKeyName = REDIS_STREAMS.TRANSACTION.STREAM_NAME;
+    await addMessageToStream(message, streamKeyName);
+  }
+}
+
+const addPaymentDetailsToStream = async (message: any) => {
+  if (message) {
     const streamKeyName = REDIS_STREAMS.PAYMENTS.STREAM_NAME;
-    const entry = {
-      orderId: orderId,
-      paymentId: paymentId,
-      orderStatusCode: orderStatus.toString(),
-      userId: userId,
-    };
-    const id = '*'; //* = auto generate
-    await nodeRedisClient.xAdd(streamKeyName, id, entry);
+    await addMessageToStream(message, streamKeyName);
   }
 };
 
@@ -35,7 +31,6 @@ const processPaymentForNewOrders: IMessageHandler = async (
   message,
   messageId,
 ) => {
-  //TODO : can check identity score for the userId
   if (message && message.orderId && message.orderAmount) {
     const userId = message.userId;
     LoggerCls.info(`order received ${message.orderId}`);
@@ -63,12 +58,27 @@ const processPaymentForNewOrders: IMessageHandler = async (
       payment,
     );
 
-    await addPaymentIdToStream(
-      message.orderId,
-      paymentId,
-      paymentStatus,
-      userId,
-    );
+    await addMessageToTransactionStream({ //adding log To TransactionStream
+      action: TransactionStreamActions.LOG,
+      logMessage: `Payment ${paymentId} processed for the orderId ${message.orderId} and user ${userId}`,
+      userId: userId,
+      sessionId: message.sessionId,
+    });
+
+    await addPaymentDetailsToStream({
+      orderId: message.orderId,
+      paymentId: paymentId,
+      orderStatusCode: paymentStatus.toString(),
+      userId: userId,
+      sessionId: message.sessionId,
+    });
+
+    await addMessageToTransactionStream({ //adding log To TransactionStream
+      action: TransactionStreamActions.LOG,
+      logMessage: `To update order status, payment details are added to ${REDIS_STREAMS.PAYMENTS.STREAM_NAME} for the orderId ${message.orderId} and  user ${userId}`,
+      userId: userId,
+      sessionId: message.sessionId,
+    });
   }
 };
 

@@ -13,7 +13,7 @@ import {
   setRedis,
   getNodeRedisClient,
 } from '../../common/utils/redis/redis-wrapper';
-import { addLoginToTransactionRiskStream } from "./helper";
+import { addLoginToTransactionStream } from "./helper";
 
 //--- config
 const PORT = SERVER_CONFIG.API_GATEWAY.PORT;
@@ -115,7 +115,7 @@ app.use(async (req, res, next) => {
     req.sessionId = sessionInfo?.sessionId;
 
     if (sessionInfo.isNewSession) { //(say) on login
-      addLoginToTransactionRiskStream(req);
+      addLoginToTransactionStream(req);
     }
   }
   next();
