@@ -16,10 +16,10 @@ interface ICommonFields {
 }
 
 enum TransactionStreamActions {
-  INSERT_LOGIN_IDENTITY = "INSERT_LOGIN_IDENTITY",
-  CALCULATE_IDENTITY_SCORE = "CALCULATE_IDENTITY_SCORE",
-  LOG_IDENTITY_SCORE = "LOG_IDENTITY_SCORE",
-  LOG = "LOG",
+  INSERT_LOGIN_IDENTITY = 'INSERT_LOGIN_IDENTITY',
+  CALCULATE_IDENTITY_SCORE = 'CALCULATE_IDENTITY_SCORE',
+  LOG_IDENTITY_SCORE = 'LOG_IDENTITY_SCORE',
+  LOG = 'LOG',
 }
 
 interface ITransactionStreamMessage {
@@ -31,7 +31,7 @@ interface ITransactionStreamMessage {
   identityBrowserAgent?: string;
   identityIpAddress?: string;
   identityScore?: string;
-  identityTransactionDetails?: string,
+  identityTransactionDetails?: string;
 
   profileScore?: string;
   mlScore?: string; //AI/ ML
@@ -40,7 +40,25 @@ interface ITransactionStreamMessage {
   others?: string;
 }
 
-//TODO: add IOrder & IPayment StreamMessage
+interface IOrdersStreamMessage {
+  orderId?: string;
+  orderAmount?: string;
+  userId?: string;
+  sessionId?: string;
+}
+
+interface IPaymentsStreamMessage {
+  orderId?: string;
+  paymentId?: string;
+  orderStatusCode?: string;
+  userId?: string;
+  sessionId?: string;
+}
 
 export { DB_ROW_STATUS, TransactionStreamActions };
-export type { ICommonFields, ITransactionStreamMessage };
+export type {
+  ICommonFields,
+  ITransactionStreamMessage,
+  IOrdersStreamMessage,
+  IPaymentsStreamMessage,
+};

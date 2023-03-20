@@ -3,7 +3,10 @@ import type { IApiResponseBody } from '../../../common/config/server-config';
 import express, { Request, Response } from 'express';
 
 import { createOrder } from './service-impl';
-import { SERVER_CONFIG, REDIS_STREAMS } from '../../../common/config/server-config';
+import {
+  SERVER_CONFIG,
+  REDIS_STREAMS,
+} from '../../../common/config/server-config';
 import { HTTP_STATUS_CODES, USERS } from '../../../common/config/constants';
 import { LoggerCls } from '../../../common/utils/logger';
 
@@ -18,10 +21,13 @@ router.post(API_NAMES.CREATE_ORDER, async (req: Request, res: Response) => {
   };
 
   const sessionData = req.header('x-session');
-  const sessionId = req.header('x-sessionid') || "";
+  const sessionId = req.header('x-sessionid') || '';
   const userId = sessionData ? JSON.parse(sessionData).userId : USERS.DEFAULT;
-  const browserAgent = req.headers['user-agent'] || "";
-  const ipAddress = req.headers['x-forwarded-for']?.toString() || req.socket.remoteAddress || "";
+  const browserAgent = req.headers['user-agent'] || '';
+  const ipAddress =
+    req.headers['x-forwarded-for']?.toString() ||
+    req.socket.remoteAddress ||
+    '';
 
   if (body && userId) {
     body.userId = userId;

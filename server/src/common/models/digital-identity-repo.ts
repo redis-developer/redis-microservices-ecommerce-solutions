@@ -6,13 +6,13 @@ import {
 } from '../utils/redis/redis-wrapper';
 
 //for typescript
-interface DigitalIdentityEntity extends IDigitalIdentity { }
+interface DigitalIdentityEntity extends IDigitalIdentity {}
 
 /*
 An Entity is the class that holds you data when you work with it.
 It is what you create, read, update, and delete.
 */
-class DigitalIdentityEntity extends RedisEntity { }
+class DigitalIdentityEntity extends RedisEntity {}
 
 /*
 schema defines the fields on your entity, their types, and

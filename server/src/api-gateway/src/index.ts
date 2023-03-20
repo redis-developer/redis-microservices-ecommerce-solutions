@@ -13,7 +13,7 @@ import {
   setRedis,
   getNodeRedisClient,
 } from '../../common/utils/redis/redis-wrapper';
-import { addLoginToTransactionStream } from "./helper";
+import { addLoginToTransactionStream } from './helper';
 
 //--- config
 const PORT = SERVER_CONFIG.API_GATEWAY.PORT;
@@ -71,7 +71,7 @@ const getSessionInfo = async (authHeader?: string) => {
   return {
     sessionId: sessionId,
     sessionData: sessionData,
-    isNewSession: isNewSession
+    isNewSession: isNewSession,
   };
 };
 
@@ -114,7 +114,8 @@ app.use(async (req, res, next) => {
     req.session = sessionInfo?.sessionData; //req.session custom property
     req.sessionId = sessionInfo?.sessionId;
 
-    if (sessionInfo.isNewSession) { //(say) on login
+    if (sessionInfo.isNewSession) {
+      //(say) on login
       addLoginToTransactionStream(req);
     }
   }
@@ -131,6 +132,9 @@ app.use(
     onProxyReq(proxyReq, req, res) {
       proxyReq.setHeader('x-session', req.session);
       proxyReq.setHeader('x-sessionid', req.sessionId);
+      if (req.socket.remoteAddress) {
+        proxyReq.setHeader('x-forwarded-for', req.socket.remoteAddress);
+      }
     },
     onProxyRes: applyAuthToResponse,
   }),
@@ -145,6 +149,9 @@ app.use(
     onProxyReq(proxyReq, req, res) {
       proxyReq.setHeader('x-session', req.session);
       proxyReq.setHeader('x-sessionid', req.sessionId);
+      if (req.socket.remoteAddress) {
+        proxyReq.setHeader('x-forwarded-for', req.socket.remoteAddress);
+      }
     },
     onProxyRes: applyAuthToResponse,
   }),
@@ -155,6 +162,15 @@ app.use(
   createProxyMiddleware({
     target: PRODUCTS_API_URL,
     changeOrigin: true,
+    selfHandleResponse: true,
+    onProxyReq(proxyReq, req, res) {
+      proxyReq.setHeader('x-session', req.session);
+      proxyReq.setHeader('x-sessionid', req.sessionId);
+      if (req.socket.remoteAddress) {
+        proxyReq.setHeader('x-forwarded-for', req.socket.remoteAddress);
+      }
+    },
+    onProxyRes: applyAuthToResponse,
   }),
 );
 

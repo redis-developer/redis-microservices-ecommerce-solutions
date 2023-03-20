@@ -2,7 +2,6 @@ import type { ICommonFields } from './misc';
 
 import { Document } from 'mongodb';
 
-
 interface IDigitalIdentity extends Document, ICommonFields {
   action?: string;
   browserFingerprint?: string;
@@ -12,6 +11,5 @@ interface IDigitalIdentity extends Document, ICommonFields {
   identityScore?: string;
   //others?: any
 }
-
 
 export type { IDigitalIdentity };

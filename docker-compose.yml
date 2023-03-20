@@ -92,19 +92,19 @@ services:
       - orders_service
 
   digital_identity_service:
-      container_name: digital_identity_service
-      build:
-        context: ./
-        dockerfile: dockerfile-server
-        args:
-          BUILD_BASE_PATH: server/src/services/digital-identity
-      env_file:
-        - ./.env
-      depends_on:
-        - redis_server
-        - mongodb_server
-        - payments_service
-      
+    container_name: digital_identity_service
+    build:
+      context: ./
+      dockerfile: dockerfile-server
+      args:
+        BUILD_BASE_PATH: server/src/services/digital-identity
+    env_file:
+      - ./.env
+    depends_on:
+      - redis_server
+      - mongodb_server
+      - payments_service
+
   api_gateway:
     container_name: api_gateway
     build:

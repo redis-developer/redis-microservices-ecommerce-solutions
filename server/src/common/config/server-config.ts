@@ -38,7 +38,7 @@ const COLLECTIONS = {
   PAYMENTS: {
     collectionName: 'payments',
     keyName: 'paymentId',
-  }
+  },
 };
 
 const SERVER_CONFIG = {
@@ -87,7 +87,8 @@ const SERVER_CONFIG = {
   },
   DIGITAL_IDENTITY_SERVICE: {
     SERVER_ORIGIN:
-      envVariables.DIGITAL_IDENTITY_SERVICE_CONTAINER_ORIGIN || 'http://localhost',
+      envVariables.DIGITAL_IDENTITY_SERVICE_CONTAINER_ORIGIN ||
+      'http://localhost',
     PORT: envVariables.DIGITAL_IDENTITY_SERVICE_PORT || 3005,
     API: {
       PREFIX: '/digital-identity',
