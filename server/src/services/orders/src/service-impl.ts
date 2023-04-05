@@ -217,7 +217,7 @@ const createOrder = async (
       userId: userId,
       sessionId: sessionId,
     };
-    // await addOrderDetailsToStream(orderDetails); //Now, addOrderDetailsToStream is called from digital-identity service
+
     await addMessageToTransactionStream({
       //adding Identity To TransactionStream
       action: TransactionPipelines.CHECKOUT[0],

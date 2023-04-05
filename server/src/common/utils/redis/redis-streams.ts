@@ -1,3 +1,8 @@
+import { REDIS_STREAMS } from '../../config/server-config';
+import {
+  ITransactionStreamMessage,
+  TransactionStreamActions,
+} from '../../models/misc';
 import { LoggerCls } from '../logger';
 import { getNodeRedisClient, commandOptions } from './redis-wrapper';
 
@@ -118,6 +123,27 @@ const addMessageToStream = async (message, streamKeyName) => {
   }
 };
 
-export { listenToStreams, addMessageToStream };
+const nextTransactionStep = async (message: ITransactionStreamMessage) => {
+  const transactionPipeline: TransactionStreamActions[] = JSON.parse(
+    message.transactionPipeline,
+  );
+  transactionPipeline.shift();
+
+  if (transactionPipeline.length <= 0) {
+    return;
+  }
+
+  const streamKeyName = REDIS_STREAMS.STREAMS.TRANSACTIONS;
+  await addMessageToStream(
+    {
+      ...message,
+      action: transactionPipeline[0],
+      transactionPipeline: JSON.stringify(transactionPipeline),
+    },
+    streamKeyName,
+  );
+};
+
+export { listenToStreams, addMessageToStream, nextTransactionStep };
 
 export type { IMessageHandler };

@@ -1,20 +1,13 @@
 import type { ITransactionStreamMessage } from '../../../common/models/misc';
-import type { IMessageHandler } from '../../../common/utils/redis/redis-streams';
+import {
+  IMessageHandler,
+  nextTransactionStep,
+  listenToStreams,
+} from '../../../common/utils/redis/redis-streams';
 
 import { TransactionStreamActions } from '../../../common/models/misc';
 import { REDIS_STREAMS } from '../../../common/config/server-config';
-import {
-  listenToStreams,
-  addMessageToStream,
-} from '../../../common/utils/redis/redis-streams';
 import { LoggerCls } from '../../../common/utils/logger';
-
-const addMessageToTransactionStream = async (
-  message: ITransactionStreamMessage,
-) => {
-  const streamKeyName = REDIS_STREAMS.STREAMS.TRANSACTIONS;
-  await addMessageToStream(message, streamKeyName);
-};
 
 const processTransactionStream: IMessageHandler = async (
   message: ITransactionStreamMessage,
@@ -25,20 +18,9 @@ const processTransactionStream: IMessageHandler = async (
     if (message.action == TransactionStreamActions.CALCULATE_PROFILE_SCORE) {
       // check profile score
 
-      const transactionPipeline: TransactionStreamActions[] = JSON.parse(
-        message.transactionPipeline,
-      );
-      transactionPipeline.shift();
-
-      if (transactionPipeline.length <= 0) {
-        return true;
-      }
-
-      await addMessageToTransactionStream({
+      await nextTransactionStep({
         ...message,
-        action: transactionPipeline[0],
-        logMessage: `Requesting next step (${transactionPipeline[0]}) in transaction risk scoring for the user ${message.userId}`,
-        transactionPipeline: JSON.stringify(transactionPipeline),
+        logMessage: `Requesting next step in transaction risk scoring for the user ${message.userId}`,
       });
 
       return true;

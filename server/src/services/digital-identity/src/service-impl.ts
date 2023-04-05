@@ -3,7 +3,12 @@ import {
   TransactionPipelines,
 } from '../../../common/models/misc';
 import type { IDigitalIdentity } from '../../../common/models/digital-identity';
-import type { IMessageHandler } from '../../../common/utils/redis/redis-streams';
+import {
+  IMessageHandler,
+  nextTransactionStep,
+  listenToStreams,
+  addMessageToStream,
+} from '../../../common/utils/redis/redis-streams';
 
 import {
   TransactionStreamActions,
@@ -12,10 +17,6 @@ import {
 import * as digitalIdentityRepo from '../../../common/models/digital-identity-repo';
 import { REDIS_STREAMS } from '../../../common/config/server-config';
 import { CryptoCls } from '../../../common/utils/crypto';
-import {
-  listenToStreams,
-  addMessageToStream,
-} from '../../../common/utils/redis/redis-streams';
 import { LoggerCls } from '../../../common/utils/logger';
 
 const addMessageToTransactionStream = async (
@@ -166,22 +167,11 @@ const processTransactionStream: IMessageHandler = async (
         transactionPipeline: JSON.stringify(TransactionPipelines.LOG),
       });
 
-      const transactionPipeline: TransactionStreamActions[] = JSON.parse(
-        message.transactionPipeline,
-      );
-      transactionPipeline.shift();
-
-      if (transactionPipeline.length <= 0) {
-        return true;
-      }
-
-      await addMessageToTransactionStream({
+      await nextTransactionStep({
         ...message,
-        action: transactionPipeline[0],
-        logMessage: `Requesting next step (${transactionPipeline[0]}) in transaction risk scoring for the user ${message.userId}`,
+        logMessage: `Requesting next step in transaction risk scoring for the user ${message.userId}`,
 
         identityScore: identityScore.toString(),
-        transactionPipeline: JSON.stringify(transactionPipeline),
       });
 
       //step 3 - trigger "payment consumer" for the order
