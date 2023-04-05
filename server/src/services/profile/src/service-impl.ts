@@ -14,20 +14,20 @@ const processTransactionStream: IMessageHandler = async (
   messageId,
 ) => {
   LoggerCls.info(`Incomming message in Profile Service ${messageId}`);
-  if (message) {
-    if (message.action == TransactionStreamActions.CALCULATE_PROFILE_SCORE) {
-      // check profile score
-
-      await nextTransactionStep({
-        ...message,
-        logMessage: `Requesting next step in transaction risk scoring for the user ${message.userId}`,
-      });
-
-      return true;
-    }
+  if (message.action !== TransactionStreamActions.CALCULATE_PROFILE_SCORE) {
+    return false;
   }
 
-  return false;
+  // check profile score
+
+  const orderDetails = JSON.stringify(message.orderDetails);
+
+  await nextTransactionStep({
+    ...message,
+    logMessage: `Requesting next step in transaction risk scoring for the user ${message.userId}`,
+  });
+
+  return true;
 };
 
 const listenToTransactionStream = () => {

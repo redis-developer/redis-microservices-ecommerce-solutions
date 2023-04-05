@@ -39,63 +39,64 @@ const processPaymentForNewOrders: IMessageHandler = async (
   messageId,
 ) => {
   LoggerCls.info(`Incomming message in Payment Service ${messageId}`);
-  if (message && message.orderId && message.orderAmount) {
-    const userId = message.userId;
-    LoggerCls.info(`order received ${message.orderId}`);
 
-    //assume payment is processed successfully
-    const paymentStatus = ORDER_STATUS.PAYMENT_SUCCESS;
-    const orderAmount = parseFloat(message.orderAmount);
-    const payment: IPayment = {
-      orderId: message.orderId,
-      orderAmount: orderAmount,
-      paidAmount: orderAmount,
-      orderStatusCode: paymentStatus,
-      userId: userId,
-      createdOn: new Date(),
-      createdBy: userId,
-      lastUpdatedOn: null,
-      lastUpdatedBy: null,
-      statusCode: DB_ROW_STATUS.ACTIVE,
-    };
-
-    const mongodbWrapperInst = getMongodb();
-    const paymentId = await mongodbWrapperInst.insertOne(
-      COLLECTIONS.PAYMENTS.collectionName,
-      COLLECTIONS.PAYMENTS.keyName,
-      payment,
-    );
-
-    await addMessageToTransactionStream({
-      //adding log To TransactionStream
-      action: TransactionStreamActions.LOG,
-      logMessage: `Payment ${paymentId} processed for the orderId ${message.orderId} and user ${userId}`,
-      userId: userId,
-      sessionId: message.sessionId,
-      transactionPipeline: JSON.stringify(TransactionPipelines.LOG),
-    });
-
-    await addPaymentDetailsToStream({
-      orderId: message.orderId,
-      paymentId: paymentId,
-      orderStatusCode: paymentStatus.toString(),
-      userId: userId,
-      sessionId: message.sessionId,
-    });
-
-    await addMessageToTransactionStream({
-      //adding log To TransactionStream
-      action: TransactionStreamActions.LOG,
-      logMessage: `To update order status, payment details are added to ${REDIS_STREAMS.STREAMS.PAYMENTS} for the orderId ${message.orderId} and  user ${userId}`,
-      userId: userId,
-      sessionId: message.sessionId,
-      transactionPipeline: JSON.stringify(TransactionPipelines.LOG),
-    });
-
-    return true;
+  if (!(message && message.orderId && message.orderAmount)) {
+    return false;
   }
 
-  return false;
+  const userId = message.userId;
+  LoggerCls.info(`order received ${message.orderId}`);
+
+  //assume payment is processed successfully
+  const paymentStatus = ORDER_STATUS.PAYMENT_SUCCESS;
+  const orderAmount = parseFloat(message.orderAmount);
+  const payment: IPayment = {
+    orderId: message.orderId,
+    orderAmount: orderAmount,
+    paidAmount: orderAmount,
+    orderStatusCode: paymentStatus,
+    userId: userId,
+    createdOn: new Date(),
+    createdBy: userId,
+    lastUpdatedOn: null,
+    lastUpdatedBy: null,
+    statusCode: DB_ROW_STATUS.ACTIVE,
+  };
+
+  const mongodbWrapperInst = getMongodb();
+  const paymentId = await mongodbWrapperInst.insertOne(
+    COLLECTIONS.PAYMENTS.collectionName,
+    COLLECTIONS.PAYMENTS.keyName,
+    payment,
+  );
+
+  await addMessageToTransactionStream({
+    //adding log To TransactionStream
+    action: TransactionStreamActions.LOG,
+    logMessage: `Payment ${paymentId} processed for the orderId ${message.orderId} and user ${userId}`,
+    userId: userId,
+    sessionId: message.sessionId,
+    transactionPipeline: JSON.stringify(TransactionPipelines.LOG),
+  });
+
+  await addPaymentDetailsToStream({
+    orderId: message.orderId,
+    paymentId: paymentId,
+    orderStatusCode: paymentStatus.toString(),
+    userId: userId,
+    sessionId: message.sessionId,
+  });
+
+  await addMessageToTransactionStream({
+    //adding log To TransactionStream
+    action: TransactionStreamActions.LOG,
+    logMessage: `To update order status, payment details are added to ${REDIS_STREAMS.STREAMS.PAYMENTS} for the orderId ${message.orderId} and  user ${userId}`,
+    userId: userId,
+    sessionId: message.sessionId,
+    transactionPipeline: JSON.stringify(TransactionPipelines.LOG),
+  });
+
+  return true;
 };
 
 const listenToOrdersStream = () => {

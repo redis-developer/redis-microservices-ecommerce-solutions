@@ -10,7 +10,7 @@ interface IMessageHandler {
   (message: any, messageId: string): Promise<boolean>;
 }
 
-interface listenStreamOptions {
+interface ListenStreamOptions {
   streams: {
     streamKeyName: string;
     processMessageCallback: IMessageHandler;
@@ -20,7 +20,7 @@ interface listenStreamOptions {
   maxNoOfEntriesToReadAtTime?: number;
 }
 
-const listenToStreams = async (options: listenStreamOptions) => {
+const listenToStreams = async (options: ListenStreamOptions) => {
   const nodeRedisClient = getNodeRedisClient();
   if (nodeRedisClient) {
     const streams = options.streams;
@@ -87,11 +87,11 @@ const listenToStreams = async (options: listenStreamOptions) => {
                 (s) => s.streamKeyName == streamKeyName,
               );
 
-              if (!stream) {
+              if (!stream || !messageItem.message) {
                 continue;
               }
-              const processMessageCallback = stream.processMessageCallback;
-              const handled = await processMessageCallback(
+
+              const handled = await stream.processMessageCallback(
                 messageItem.message,
                 messageItem.id,
               );

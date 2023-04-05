@@ -122,72 +122,70 @@ const processTransactionStream: IMessageHandler = async (
   messageId,
 ) => {
   LoggerCls.info(`Incomming message in Digital Identity Service ${messageId}`);
-  if (message) {
-    if (message.action == TransactionStreamActions.INSERT_LOGIN_IDENTITY) {
-      LoggerCls.info(`Adding digital identity to redis for ${message.userId}`);
+  if (message.action == TransactionStreamActions.INSERT_LOGIN_IDENTITY) {
+    LoggerCls.info(`Adding digital identity to redis for ${message.userId}`);
 
-      //step 1 - add login digital identity to redis
-      const insertedKey = await addDigitalIdentityToRedis(message);
-      await addMessageToTransactionStream({
-        //adding log To TransactionStream
-        ...message,
-        action: TransactionStreamActions.LOG,
-        logMessage: `New Login Digital Identity added to Redis (JSON) at key  ${insertedKey} for the user ${message.userId}`,
-        transactionPipeline: JSON.stringify(TransactionPipelines.LOG),
-      });
+    //step 1 - add login digital identity to redis
+    const insertedKey = await addDigitalIdentityToRedis(message);
+    await addMessageToTransactionStream({
+      //adding log To TransactionStream
+      ...message,
+      action: TransactionStreamActions.LOG,
+      logMessage: `New Login Digital Identity added to Redis (JSON) at key  ${insertedKey} for the user ${message.userId}`,
+      transactionPipeline: JSON.stringify(TransactionPipelines.LOG),
+    });
 
-      return true;
-    } else if (
-      message.action == TransactionStreamActions.CALCULATE_IDENTITY_SCORE
-    ) {
-      LoggerCls.info(`Scoring digital identity for ${message.userId}`);
-      //step 1 - calculate score for validation digital identity
-      const identityScore = await calculateIdentityScore(message);
-      message.identityScore = identityScore.toString();
-      await addMessageToTransactionStream({
-        //adding log To TransactionStream
-        ...message,
-        action: TransactionStreamActions.LOG_IDENTITY_SCORE,
-        logMessage: `${identityScore} is the digital identity score for the user ${message.userId}`,
-        identityScore: identityScore.toString(),
-        transactionPipeline: JSON.stringify(
-          TransactionPipelines.LOG_IDENTITY_SCORE,
-        ),
-      });
+    return true;
+  } else if (
+    message.action == TransactionStreamActions.CALCULATE_IDENTITY_SCORE
+  ) {
+    LoggerCls.info(`Scoring digital identity for ${message.userId}`);
+    //step 1 - calculate score for validation digital identity
+    const identityScore = await calculateIdentityScore(message);
+    message.identityScore = identityScore.toString();
+    await addMessageToTransactionStream({
+      //adding log To TransactionStream
+      ...message,
+      action: TransactionStreamActions.LOG_IDENTITY_SCORE,
+      logMessage: `${identityScore} is the digital identity score for the user ${message.userId}`,
+      identityScore: identityScore.toString(),
+      transactionPipeline: JSON.stringify(
+        TransactionPipelines.LOG_IDENTITY_SCORE,
+      ),
+    });
 
-      LoggerCls.info(`Adding digital identity to redis for ${message.userId}`);
-      //step 2 - add validation digital identity to redis
-      const insertedKey = await addDigitalIdentityToRedis(message);
-      await addMessageToTransactionStream({
-        //adding log To TransactionStream
-        ...message,
-        action: TransactionStreamActions.LOG,
-        logMessage: `Validation Digital Identity added to Redis (JSON) at key ${insertedKey} for the user ${message.userId}`,
-        identityScore: identityScore.toString(),
-        transactionPipeline: JSON.stringify(TransactionPipelines.LOG),
-      });
+    LoggerCls.info(`Adding digital identity to redis for ${message.userId}`);
+    //step 2 - add validation digital identity to redis
+    const insertedKey = await addDigitalIdentityToRedis(message);
+    await addMessageToTransactionStream({
+      //adding log To TransactionStream
+      ...message,
+      action: TransactionStreamActions.LOG,
+      logMessage: `Validation Digital Identity added to Redis (JSON) at key ${insertedKey} for the user ${message.userId}`,
+      identityScore: identityScore.toString(),
+      transactionPipeline: JSON.stringify(TransactionPipelines.LOG),
+    });
 
-      await nextTransactionStep({
-        ...message,
-        logMessage: `Requesting next step in transaction risk scoring for the user ${message.userId}`,
+    await nextTransactionStep({
+      ...message,
+      logMessage: `Requesting next step in transaction risk scoring for the user ${message.userId}`,
 
-        identityScore: identityScore.toString(),
-      });
+      identityScore: identityScore.toString(),
+    });
 
-      //step 3 - trigger "payment consumer" for the order
-      //   await addOrderDetailsToStream(message);
-      //   await addMessageToTransactionStream({
-      //     //adding log To TransactionStream
-      //     userId: message.userId,
-      //     sessionId: message.sessionId,
-      //     sessionData: message.sessionData,
-      //     action: TransactionStreamActions.LOG,
-      //     logMessage: `To process payment, order details are added to ${REDIS_STREAMS.ORDERS.STREAM_NAME} for the user ${message.userId}`,
-      //     orderDetails: message.orderDetails,
-      //   });
+    //step 3 - trigger "payment consumer" for the order
+    //   await addOrderDetailsToStream(message);
+    //   await addMessageToTransactionStream({
+    //     //adding log To TransactionStream
+    //     userId: message.userId,
+    //     sessionId: message.sessionId,
+    //     sessionData: message.sessionData,
+    //     action: TransactionStreamActions.LOG,
+    //     logMessage: `To process payment, order details are added to ${REDIS_STREAMS.ORDERS.STREAM_NAME} for the user ${message.userId}`,
+    //     orderDetails: message.orderDetails,
+    //   });
 
-      return true;
-    }
+    return true;
   }
 
   return false;

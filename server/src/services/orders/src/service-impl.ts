@@ -335,59 +335,61 @@ const checkOrderFraudScore = async (
 ) => {
   LoggerCls.info(`Incomming message in Order Service`);
   if (
-    message.action === TransactionStreamActions.PROCESS_ORDER &&
-    message.orderDetails
+    !(
+      message.action === TransactionStreamActions.PROCESS_ORDER &&
+      message.orderDetails
+    )
   ) {
-    const orderDetails: IOrdersStreamMessage = JSON.parse(message.orderDetails);
-
-    if (!(orderDetails.orderId && orderDetails.userId)) {
-      return false;
-    }
-
-    LoggerCls.info(
-      `Transaction risk scoring for user ${message.userId} and order ${orderDetails.orderId}`,
-    );
-
-    updateOrderStatusInRedis(
-      orderDetails.orderId,
-      '',
-      ORDER_STATUS.PENDING,
-      orderDetails.userId,
-    );
-    /**
-     * In real world scenario : can use RDI/ redis gears/ any other database to database sync strategy for REDIS-> MongoDB  data transfer.
-     * To keep it simple, adding  data to MongoDB manually in the same service
-     */
-    updateOrderStatusInMongoDB(
-      orderDetails.orderId,
-      '',
-      ORDER_STATUS.PENDING,
-      orderDetails.userId,
-    );
-
-    await addMessageToTransactionStream({
-      //adding log To TransactionStream
-      ...message,
-      action: TransactionStreamActions.LOG,
-      logMessage: `Order status updated after fraud checks for orderId ${orderDetails.orderId} and user ${message.userId}`,
-      transactionPipeline: JSON.stringify(TransactionPipelines.LOG),
-    });
-
-    //step 3 - trigger "payment consumer" for the order
-    await addOrderDetailsToStream(message);
-    await addMessageToTransactionStream({
-      ...message,
-      //adding log To TransactionStream
-      action: TransactionStreamActions.LOG,
-      logMessage: `To process payment, order details are added to ${REDIS_STREAMS.STREAMS.ORDERS} for the user ${message.userId}`,
-      orderDetails: message.orderDetails,
-      transactionPipeline: JSON.stringify(TransactionPipelines.LOG),
-    });
-
-    return true;
+    return false;
   }
 
-  return false;
+  const orderDetails: IOrdersStreamMessage = JSON.parse(message.orderDetails);
+
+  if (!(orderDetails.orderId && orderDetails.userId)) {
+    return false;
+  }
+
+  LoggerCls.info(
+    `Transaction risk scoring for user ${message.userId} and order ${orderDetails.orderId}`,
+  );
+
+  updateOrderStatusInRedis(
+    orderDetails.orderId,
+    '',
+    ORDER_STATUS.PENDING,
+    orderDetails.userId,
+  );
+  /**
+   * In real world scenario : can use RDI/ redis gears/ any other database to database sync strategy for REDIS-> MongoDB  data transfer.
+   * To keep it simple, adding  data to MongoDB manually in the same service
+   */
+  updateOrderStatusInMongoDB(
+    orderDetails.orderId,
+    '',
+    ORDER_STATUS.PENDING,
+    orderDetails.userId,
+  );
+
+  await addMessageToTransactionStream({
+    //adding log To TransactionStream
+    ...message,
+    action: TransactionStreamActions.LOG,
+    logMessage: `Order status updated after fraud checks for orderId ${orderDetails.orderId} and user ${message.userId}`,
+    transactionPipeline: JSON.stringify(TransactionPipelines.LOG),
+  });
+
+  //step 3 - trigger "payment consumer" for the order
+  await addOrderDetailsToStream(message);
+  await addMessageToTransactionStream({
+    ...message,
+    //adding log To TransactionStream
+    action: TransactionStreamActions.LOG,
+    logMessage: `To process payment, order details are added to ${REDIS_STREAMS.STREAMS.ORDERS} for the user ${message.userId}`,
+    orderDetails: message.orderDetails,
+    transactionPipeline: JSON.stringify(TransactionPipelines.LOG),
+  });
+
+  return true;
 };
 
 const listenToPaymentsStream = () => {
