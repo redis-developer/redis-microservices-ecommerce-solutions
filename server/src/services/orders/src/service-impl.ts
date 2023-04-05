@@ -335,7 +335,7 @@ const checkOrderFraudScore = async (
 ) => {
   LoggerCls.info(`Incomming message in Order Service`);
   if (
-    message.action === TransactionStreamActions.CHECK_FRAUD &&
+    message.action === TransactionStreamActions.PROCESS_ORDER &&
     message.orderDetails
   ) {
     const orderDetails: IOrdersStreamMessage = JSON.parse(message.orderDetails);
@@ -345,7 +345,7 @@ const checkOrderFraudScore = async (
     }
 
     LoggerCls.info(
-      `Fraud checks run for user ${message.userId} and order ${orderDetails.orderId}`,
+      `Transaction risk scoring for user ${message.userId} and order ${orderDetails.orderId}`,
     );
 
     updateOrderStatusInRedis(
