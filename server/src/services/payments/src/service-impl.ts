@@ -1,4 +1,7 @@
-import type { IMessageHandler } from '../../../common/utils/redis/redis-streams';
+import {
+  IMessageHandler,
+  streamLog,
+} from '../../../common/utils/redis/redis-streams';
 import {
   ITransactionStreamMessage,
   IOrdersStreamMessage,
@@ -70,13 +73,10 @@ const processPaymentForNewOrders: IMessageHandler = async (
     payment,
   );
 
-  await addMessageToTransactionStream({
-    //adding log To TransactionStream
-    action: TransactionStreamActions.LOG,
-    logMessage: `Payment ${paymentId} processed for the orderId ${message.orderId} and user ${userId}`,
-    userId: userId,
-    sessionId: message.sessionId,
-    transactionPipeline: JSON.stringify(TransactionPipelines.LOG),
+  await streamLog({
+    action: 'PROCESS_PAYMENT',
+    message: `Payment ${paymentId} processed for the orderId ${message.orderId} and user ${userId}`,
+    metadata: message,
   });
 
   await addPaymentDetailsToStream({
@@ -87,13 +87,10 @@ const processPaymentForNewOrders: IMessageHandler = async (
     sessionId: message.sessionId,
   });
 
-  await addMessageToTransactionStream({
-    //adding log To TransactionStream
-    action: TransactionStreamActions.LOG,
-    logMessage: `To update order status, payment details are added to ${REDIS_STREAMS.STREAMS.PAYMENTS} for the orderId ${message.orderId} and  user ${userId}`,
-    userId: userId,
-    sessionId: message.sessionId,
-    transactionPipeline: JSON.stringify(TransactionPipelines.LOG),
+  await streamLog({
+    action: 'PROCESS_PAYMENT',
+    message: `To update order status, payment details are added to ${REDIS_STREAMS.STREAMS.PAYMENTS} for the orderId ${message.orderId} and  user ${userId}`,
+    metadata: message,
   });
 
   return true;

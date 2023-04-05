@@ -144,6 +144,23 @@ const nextTransactionStep = async (message: ITransactionStreamMessage) => {
   );
 };
 
-export { listenToStreams, addMessageToStream, nextTransactionStep };
+interface ILogStreamMessage {
+  action: string;
+  message: string;
+  metadata: any;
+}
+
+const streamLog = async (message: ILogStreamMessage) => {
+  await addMessageToStream(
+    {
+      action: message.action,
+      message: message.message,
+      metadata: JSON.stringify(message.metadata),
+    },
+    REDIS_STREAMS.STREAMS.LOG,
+  );
+};
+
+export { listenToStreams, addMessageToStream, nextTransactionStep, streamLog };
 
 export type { IMessageHandler };

@@ -7,7 +7,10 @@ import {
   TransactionPipelines,
 } from '../../../common/models/misc';
 import type { Document } from '../../../common/utils/mongodb/node-mongo-wrapper';
-import type { IMessageHandler } from '../../../common/utils/redis/redis-streams';
+import {
+  IMessageHandler,
+  streamLog,
+} from '../../../common/utils/redis/redis-streams';
 
 import * as yup from 'yup';
 
@@ -196,14 +199,14 @@ const createOrder = async (
      */
     await addOrderToMongoDB(order);
 
-    await addMessageToTransactionStream({
-      //adding log To TransactionStream
-      action: TransactionStreamActions.LOG,
-      logMessage: `order created with id ${orderId} for the user ${userId}`,
-      userId: userId,
-      persona: sessionData.persona,
-      sessionId: sessionId,
-      transactionPipeline: JSON.stringify(TransactionPipelines.LOG),
+    await streamLog({
+      action: 'CREATE_ORDER',
+      message: `order created with id ${orderId} for the user ${userId}`,
+      metadata: {
+        userId: userId,
+        persona: sessionData.persona,
+        sessionId: sessionId,
+      },
     });
 
     let orderAmount = 0;
@@ -290,43 +293,43 @@ const updateOrderStatus: IMessageHandler = async (
 ) => {
   LoggerCls.info(`Incomming message in Order Service ${messageId}`);
   if (
-    message &&
-    message.orderId &&
-    message.paymentId &&
-    message.orderStatusCode &&
-    message.userId
+    !(
+      message &&
+      message.orderId &&
+      message.paymentId &&
+      message.orderStatusCode &&
+      message.userId
+    )
   ) {
-    LoggerCls.info(`payment received ${message.paymentId}`);
-
-    updateOrderStatusInRedis(
-      message.orderId,
-      message.paymentId,
-      parseInt(message.orderStatusCode),
-      message.userId,
-    );
-    /**
-     * In real world scenario : can use RDI/ redis gears/ any other database to database sync strategy for REDIS-> MongoDB  data transfer.
-     * To keep it simple, adding  data to MongoDB manually in the same service
-     */
-    updateOrderStatusInMongoDB(
-      message.orderId,
-      message.paymentId,
-      parseInt(message.orderStatusCode),
-      message.userId,
-    );
-
-    await addMessageToTransactionStream({
-      //adding log To TransactionStream
-      ...message,
-      action: TransactionStreamActions.LOG,
-      logMessage: `Order status updated after payment for orderId ${message.orderId} and user ${message.userId}`,
-      transactionPipeline: JSON.stringify(TransactionPipelines.LOG),
-    });
-
-    return true;
+    return false;
   }
 
-  return false;
+  LoggerCls.info(`payment received ${message.paymentId}`);
+
+  updateOrderStatusInRedis(
+    message.orderId,
+    message.paymentId,
+    parseInt(message.orderStatusCode),
+    message.userId,
+  );
+  /**
+   * In real world scenario : can use RDI/ redis gears/ any other database to database sync strategy for REDIS-> MongoDB  data transfer.
+   * To keep it simple, adding  data to MongoDB manually in the same service
+   */
+  updateOrderStatusInMongoDB(
+    message.orderId,
+    message.paymentId,
+    parseInt(message.orderStatusCode),
+    message.userId,
+  );
+
+  await streamLog({
+    action: TransactionStreamActions.PROCESS_ORDER,
+    message: `Order status updated after payment for orderId ${message.orderId} and user ${message.userId}`,
+    metadata: message,
+  });
+
+  return true;
 };
 
 const checkOrderFraudScore = async (
@@ -370,23 +373,19 @@ const checkOrderFraudScore = async (
     orderDetails.userId,
   );
 
-  await addMessageToTransactionStream({
-    //adding log To TransactionStream
-    ...message,
-    action: TransactionStreamActions.LOG,
-    logMessage: `Order status updated after fraud checks for orderId ${orderDetails.orderId} and user ${message.userId}`,
-    transactionPipeline: JSON.stringify(TransactionPipelines.LOG),
+  await streamLog({
+    action: TransactionStreamActions.PROCESS_ORDER,
+    message: `Order status updated after fraud checks for orderId ${orderDetails.orderId} and user ${message.userId}`,
+    metadata: message,
   });
 
   //step 3 - trigger "payment consumer" for the order
   await addOrderDetailsToStream(message);
-  await addMessageToTransactionStream({
-    ...message,
-    //adding log To TransactionStream
-    action: TransactionStreamActions.LOG,
-    logMessage: `To process payment, order details are added to ${REDIS_STREAMS.STREAMS.ORDERS} for the user ${message.userId}`,
-    orderDetails: message.orderDetails,
-    transactionPipeline: JSON.stringify(TransactionPipelines.LOG),
+
+  await streamLog({
+    action: TransactionStreamActions.PROCESS_ORDER,
+    message: `To process payment, order details are added to ${REDIS_STREAMS.STREAMS.ORDERS} for the user ${message.userId}`,
+    metadata: message,
   });
 
   return true;

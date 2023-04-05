@@ -20,13 +20,9 @@ enum TransactionStreamActions {
   CALCULATE_IDENTITY_SCORE = 'CALCULATE_IDENTITY_SCORE',
   CALCULATE_PROFILE_SCORE = 'CALCULATE_PROFILE_SCORE',
   PROCESS_ORDER = 'PROCESS_ORDER',
-  LOG_IDENTITY_SCORE = 'LOG_IDENTITY_SCORE',
-  LOG = 'LOG',
 }
 
 const TransactionPipelines = {
-  LOG: [TransactionStreamActions.LOG],
-  LOG_IDENTITY_SCORE: [TransactionStreamActions.LOG_IDENTITY_SCORE],
   LOGIN: [TransactionStreamActions.INSERT_LOGIN_IDENTITY],
   CHECKOUT: [
     TransactionStreamActions.CALCULATE_IDENTITY_SCORE,
