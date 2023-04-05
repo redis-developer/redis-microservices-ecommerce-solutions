@@ -11,6 +11,12 @@ interface IProductData {
   ageGroup?: string | number;
   gender?: string | number;
   displayCategories?: string | number;
+  masterCategory?: {
+    typeName: string | number;
+  };
+  subCategory?: {
+    typeName: string | number;
+  };
   styleImages: {
     default: {
       imageURL: string | number;

@@ -18,20 +18,35 @@ interface ICommonFields {
 enum TransactionStreamActions {
   INSERT_LOGIN_IDENTITY = 'INSERT_LOGIN_IDENTITY',
   CALCULATE_IDENTITY_SCORE = 'CALCULATE_IDENTITY_SCORE',
+  CALCULATE_PROFILE_SCORE = 'CALCULATE_PROFILE_SCORE',
+  CHECK_FRAUD = 'CHECK_FRAUD',
   LOG_IDENTITY_SCORE = 'LOG_IDENTITY_SCORE',
   LOG = 'LOG',
 }
+
+const TransactionPipelines = {
+  LOG: [TransactionStreamActions.LOG],
+  LOG_IDENTITY_SCORE: [TransactionStreamActions.LOG_IDENTITY_SCORE],
+  LOGIN: [TransactionStreamActions.INSERT_LOGIN_IDENTITY],
+  CHECKOUT: [
+    TransactionStreamActions.CALCULATE_IDENTITY_SCORE,
+    TransactionStreamActions.CALCULATE_PROFILE_SCORE,
+    TransactionStreamActions.CHECK_FRAUD,
+  ],
+};
 
 interface ITransactionStreamMessage {
   action: TransactionStreamActions;
   logMessage?: string;
   userId?: string;
+  persona?: string;
   sessionId?: string;
+  orderDetails?: string;
+  transactionPipeline: string;
 
   identityBrowserAgent?: string;
   identityIpAddress?: string;
   identityScore?: string;
-  identityTransactionDetails?: string;
 
   profileScore?: string;
   mlScore?: string; //AI/ ML
@@ -55,7 +70,7 @@ interface IPaymentsStreamMessage {
   sessionId?: string;
 }
 
-export { DB_ROW_STATUS, TransactionStreamActions };
+export { DB_ROW_STATUS, TransactionStreamActions, TransactionPipelines };
 export type {
   ICommonFields,
   ITransactionStreamMessage,

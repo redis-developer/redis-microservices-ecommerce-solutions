@@ -1,4 +1,7 @@
-import type { ITransactionStreamMessage } from '../../common/models/misc';
+import {
+  ITransactionStreamMessage,
+  TransactionPipelines,
+} from '../../common/models/misc';
 
 import { Request } from 'express';
 
@@ -8,20 +11,24 @@ import { addMessageToStream } from '../../common/utils/redis/redis-streams';
 
 const addLoginToTransactionStream = async (req: Request) => {
   if (req && req.session && req.sessionId) {
-    const userId = JSON.parse(req.session).userId;
+    const session = JSON.parse(req.session);
+    const userId = session.userId;
+    const persona = session.persona;
 
     const entry: ITransactionStreamMessage = {
       action: TransactionStreamActions.INSERT_LOGIN_IDENTITY,
       logMessage: `Digital identity to be stored for the user ${userId}`,
-      userId: userId,
+      userId,
+      persona,
       sessionId: req.sessionId,
 
       identityBrowserAgent: req.headers['user-agent'],
       identityIpAddress:
         req.headers['x-forwarded-for']?.toString() || req.socket.remoteAddress,
+      transactionPipeline: JSON.stringify(TransactionPipelines.LOGIN),
     };
 
-    const streamKeyName = REDIS_STREAMS.TRANSACTION.STREAM_NAME;
+    const streamKeyName = REDIS_STREAMS.STREAMS.TRANSACTIONS;
     await addMessageToStream(entry, streamKeyName);
   }
 };

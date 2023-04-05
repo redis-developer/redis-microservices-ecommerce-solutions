@@ -1,4 +1,7 @@
-import type { IApiResponseBody } from '../../../common/config/server-config';
+import type {
+  IApiResponseBody,
+  ISessionData,
+} from '../../../common/config/server-config';
 
 import express, { Request, Response } from 'express';
 
@@ -20,9 +23,12 @@ router.post(API_NAMES.CREATE_ORDER, async (req: Request, res: Response) => {
     error: null,
   };
 
-  const sessionData = req.header('x-session');
+  const sessionDataStr = req.header('x-session');
+  const sessionData: ISessionData = sessionDataStr
+    ? JSON.parse(sessionDataStr)
+    : null;
   const sessionId = req.header('x-sessionid') || '';
-  const userId = sessionData ? JSON.parse(sessionData).userId : USERS.DEFAULT;
+  const userId = sessionData ? sessionData.userId : USERS.DEFAULT;
   const browserAgent = req.headers['user-agent'] || '';
   const ipAddress =
     req.headers['x-forwarded-for']?.toString() ||
@@ -33,7 +39,13 @@ router.post(API_NAMES.CREATE_ORDER, async (req: Request, res: Response) => {
     body.userId = userId;
   }
   try {
-    result.data = await createOrder(body, browserAgent, ipAddress, sessionId);
+    result.data = await createOrder(
+      body,
+      browserAgent,
+      ipAddress,
+      sessionId,
+      sessionData,
+    );
   } catch (err) {
     const pureErr = LoggerCls.getPureError(err);
     result.error = pureErr;

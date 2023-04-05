@@ -1,9 +1,10 @@
 import type { IProduct } from '../../../common/models/product';
 import type { IOrder } from '../../../common/models/order';
-import type {
+import {
   ITransactionStreamMessage,
   IOrdersStreamMessage,
   IPaymentsStreamMessage,
+  TransactionPipelines,
 } from '../../../common/models/misc';
 import type { Document } from '../../../common/utils/mongodb/node-mongo-wrapper';
 import type { IMessageHandler } from '../../../common/utils/redis/redis-streams';
@@ -15,6 +16,7 @@ import { TransactionStreamActions } from '../../../common/models/misc';
 import { ORDER_STATUS, DB_ROW_STATUS } from '../../../common/models/order';
 import {
   COLLECTIONS,
+  ISessionData,
   REDIS_STREAMS,
 } from '../../../common/config/server-config';
 import {
@@ -24,7 +26,7 @@ import {
 import { YupCls } from '../../../common/utils/yup';
 import { LoggerCls } from '../../../common/utils/logger';
 import { getMongodb } from '../../../common/utils/mongodb/node-mongo-wrapper';
-import { listenToStream } from '../../../common/utils/redis/redis-streams';
+import { listenToStreams } from '../../../common/utils/redis/redis-streams';
 import { addMessageToStream } from '../../../common/utils/redis/redis-streams';
 
 const validateOrder = async (_order) => {
@@ -153,12 +155,12 @@ const addMessageToTransactionStream = async (
   message: ITransactionStreamMessage,
 ) => {
   if (message) {
-    const streamKeyName = REDIS_STREAMS.TRANSACTION.STREAM_NAME;
+    const streamKeyName = REDIS_STREAMS.STREAMS.TRANSACTIONS;
     await addMessageToStream(message, streamKeyName);
   }
 };
 const addOrderDetailsToStream = async (orderDetails: IOrdersStreamMessage) => {
-  const streamKeyName = REDIS_STREAMS.ORDERS.STREAM_NAME;
+  const streamKeyName = REDIS_STREAMS.STREAMS.ORDERS;
   await addMessageToStream(orderDetails, streamKeyName);
 };
 
@@ -167,6 +169,7 @@ const createOrder = async (
   browserAgent: string,
   ipAddress: string,
   sessionId: string,
+  sessionData: ISessionData,
 ) => {
   if (order) {
     const userId = order.userId || USERS.DEFAULT; //temp as no login/ users functionality;
@@ -198,7 +201,9 @@ const createOrder = async (
       action: TransactionStreamActions.LOG,
       logMessage: `order created with id ${orderId} for the user ${userId}`,
       userId: userId,
+      persona: sessionData.persona,
       sessionId: sessionId,
+      transactionPipeline: JSON.stringify(TransactionPipelines.LOG),
     });
 
     let orderAmount = 0;
@@ -215,15 +220,16 @@ const createOrder = async (
     // await addOrderDetailsToStream(orderDetails); //Now, addOrderDetailsToStream is called from digital-identity service
     await addMessageToTransactionStream({
       //adding Identity To TransactionStream
-      action: TransactionStreamActions.CALCULATE_IDENTITY_SCORE,
+      action: TransactionPipelines.CHECKOUT[0],
       logMessage: `Digital identity to be validated/ scored for the user ${userId}`,
       userId: userId,
+      persona: sessionData.persona,
       sessionId: sessionId,
+      orderDetails: orderDetails ? JSON.stringify(orderDetails) : '',
+      transactionPipeline: JSON.stringify(TransactionPipelines.CHECKOUT),
+
       identityBrowserAgent: browserAgent,
       identityIpAddress: ipAddress,
-      identityTransactionDetails: orderDetails
-        ? JSON.stringify(orderDetails)
-        : '',
     });
 
     return orderId;
@@ -282,6 +288,7 @@ const updateOrderStatus: IMessageHandler = async (
   message: IPaymentsStreamMessage,
   messageId,
 ) => {
+  LoggerCls.info(`Incomming message in Order Service ${messageId}`);
   if (
     message &&
     message.orderId &&
@@ -310,21 +317,98 @@ const updateOrderStatus: IMessageHandler = async (
 
     await addMessageToTransactionStream({
       //adding log To TransactionStream
+      ...message,
       action: TransactionStreamActions.LOG,
       logMessage: `Order status updated after payment for orderId ${message.orderId} and user ${message.userId}`,
-      userId: message.userId,
-      sessionId: message.sessionId,
+      transactionPipeline: JSON.stringify(TransactionPipelines.LOG),
     });
+
+    return true;
   }
+
+  return false;
+};
+
+const checkOrderFraudScore = async (
+  message: ITransactionStreamMessage,
+  messageId,
+) => {
+  LoggerCls.info(`Incomming message in Order Service`);
+  if (
+    message.action === TransactionStreamActions.CHECK_FRAUD &&
+    message.orderDetails
+  ) {
+    const orderDetails: IOrdersStreamMessage = JSON.parse(message.orderDetails);
+
+    if (!(orderDetails.orderId && orderDetails.userId)) {
+      return false;
+    }
+
+    LoggerCls.info(
+      `Fraud checks run for user ${message.userId} and order ${orderDetails.orderId}`,
+    );
+
+    updateOrderStatusInRedis(
+      orderDetails.orderId,
+      '',
+      ORDER_STATUS.PENDING,
+      orderDetails.userId,
+    );
+    /**
+     * In real world scenario : can use RDI/ redis gears/ any other database to database sync strategy for REDIS-> MongoDB  data transfer.
+     * To keep it simple, adding  data to MongoDB manually in the same service
+     */
+    updateOrderStatusInMongoDB(
+      orderDetails.orderId,
+      '',
+      ORDER_STATUS.PENDING,
+      orderDetails.userId,
+    );
+
+    await addMessageToTransactionStream({
+      //adding log To TransactionStream
+      ...message,
+      action: TransactionStreamActions.LOG,
+      logMessage: `Order status updated after fraud checks for orderId ${orderDetails.orderId} and user ${message.userId}`,
+      transactionPipeline: JSON.stringify(TransactionPipelines.LOG),
+    });
+
+    //step 3 - trigger "payment consumer" for the order
+    await addOrderDetailsToStream(message);
+    await addMessageToTransactionStream({
+      ...message,
+      //adding log To TransactionStream
+      action: TransactionStreamActions.LOG,
+      logMessage: `To process payment, order details are added to ${REDIS_STREAMS.STREAMS.ORDERS} for the user ${message.userId}`,
+      orderDetails: message.orderDetails,
+      transactionPipeline: JSON.stringify(TransactionPipelines.LOG),
+    });
+
+    return true;
+  }
+
+  return false;
 };
 
 const listenToPaymentsStream = () => {
-  listenToStream({
-    streamKeyName: REDIS_STREAMS.PAYMENTS.STREAM_NAME,
-    groupName: REDIS_STREAMS.PAYMENTS.CONSUMER_GROUP_NAME,
-    consumerName: REDIS_STREAMS.PAYMENTS.ORDERS_CONSUMER_NAME,
-    processMessageCallback: updateOrderStatus,
+  listenToStreams({
+    streams: [
+      {
+        streamKeyName: REDIS_STREAMS.STREAMS.PAYMENTS,
+        processMessageCallback: updateOrderStatus,
+      },
+      {
+        streamKeyName: REDIS_STREAMS.STREAMS.TRANSACTIONS,
+        processMessageCallback: checkOrderFraudScore,
+      },
+    ],
+    groupName: REDIS_STREAMS.GROUPS.ORDERS,
+    consumerName: REDIS_STREAMS.CONSUMERS.ORDERS,
   });
 };
 
-export { createOrder, listenToPaymentsStream };
+const initialize = () => {
+  listenToPaymentsStream();
+};
+
+export { createOrder, initialize };

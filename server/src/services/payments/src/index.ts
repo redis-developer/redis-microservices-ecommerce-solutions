@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import express, { Express, Request, Response } from 'express';
 
-import { listenToOrdersStream } from './service-impl';
+import { initialize } from './service-impl';
 import { SERVER_CONFIG } from '../../../common/config/server-config';
 import { setMongodb } from '../../../common/utils/mongodb/node-mongo-wrapper';
 import { setRedis } from '../../../common/utils/redis/redis-wrapper';
@@ -27,7 +27,7 @@ app.listen(PORT, async () => {
   await setMongodb(MONGO_DB_URI);
   await setRedis(REDIS_URI);
 
-  listenToOrdersStream();
+  initialize();
 
   console.log(`Server is running at http://localhost:${PORT}`);
 });

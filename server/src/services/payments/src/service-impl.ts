@@ -1,8 +1,9 @@
 import type { IMessageHandler } from '../../../common/utils/redis/redis-streams';
-import type {
+import {
   ITransactionStreamMessage,
   IOrdersStreamMessage,
   IPaymentsStreamMessage,
+  TransactionPipelines,
 } from '../../../common/models/misc';
 
 import { IPayment } from '../../../common/models/payment';
@@ -14,21 +15,21 @@ import {
 } from '../../../common/config/server-config';
 import { LoggerCls } from '../../../common/utils/logger';
 import { getMongodb } from '../../../common/utils/mongodb/node-mongo-wrapper';
-import { listenToStream } from '../../../common/utils/redis/redis-streams';
+import { listenToStreams } from '../../../common/utils/redis/redis-streams';
 import { addMessageToStream } from '../../../common/utils/redis/redis-streams';
 
 const addMessageToTransactionStream = async (
   message: ITransactionStreamMessage,
 ) => {
   if (message) {
-    const streamKeyName = REDIS_STREAMS.TRANSACTION.STREAM_NAME;
+    const streamKeyName = REDIS_STREAMS.STREAMS.TRANSACTIONS;
     await addMessageToStream(message, streamKeyName);
   }
 };
 
 const addPaymentDetailsToStream = async (message: IPaymentsStreamMessage) => {
   if (message) {
-    const streamKeyName = REDIS_STREAMS.PAYMENTS.STREAM_NAME;
+    const streamKeyName = REDIS_STREAMS.STREAMS.PAYMENTS;
     await addMessageToStream(message, streamKeyName);
   }
 };
@@ -37,6 +38,7 @@ const processPaymentForNewOrders: IMessageHandler = async (
   message: IOrdersStreamMessage,
   messageId,
 ) => {
+  LoggerCls.info(`Incomming message in Payment Service ${messageId}`);
   if (message && message.orderId && message.orderAmount) {
     const userId = message.userId;
     LoggerCls.info(`order received ${message.orderId}`);
@@ -70,6 +72,7 @@ const processPaymentForNewOrders: IMessageHandler = async (
       logMessage: `Payment ${paymentId} processed for the orderId ${message.orderId} and user ${userId}`,
       userId: userId,
       sessionId: message.sessionId,
+      transactionPipeline: JSON.stringify(TransactionPipelines.LOG),
     });
 
     await addPaymentDetailsToStream({
@@ -83,20 +86,33 @@ const processPaymentForNewOrders: IMessageHandler = async (
     await addMessageToTransactionStream({
       //adding log To TransactionStream
       action: TransactionStreamActions.LOG,
-      logMessage: `To update order status, payment details are added to ${REDIS_STREAMS.PAYMENTS.STREAM_NAME} for the orderId ${message.orderId} and  user ${userId}`,
+      logMessage: `To update order status, payment details are added to ${REDIS_STREAMS.STREAMS.PAYMENTS} for the orderId ${message.orderId} and  user ${userId}`,
       userId: userId,
       sessionId: message.sessionId,
+      transactionPipeline: JSON.stringify(TransactionPipelines.LOG),
     });
+
+    return true;
   }
+
+  return false;
 };
 
 const listenToOrdersStream = () => {
-  listenToStream({
-    streamKeyName: REDIS_STREAMS.ORDERS.STREAM_NAME,
-    groupName: REDIS_STREAMS.ORDERS.CONSUMER_GROUP_NAME,
-    consumerName: REDIS_STREAMS.ORDERS.PAYMENTS_CONSUMER_NAME,
-    processMessageCallback: processPaymentForNewOrders,
+  listenToStreams({
+    streams: [
+      {
+        streamKeyName: REDIS_STREAMS.STREAMS.ORDERS,
+        processMessageCallback: processPaymentForNewOrders,
+      },
+    ],
+    groupName: REDIS_STREAMS.GROUPS.PAYMENTS,
+    consumerName: REDIS_STREAMS.CONSUMERS.PAYMENTS,
   });
 };
 
-export { listenToOrdersStream };
+const initialize = () => {
+  listenToOrdersStream();
+};
+
+export { initialize };

@@ -36,6 +36,12 @@ async function getProductsByFilter(productFilter: IProductFilter) {
       ageGroup: 1,
       gender: 1,
       displayCategories: 1,
+      masterCategory: {
+        typeName: 1,
+      },
+      subCategory: {
+        typeName: 1,
+      },
       styleImages: {
         default: {
           imageURL: 1,

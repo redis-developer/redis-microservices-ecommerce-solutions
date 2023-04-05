@@ -9,8 +9,9 @@ enum ORDER_STATUS {
   PAYMENT_FAIL = -3,
   DRAFT = 0,
   CREATED = 1,
-  PAYMENT_INITIATED = 2,
-  PAYMENT_SUCCESS = 3,
+  PENDING = 2,
+  PAYMENT_INITIATED = 3,
+  PAYMENT_SUCCESS = 4,
 }
 
 interface IOrderProduct {

@@ -2,36 +2,47 @@ import { LoggerCls } from '../logger';
 import { getNodeRedisClient, commandOptions } from './redis-wrapper';
 
 interface IMessageHandler {
-  (message: any, messageId: string): Promise<void>;
+  (message: any, messageId: string): Promise<boolean>;
 }
 
 interface listenStreamOptions {
-  streamKeyName: string;
+  streams: {
+    streamKeyName: string;
+    processMessageCallback: IMessageHandler;
+  }[];
   groupName: string;
   consumerName: string;
   maxNoOfEntriesToReadAtTime?: number;
-  processMessageCallback: IMessageHandler;
 }
 
-const listenToStream = async (options: listenStreamOptions) => {
+const listenToStreams = async (options: listenStreamOptions) => {
   const nodeRedisClient = getNodeRedisClient();
   if (nodeRedisClient) {
-    const streamKeyName = options.streamKeyName;
+    const streams = options.streams;
     const groupName = options.groupName;
     const consumerName = options.consumerName;
     const readMaxCount = options.maxNoOfEntriesToReadAtTime || 100;
 
     try {
       const idPosition = '0'; //0 = start, $ = end or any specific id
-      await nodeRedisClient.xGroupCreate(streamKeyName, groupName, idPosition, {
-        MKSTREAM: true,
-      });
+      await Promise.all(
+        streams.map((stream) => {
+          return nodeRedisClient.xGroupCreate(
+            stream.streamKeyName,
+            groupName,
+            idPosition,
+            {
+              MKSTREAM: true,
+            },
+          );
+        }),
+      );
       LoggerCls.info(`Created consumer group ${groupName}`);
     } catch (err) {
       LoggerCls.error('Consumer group already exists !'); //, err
     }
 
-    console.log(`Starting consumer ${consumerName}.`);
+    LoggerCls.info(`Starting consumer ${consumerName}.`);
 
     while (true) {
       try {
@@ -42,48 +53,50 @@ const listenToStream = async (options: listenStreamOptions) => {
           }),
           groupName,
           consumerName,
-          [
-            {
-              //can specify multiple streams in array
-              key: streamKeyName,
-              id: '>', // Next entry ID that no consumer in this group has read
-            },
-          ],
+          streams.map((stream) => ({ key: stream.streamKeyName, id: '>' })),
           {
             COUNT: readMaxCount, // Read n entries at a time
             BLOCK: 5, //block for 0 (infinite) seconds if there are none.
           },
         );
 
-        /* 
-                 dataArr = [
-                     {
-                         "name": "streamName",
-                         "messages": [
-                             {
-                                 "id": "1642088708425-0",
-                                 "message": {
-                                     "key1": "value1"
-                                 }
-                             }
-                         ]
-                     }
-                 ]
-                 */
+        // dataArr = [
+        //   {
+        //     name: 'streamName',
+        //     messages: [
+        //       {
+        //         id: '1642088708425-0',
+        //         message: {
+        //           key1: 'value1',
+        //         },
+        //       },
+        //     ],
+        //   },
+        // ];
         if (dataArr && dataArr.length) {
           for (let data of dataArr) {
             for (let messageItem of data.messages) {
-              await options.processMessageCallback(
+              const streamKeyName = data.name;
+
+              const stream = streams.find(
+                (s) => s.streamKeyName == streamKeyName,
+              );
+
+              if (!stream) {
+                continue;
+              }
+              const processMessageCallback = stream.processMessageCallback;
+              const handled = await processMessageCallback(
                 messageItem.message,
                 messageItem.id,
               );
 
               //acknowledge individual messages after processing
-              nodeRedisClient.xAck(streamKeyName, groupName, messageItem.id);
+              if (handled) {
+                nodeRedisClient.xAck(streamKeyName, groupName, messageItem.id);
+              }
             }
           }
-        } else {
-          LoggerCls.info('No new stream entries.');
         }
       } catch (err) {
         LoggerCls.error('xReadGroup error !', err);
@@ -105,6 +118,6 @@ const addMessageToStream = async (message, streamKeyName) => {
   }
 };
 
-export { listenToStream, addMessageToStream };
+export { listenToStreams, addMessageToStream };
 
 export type { IMessageHandler };
