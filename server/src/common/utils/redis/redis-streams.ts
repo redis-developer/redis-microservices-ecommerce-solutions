@@ -97,9 +97,9 @@ const listenToStreams = async (options: ListenStreamOptions) => {
               );
 
               //acknowledge individual messages after processing
-              if (handled) {
-                nodeRedisClient.xAck(streamKeyName, groupName, messageItem.id);
-              }
+              //   if (handled) {
+              nodeRedisClient.xAck(streamKeyName, groupName, messageItem.id);
+              //   }
             }
           }
         }

@@ -26,6 +26,7 @@ interface IOrder extends Document, ICommonFields {
   userId?: string;
   orderStatusCode?: ORDER_STATUS;
   paymentId?: string;
+  potentialFraud?: boolean;
 
   products?: IOrderProduct[];
   productsStr?: string; //temp redis om

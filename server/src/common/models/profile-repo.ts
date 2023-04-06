@@ -62,16 +62,16 @@ const default_profiles: IProfile[] = [
   {
     persona: 'GRANDMOTHER',
     accessories: 0,
-    apparel: 0,
+    apparel: 3,
     'accessories:watches': 0,
     'apparel:topwear': 3,
-    'apparel:bottomwear': 2,
+    'apparel:bottomwear': 0,
     avgCartPrice: 2894,
   },
   {
     persona: 'GRANDFATHER',
-    accessories: 0,
-    apparel: 0,
+    accessories: 2,
+    apparel: 1,
     'accessories:watches': 2,
     'apparel:topwear': 1,
     'apparel:bottomwear': 0,
@@ -80,7 +80,7 @@ const default_profiles: IProfile[] = [
   {
     persona: 'MOTHER',
     accessories: 0,
-    apparel: 0,
+    apparel: 7,
     'accessories:watches': 0,
     'apparel:topwear': 4,
     'apparel:bottomwear': 3,
@@ -88,17 +88,17 @@ const default_profiles: IProfile[] = [
   },
   {
     persona: 'FATHER',
-    accessories: 0,
-    apparel: 0,
+    accessories: 5,
+    apparel: 1,
     'accessories:watches': 5,
-    'apparel:topwear': 1,
+    'apparel:topwear': 0,
     'apparel:bottomwear': 1,
     avgCartPrice: 11990,
   },
   {
     persona: 'SON',
     accessories: 0,
-    apparel: 0,
+    apparel: 8,
     'accessories:watches': 0,
     'apparel:topwear': 5,
     'apparel:bottomwear': 3,
@@ -107,7 +107,7 @@ const default_profiles: IProfile[] = [
   {
     persona: 'DAUGHTER',
     accessories: 0,
-    apparel: 0,
+    apparel: 15,
     'accessories:watches': 0,
     'apparel:topwear': 10,
     'apparel:bottomwear': 5,
@@ -138,31 +138,37 @@ const initialize = async () => {
 
   default_profiles.forEach(async (profile) => {
     if (profile.accessories > 0) {
-      await nodeRedisClient?.bf.add('bfprofile:accessories', profile.persona);
+      await nodeRedisClient?.bf.add(
+        'bfprofile:accessories',
+        profile.persona.toLowerCase(),
+      );
     }
 
     if (profile.apparel > 0) {
-      await nodeRedisClient?.bf.add('bfprofile:apparel', profile.persona);
+      await nodeRedisClient?.bf.add(
+        'bfprofile:apparel',
+        profile.persona.toLowerCase(),
+      );
     }
 
     if (profile['accessories:watches'] > 0) {
       await nodeRedisClient?.bf.add(
         'bfprofile:accessories:watches',
-        profile.persona,
+        profile.persona.toLowerCase(),
       );
     }
 
     if (profile['apparel:topwear'] > 0) {
       await nodeRedisClient?.bf.add(
         'bfprofile:apparel:topwear',
-        profile.persona,
+        profile.persona.toLowerCase(),
       );
     }
 
     if (profile['apparel:bottomwear'] > 0) {
       await nodeRedisClient?.bf.add(
         'bfprofile:apparel:bottomwear',
-        profile.persona,
+        profile.persona.toLowerCase(),
       );
     }
   });

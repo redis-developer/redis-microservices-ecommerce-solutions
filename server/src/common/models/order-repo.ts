@@ -24,6 +24,7 @@ const schema = new RedisSchema(OrderEntity, {
   orderId: { type: 'string' },
   userId: { type: 'string' },
   orderStatusCode: { type: 'number' },
+  potentialFraud: { type: 'boolean' },
 
   productsStr: { type: 'string' }, //redis om (node) upcoming version will support nested JSON
 
@@ -45,7 +46,7 @@ const getRepository = () => {
 
 /*
 we need to create an index or we won't be able to search.
-Redis OM uses hash to see if index needs to be recreated or not 
+Redis OM uses hash to see if index needs to be recreated or not
 */
 
 const createRedisIndex = async () => {

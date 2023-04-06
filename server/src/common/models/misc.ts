@@ -1,4 +1,5 @@
 import { ObjectId } from 'mongodb';
+import type { IOrder } from './order';
 
 enum DB_ROW_STATUS {
   ACTIVE = 1,
@@ -51,16 +52,26 @@ interface ITransactionStreamMessage {
   others?: string;
 }
 
+interface IOrderDetails {
+  orderId?: string;
+  orderAmount?: string;
+  userId?: string;
+  sessionId?: string;
+  order: IOrder;
+}
+
 interface IOrdersStreamMessage {
   orderId?: string;
   orderAmount?: string;
   userId?: string;
   sessionId?: string;
+  order: string;
 }
 
 interface IPaymentsStreamMessage {
   orderId?: string;
   paymentId?: string;
+  potentialFraud?: boolean;
   orderStatusCode?: string;
   userId?: string;
   sessionId?: string;
@@ -70,6 +81,7 @@ export { DB_ROW_STATUS, TransactionStreamActions, TransactionPipelines };
 export type {
   ICommonFields,
   ITransactionStreamMessage,
+  IOrderDetails,
   IOrdersStreamMessage,
   IPaymentsStreamMessage,
 };

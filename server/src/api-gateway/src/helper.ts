@@ -17,7 +17,7 @@ const addLoginToTransactionStream = async (req: Request) => {
 
     const entry: ITransactionStreamMessage = {
       action: TransactionStreamActions.INSERT_LOGIN_IDENTITY,
-      logMessage: `Digital identity to be stored for the user ${userId}`,
+      logMessage: `[${REDIS_STREAMS.CONSUMERS.IDENTITY}] Digital identity to be stored for the user ${userId}`,
       userId,
       persona,
       sessionId: req.sessionId,

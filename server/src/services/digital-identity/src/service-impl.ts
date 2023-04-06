@@ -1,13 +1,9 @@
-import {
-  ITransactionStreamMessage,
-  TransactionPipelines,
-} from '../../../common/models/misc';
+import { ITransactionStreamMessage } from '../../../common/models/misc';
 import type { IDigitalIdentity } from '../../../common/models/digital-identity';
 import {
   IMessageHandler,
   nextTransactionStep,
   listenToStreams,
-  addMessageToStream,
   streamLog,
 } from '../../../common/utils/redis/redis-streams';
 
@@ -19,13 +15,6 @@ import * as digitalIdentityRepo from '../../../common/models/digital-identity-re
 import { REDIS_STREAMS } from '../../../common/config/server-config';
 import { CryptoCls } from '../../../common/utils/crypto';
 import { LoggerCls } from '../../../common/utils/logger';
-
-const addMessageToTransactionStream = async (
-  message: ITransactionStreamMessage,
-) => {
-  const streamKeyName = REDIS_STREAMS.STREAMS.TRANSACTIONS;
-  await addMessageToStream(message, streamKeyName);
-};
 
 const addDigitalIdentityToRedis = async (
   message: ITransactionStreamMessage,
@@ -123,7 +112,7 @@ const processTransactionStream: IMessageHandler = async (
   messageId,
 ) => {
   LoggerCls.info(`Incomming message in Digital Identity Service ${messageId}`);
-  if (message.action == TransactionStreamActions.INSERT_LOGIN_IDENTITY) {
+  if (message.action === TransactionStreamActions.INSERT_LOGIN_IDENTITY) {
     LoggerCls.info(`Adding digital identity to redis for ${message.userId}`);
 
     //step 1 - add login digital identity to redis
@@ -131,26 +120,30 @@ const processTransactionStream: IMessageHandler = async (
 
     await streamLog({
       action: TransactionStreamActions.INSERT_LOGIN_IDENTITY,
-      message: `New Login Digital Identity added to Redis (JSON) at key ${insertedKey} for the user ${message.userId}`,
+      message: `[${REDIS_STREAMS.CONSUMERS.IDENTITY}] New Login Digital Identity added to Redis (JSON) at key ${insertedKey} for the user ${message.userId}`,
       metadata: message,
     });
 
     return true;
   } else if (
-    message.action == TransactionStreamActions.CALCULATE_IDENTITY_SCORE
+    message.action === TransactionStreamActions.CALCULATE_IDENTITY_SCORE
   ) {
     LoggerCls.info(`Scoring digital identity for ${message.userId}`);
+
+    await streamLog({
+      action: TransactionStreamActions.CALCULATE_IDENTITY_SCORE,
+      message: `[${REDIS_STREAMS.CONSUMERS.IDENTITY}] Calculating digital identity score for the user ${message.userId}`,
+      metadata: message,
+    });
+
     //step 1 - calculate score for validation digital identity
     const identityScore = await calculateIdentityScore(message);
     message.identityScore = identityScore.toString();
 
     await streamLog({
       action: TransactionStreamActions.CALCULATE_IDENTITY_SCORE,
-      message: `${identityScore} is the digital identity score for the user ${message.userId}`,
-      metadata: {
-        ...message,
-        identityScore: identityScore.toString(),
-      },
+      message: `[${REDIS_STREAMS.CONSUMERS.IDENTITY}] Digital identity score for the user ${message.userId} is ${identityScore}`,
+      metadata: message,
     });
 
     LoggerCls.info(`Adding digital identity to redis for ${message.userId}`);
@@ -159,7 +152,7 @@ const processTransactionStream: IMessageHandler = async (
 
     await streamLog({
       action: TransactionStreamActions.CALCULATE_IDENTITY_SCORE,
-      message: `Validation Digital Identity added to Redis (JSON) at key ${insertedKey} for the user ${message.userId}`,
+      message: `[${REDIS_STREAMS.CONSUMERS.IDENTITY}] Digital Identity score added to Redis [${insertedKey}] for the user ${message.userId}`,
       metadata: {
         ...message,
         identityScore: identityScore.toString(),
@@ -168,7 +161,7 @@ const processTransactionStream: IMessageHandler = async (
 
     await nextTransactionStep({
       ...message,
-      logMessage: `Requesting next step in transaction risk scoring for the user ${message.userId}`,
+      logMessage: `[${REDIS_STREAMS.CONSUMERS.IDENTITY}] Requesting next step in transaction risk scoring for the user ${message.userId}`,
 
       identityScore: identityScore.toString(),
     });

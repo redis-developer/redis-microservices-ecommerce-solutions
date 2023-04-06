@@ -4,14 +4,12 @@ import {
 } from '../../../common/utils/redis/redis-streams';
 import {
   ITransactionStreamMessage,
-  IOrdersStreamMessage,
+  IOrderDetails,
   IPaymentsStreamMessage,
-  TransactionPipelines,
 } from '../../../common/models/misc';
 
 import { IPayment } from '../../../common/models/payment';
 import { ORDER_STATUS, DB_ROW_STATUS } from '../../../common/models/order';
-import { TransactionStreamActions } from '../../../common/models/misc';
 import {
   COLLECTIONS,
   REDIS_STREAMS,
@@ -21,15 +19,6 @@ import { getMongodb } from '../../../common/utils/mongodb/node-mongo-wrapper';
 import { listenToStreams } from '../../../common/utils/redis/redis-streams';
 import { addMessageToStream } from '../../../common/utils/redis/redis-streams';
 
-const addMessageToTransactionStream = async (
-  message: ITransactionStreamMessage,
-) => {
-  if (message) {
-    const streamKeyName = REDIS_STREAMS.STREAMS.TRANSACTIONS;
-    await addMessageToStream(message, streamKeyName);
-  }
-};
-
 const addPaymentDetailsToStream = async (message: IPaymentsStreamMessage) => {
   if (message) {
     const streamKeyName = REDIS_STREAMS.STREAMS.PAYMENTS;
@@ -38,7 +27,7 @@ const addPaymentDetailsToStream = async (message: IPaymentsStreamMessage) => {
 };
 
 const processPaymentForNewOrders: IMessageHandler = async (
-  message: IOrdersStreamMessage,
+  message: IOrderDetails,
   messageId,
 ) => {
   LoggerCls.info(`Incomming message in Payment Service ${messageId}`);
@@ -75,7 +64,7 @@ const processPaymentForNewOrders: IMessageHandler = async (
 
   await streamLog({
     action: 'PROCESS_PAYMENT',
-    message: `Payment ${paymentId} processed for the orderId ${message.orderId} and user ${userId}`,
+    message: `[${REDIS_STREAMS.CONSUMERS.PAYMENTS}] Payment ${paymentId} processed for the orderId ${message.orderId} and user ${userId}`,
     metadata: message,
   });
 
@@ -89,7 +78,7 @@ const processPaymentForNewOrders: IMessageHandler = async (
 
   await streamLog({
     action: 'PROCESS_PAYMENT',
-    message: `To update order status, payment details are added to ${REDIS_STREAMS.STREAMS.PAYMENTS} for the orderId ${message.orderId} and  user ${userId}`,
+    message: `[${REDIS_STREAMS.CONSUMERS.PAYMENTS}] To update order status, payment details are added to ${REDIS_STREAMS.STREAMS.PAYMENTS} for the orderId ${message.orderId} and  user ${userId}`,
     metadata: message,
   });
 
