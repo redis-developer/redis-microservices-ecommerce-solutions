@@ -116,6 +116,8 @@ const insertLoginIdentity: IMessageHandler = async (
     metadata: message,
   });
 
+  await nextTransactionStep(message);
+
   return true;
 };
 
