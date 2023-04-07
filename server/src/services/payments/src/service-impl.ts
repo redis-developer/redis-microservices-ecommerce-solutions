@@ -1,11 +1,12 @@
 import {
   IMessageHandler,
+  nextTransactionStep,
   streamLog,
 } from '../../../common/utils/redis/redis-streams';
 import {
   ITransactionStreamMessage,
   IOrderDetails,
-  IPaymentsStreamMessage,
+  TransactionStreamActions,
 } from '../../../common/models/misc';
 
 import { IPayment } from '../../../common/models/payment';
@@ -17,33 +18,26 @@ import {
 import { LoggerCls } from '../../../common/utils/logger';
 import { getMongodb } from '../../../common/utils/mongodb/node-mongo-wrapper';
 import { listenToStreams } from '../../../common/utils/redis/redis-streams';
-import { addMessageToStream } from '../../../common/utils/redis/redis-streams';
 
-const addPaymentDetailsToStream = async (message: IPaymentsStreamMessage) => {
-  if (message) {
-    const streamKeyName = REDIS_STREAMS.STREAMS.PAYMENTS;
-    await addMessageToStream(message, streamKeyName);
-  }
-};
-
-const processPaymentForNewOrders: IMessageHandler = async (
-  message: IOrderDetails,
+const processPayment: IMessageHandler = async (
+  message: ITransactionStreamMessage,
   messageId,
 ) => {
   LoggerCls.info(`Incomming message in Payment Service ${messageId}`);
 
-  if (!(message && message.orderId && message.orderAmount)) {
+  if (!message.orderDetails) {
     return false;
   }
 
+  const orderDetails: IOrderDetails = JSON.parse(message.orderDetails);
   const userId = message.userId;
-  LoggerCls.info(`order received ${message.orderId}`);
+  LoggerCls.info(`order received ${orderDetails.orderId}`);
 
   //assume payment is processed successfully
   const paymentStatus = ORDER_STATUS.PAYMENT_SUCCESS;
-  const orderAmount = parseFloat(message.orderAmount);
+  const orderAmount = parseFloat(orderDetails.orderAmount);
   const payment: IPayment = {
-    orderId: message.orderId,
+    orderId: orderDetails.orderId,
     orderAmount: orderAmount,
     paidAmount: orderAmount,
     orderStatusCode: paymentStatus,
@@ -63,24 +57,14 @@ const processPaymentForNewOrders: IMessageHandler = async (
   );
 
   await streamLog({
-    action: 'PROCESS_PAYMENT',
-    message: `[${REDIS_STREAMS.CONSUMERS.PAYMENTS}] Payment ${paymentId} processed for the orderId ${message.orderId} and user ${userId}`,
+    action: TransactionStreamActions.PROCESS_PAYMENT,
+    message: `[${REDIS_STREAMS.CONSUMERS.PAYMENTS}] Payment ${paymentId} processed for the orderId ${orderDetails.orderId} and user ${userId}`,
     metadata: message,
   });
 
-  await addPaymentDetailsToStream({
-    orderId: message.orderId,
-    paymentId: paymentId,
-    orderStatusCode: paymentStatus.toString(),
-    userId: userId,
-    sessionId: message.sessionId,
-  });
-
-  await streamLog({
-    action: 'PROCESS_PAYMENT',
-    message: `[${REDIS_STREAMS.CONSUMERS.PAYMENTS}] To update order status, payment details are added to ${REDIS_STREAMS.STREAMS.PAYMENTS} for the orderId ${message.orderId} and  user ${userId}`,
-    metadata: message,
-  });
+  orderDetails.paymentId = paymentId;
+  message.orderDetails = JSON.stringify(orderDetails);
+  await nextTransactionStep(message);
 
   return true;
 };
@@ -89,8 +73,10 @@ const listenToOrdersStream = () => {
   listenToStreams({
     streams: [
       {
-        streamKeyName: REDIS_STREAMS.STREAMS.ORDERS,
-        processMessageCallback: processPaymentForNewOrders,
+        streamKeyName: REDIS_STREAMS.STREAMS.TRANSACTIONS,
+        eventHandlers: {
+          [TransactionStreamActions.PROCESS_PAYMENT]: processPayment,
+        },
       },
     ],
     groupName: REDIS_STREAMS.GROUPS.PAYMENTS,

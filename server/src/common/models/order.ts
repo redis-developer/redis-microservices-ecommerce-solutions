@@ -28,9 +28,9 @@ interface IOrder extends Document, ICommonFields {
   paymentId?: string;
   potentialFraud?: boolean;
 
-  products?: IOrderProduct[];
+  products: IOrderProduct[];
   productsStr?: string; //temp redis om
 }
 
 export { ORDER_STATUS, DB_ROW_STATUS };
-export type { IOrder };
+export type { IOrder, IOrderProduct };

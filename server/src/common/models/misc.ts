@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb';
-import type { IOrder } from './order';
+import type { IOrder, IOrderProduct, ORDER_STATUS } from './order';
 
 enum DB_ROW_STATUS {
   ACTIVE = 1,
@@ -20,7 +20,9 @@ enum TransactionStreamActions {
   INSERT_LOGIN_IDENTITY = 'INSERT_LOGIN_IDENTITY',
   CALCULATE_IDENTITY_SCORE = 'CALCULATE_IDENTITY_SCORE',
   CALCULATE_PROFILE_SCORE = 'CALCULATE_PROFILE_SCORE',
-  PROCESS_ORDER = 'PROCESS_ORDER',
+  ASSESS_RISK = 'ASSESS_RISK',
+  PROCESS_PAYMENT = 'PROCESS_PAYMENT',
+  PAYMENT_PROCESSED = 'PAYMENT_PROCESSED',
 }
 
 const TransactionPipelines = {
@@ -28,7 +30,9 @@ const TransactionPipelines = {
   CHECKOUT: [
     TransactionStreamActions.CALCULATE_IDENTITY_SCORE,
     TransactionStreamActions.CALCULATE_PROFILE_SCORE,
-    TransactionStreamActions.PROCESS_ORDER,
+    TransactionStreamActions.ASSESS_RISK,
+    TransactionStreamActions.PROCESS_PAYMENT,
+    TransactionStreamActions.PAYMENT_PROCESSED,
   ],
 };
 
@@ -53,35 +57,32 @@ interface ITransactionStreamMessage {
 }
 
 interface IOrderDetails {
-  orderId?: string;
-  orderAmount?: string;
-  userId?: string;
-  sessionId?: string;
-  order: IOrder;
-}
-
-interface IOrdersStreamMessage {
-  orderId?: string;
-  orderAmount?: string;
-  userId?: string;
-  sessionId?: string;
-  order: string;
-}
-
-interface IPaymentsStreamMessage {
-  orderId?: string;
+  orderId: string;
   paymentId?: string;
+  sessionId: string;
+  userId: string;
   potentialFraud?: boolean;
-  orderStatusCode?: string;
-  userId?: string;
-  sessionId?: string;
+  orderStatus?: ORDER_STATUS;
+  orderAmount: string;
+  products: IOrderProduct[];
 }
+
+// interface IOrdersStreamMessage {
+//   orderId?: string;
+//   orderAmount?: string;
+//   userId?: string;
+//   sessionId?: string;
+//   order: string;
+// }
+
+// interface IPaymentsStreamMessage {
+//   orderId?: string;
+//   paymentId?: string;
+//   potentialFraud?: boolean;
+//   orderStatusCode?: string;
+//   userId?: string;
+//   sessionId?: string;
+// }
 
 export { DB_ROW_STATUS, TransactionStreamActions, TransactionPipelines };
-export type {
-  ICommonFields,
-  ITransactionStreamMessage,
-  IOrderDetails,
-  IOrdersStreamMessage,
-  IPaymentsStreamMessage,
-};
+export type { ICommonFields, ITransactionStreamMessage, IOrderDetails };

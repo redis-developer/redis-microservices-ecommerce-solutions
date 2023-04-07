@@ -14,18 +14,12 @@ import { REDIS_STREAMS } from '../../../common/config/server-config';
 import { LoggerCls } from '../../../common/utils/logger';
 import { getNodeRedisClient } from '../../../common/utils/redis/redis-wrapper';
 
-const processTransactionStream: IMessageHandler = async (
+const calculateProfileScore: IMessageHandler = async (
   message: ITransactionStreamMessage,
   messageId,
 ) => {
   LoggerCls.info(`Incomming message in Profile Service ${messageId}`);
-  if (
-    !(
-      message.action === TransactionStreamActions.CALCULATE_PROFILE_SCORE &&
-      message.orderDetails &&
-      message.persona
-    )
-  ) {
+  if (!(message.orderDetails && message.persona)) {
     return false;
   }
 
@@ -36,7 +30,7 @@ const processTransactionStream: IMessageHandler = async (
   });
 
   // check profile score
-  const { order }: IOrderDetails = JSON.parse(message.orderDetails);
+  const { products }: IOrderDetails = JSON.parse(message.orderDetails);
   const persona = message.persona.toLowerCase();
   let score = 0;
   const nodeRedisClient = getNodeRedisClient();
@@ -45,7 +39,7 @@ const processTransactionStream: IMessageHandler = async (
     return false;
   }
 
-  const categories = (order.products ?? []).reduce((cat, product) => {
+  const categories = products.reduce((cat, product) => {
     const masterCategory = product.productData?.masterCategory?.typeName;
     const subCategory = product.productData?.subCategory?.typeName;
 
@@ -103,7 +97,10 @@ const listenToTransactionStream = () => {
     streams: [
       {
         streamKeyName: REDIS_STREAMS.STREAMS.TRANSACTIONS,
-        processMessageCallback: processTransactionStream,
+        eventHandlers: {
+          [TransactionStreamActions.CALCULATE_PROFILE_SCORE]:
+            calculateProfileScore,
+        },
       },
     ],
     groupName: REDIS_STREAMS.GROUPS.PROFILE,

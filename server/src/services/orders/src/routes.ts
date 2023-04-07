@@ -6,10 +6,7 @@ import type {
 import express, { Request, Response } from 'express';
 
 import { createOrder } from './service-impl';
-import {
-  SERVER_CONFIG,
-  REDIS_STREAMS,
-} from '../../../common/config/server-config';
+import { SERVER_CONFIG } from '../../../common/config/server-config';
 import { HTTP_STATUS_CODES, USERS } from '../../../common/config/constants';
 import { LoggerCls } from '../../../common/utils/logger';
 

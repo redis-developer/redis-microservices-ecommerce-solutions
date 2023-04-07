@@ -10,10 +10,14 @@ interface IMessageHandler {
   (message: any, messageId: string): Promise<boolean>;
 }
 
+interface IStreamEventHandlers {
+  [key: string]: IMessageHandler;
+}
+
 interface ListenStreamOptions {
   streams: {
     streamKeyName: string;
-    processMessageCallback: IMessageHandler;
+    eventHandlers: IStreamEventHandlers;
   }[];
   groupName: string;
   consumerName: string;
@@ -91,15 +95,18 @@ const listenToStreams = async (options: ListenStreamOptions) => {
                 continue;
               }
 
-              const handled = await stream.processMessageCallback(
-                messageItem.message,
-                messageItem.id,
-              );
+              const streamEventHandlers = stream.eventHandlers;
+              const action = messageItem.message.action;
+              const handler = streamEventHandlers[action];
+
+              if (!handler) {
+                continue;
+              }
+
+              await handler(messageItem.message, messageItem.id);
 
               //acknowledge individual messages after processing
-              //   if (handled) {
               nodeRedisClient.xAck(streamKeyName, groupName, messageItem.id);
-              //   }
             }
           }
         }
