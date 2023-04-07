@@ -58,7 +58,7 @@ const createRedisIndex = async () => {
   }
 };
 
-const default_profiles: IProfile[] = [
+const DEFAULT_PROFILES: IProfile[] = [
   {
     persona: 'GRANDMOTHER',
     accessories: 0,
@@ -119,65 +119,55 @@ const initialize = async () => {
   await createRedisIndex();
 
   const repository = getRepository();
+  if (repository) {
+    const exists = await repository
+      .search()
+      .where('persona')
+      .equals('GRANDMOTHER')
+      .return.count();
 
-  if (!repository) {
-    return;
+    if (exists <= 0) {
+      const nodeRedisClient = getNodeRedisClient();
+      DEFAULT_PROFILES.forEach(async (profile) => {
+        await repository.createAndSave(profile);
+
+        if (profile.accessories > 0) {
+          await nodeRedisClient?.bf.add(
+            'bfprofile:accessories',
+            profile.persona.toLowerCase(),
+          );
+        }
+
+        if (profile.apparel > 0) {
+          await nodeRedisClient?.bf.add(
+            'bfprofile:apparel',
+            profile.persona.toLowerCase(),
+          );
+        }
+
+        if (profile['accessories:watches'] > 0) {
+          await nodeRedisClient?.bf.add(
+            'bfprofile:accessories:watches',
+            profile.persona.toLowerCase(),
+          );
+        }
+
+        if (profile['apparel:topwear'] > 0) {
+          await nodeRedisClient?.bf.add(
+            'bfprofile:apparel:topwear',
+            profile.persona.toLowerCase(),
+          );
+        }
+
+        if (profile['apparel:bottomwear'] > 0) {
+          await nodeRedisClient?.bf.add(
+            'bfprofile:apparel:bottomwear',
+            profile.persona.toLowerCase(),
+          );
+        }
+      });
+    }
   }
-
-  const exists = await repository
-    .search()
-    .where('persona')
-    .equals('GRANDMOTHER')
-    .return.count();
-
-  if (exists && exists > 0) {
-    return;
-  }
-
-  const nodeRedisClient = getNodeRedisClient();
-
-  default_profiles.forEach(async (profile) => {
-    if (profile.accessories > 0) {
-      await nodeRedisClient?.bf.add(
-        'bfprofile:accessories',
-        profile.persona.toLowerCase(),
-      );
-    }
-
-    if (profile.apparel > 0) {
-      await nodeRedisClient?.bf.add(
-        'bfprofile:apparel',
-        profile.persona.toLowerCase(),
-      );
-    }
-
-    if (profile['accessories:watches'] > 0) {
-      await nodeRedisClient?.bf.add(
-        'bfprofile:accessories:watches',
-        profile.persona.toLowerCase(),
-      );
-    }
-
-    if (profile['apparel:topwear'] > 0) {
-      await nodeRedisClient?.bf.add(
-        'bfprofile:apparel:topwear',
-        profile.persona.toLowerCase(),
-      );
-    }
-
-    if (profile['apparel:bottomwear'] > 0) {
-      await nodeRedisClient?.bf.add(
-        'bfprofile:apparel:bottomwear',
-        profile.persona.toLowerCase(),
-      );
-    }
-  });
-
-  await Promise.all(
-    default_profiles.map((profile) => {
-      return repository.createAndSave(profile);
-    }),
-  );
 };
 
 export { getRepository, initialize };

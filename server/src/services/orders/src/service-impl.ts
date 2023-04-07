@@ -311,98 +311,95 @@ const updateOrderStatus: IMessageHandler = async (
   message: ITransactionStreamMessage,
   messageId,
 ) => {
-  LoggerCls.info(`Incomming message in Order Service ${messageId}`);
-  if (!message.orderDetails) {
-    return false;
+  let retVal = false;
+
+  LoggerCls.info(`Incoming message in Order Service ${messageId}`);
+  if (message.orderDetails) {
+    const orderDetails: IOrderDetails = JSON.parse(message.orderDetails);
+
+    if (orderDetails.orderId && orderDetails.paymentId && orderDetails.userId) {
+      LoggerCls.info(`payment received ${orderDetails.paymentId}`);
+
+      orderDetails.orderStatus = ORDER_STATUS.PAYMENT_SUCCESS;
+
+      updateOrderStatusInRedis(orderDetails);
+      /**
+       * In real world scenario : can use RDI/ redis gears/ any other database to database sync strategy for REDIS-> MongoDB  data transfer.
+       * To keep it simple, adding  data to MongoDB manually in the same service
+       */
+      updateOrderStatusInMongoDB(orderDetails);
+
+      message.orderDetails = JSON.stringify(orderDetails);
+
+      await streamLog({
+        action: TransactionStreamActions.ASSESS_RISK,
+        message: `[${REDIS_STREAMS.CONSUMERS.ORDERS}] Order status updated after payment for orderId ${orderDetails.orderId} and user ${orderDetails.userId}`,
+        metadata: message,
+      });
+
+      await nextTransactionStep(message);
+
+      retVal = true;
+    }
   }
-  const orderDetails: IOrderDetails = JSON.parse(message.orderDetails);
-
-  if (
-    !(orderDetails.orderId && orderDetails.paymentId && orderDetails.userId)
-  ) {
-    return false;
-  }
-
-  LoggerCls.info(`payment received ${orderDetails.paymentId}`);
-
-  orderDetails.orderStatus = ORDER_STATUS.PAYMENT_SUCCESS;
-
-  updateOrderStatusInRedis(orderDetails);
-  /**
-   * In real world scenario : can use RDI/ redis gears/ any other database to database sync strategy for REDIS-> MongoDB  data transfer.
-   * To keep it simple, adding  data to MongoDB manually in the same service
-   */
-  updateOrderStatusInMongoDB(orderDetails);
-
-  message.orderDetails = JSON.stringify(orderDetails);
-
-  await streamLog({
-    action: TransactionStreamActions.ASSESS_RISK,
-    message: `[${REDIS_STREAMS.CONSUMERS.ORDERS}] Order status updated after payment for orderId ${orderDetails.orderId} and user ${orderDetails.userId}`,
-    metadata: message,
-  });
-
-  await nextTransactionStep(message);
-
-  return true;
+  return retVal;
 };
 
 async function checkOrderRiskScore(message: ITransactionStreamMessage) {
-  LoggerCls.info(`Incomming message in Order Service`);
-  if (!message.orderDetails) {
-    return false;
+  let retVal = false;
+
+  LoggerCls.info(`Incoming message in Order Service`);
+  if (message.orderDetails) {
+    const orderDetails: IOrderDetails = JSON.parse(message.orderDetails);
+
+    if (orderDetails.orderId && orderDetails.userId) {
+      LoggerCls.info(
+        `Transaction risk scoring for user ${message.userId} and order ${orderDetails.orderId}`,
+      );
+
+      const { identityScore, profileScore } = message;
+      const identityScoreNumber = Number(identityScore);
+      const profileScoreNumber = Number(profileScore);
+      let potentialFraud = false;
+
+      if (identityScoreNumber <= 0 || profileScoreNumber < 0.5) {
+        LoggerCls.info(
+          `Transaction risk score is too low for user ${message.userId} and order ${orderDetails.orderId}`,
+        );
+
+        await streamLog({
+          action: TransactionStreamActions.ASSESS_RISK,
+          message: `[${REDIS_STREAMS.CONSUMERS.ORDERS}] Order failed fraud checks for orderId ${orderDetails.orderId} and user ${message.userId}`,
+          metadata: message,
+        });
+
+        potentialFraud = true;
+      }
+
+      orderDetails.orderStatus = ORDER_STATUS.PENDING;
+      orderDetails.potentialFraud = potentialFraud;
+
+      updateOrderStatusInRedis(orderDetails);
+      /**
+       * In real world scenario : can use RDI/ redis gears/ any other database to database sync strategy for REDIS-> MongoDB  data transfer.
+       * To keep it simple, adding  data to MongoDB manually in the same service
+       */
+      updateOrderStatusInMongoDB(orderDetails);
+
+      message.orderDetails = JSON.stringify(orderDetails);
+
+      await streamLog({
+        action: TransactionStreamActions.ASSESS_RISK,
+        message: `[${REDIS_STREAMS.CONSUMERS.ORDERS}] Order status updated after fraud checks for orderId ${orderDetails.orderId} and user ${message.userId}`,
+        metadata: message,
+      });
+
+      await nextTransactionStep(message);
+
+      retVal = true;
+    }
   }
-
-  const orderDetails: IOrderDetails = JSON.parse(message.orderDetails);
-
-  if (!(orderDetails.orderId && orderDetails.userId)) {
-    return false;
-  }
-
-  LoggerCls.info(
-    `Transaction risk scoring for user ${message.userId} and order ${orderDetails.orderId}`,
-  );
-
-  const { identityScore, profileScore } = message;
-  const identityScoreNumber = Number(identityScore);
-  const profileScoreNumber = Number(profileScore);
-  let potentialFraud = false;
-
-  if (identityScoreNumber <= 0 || profileScoreNumber < 0.5) {
-    LoggerCls.info(
-      `Transaction risk score is too low for user ${message.userId} and order ${orderDetails.orderId}`,
-    );
-
-    await streamLog({
-      action: TransactionStreamActions.ASSESS_RISK,
-      message: `[${REDIS_STREAMS.CONSUMERS.ORDERS}] Order failed fraud checks for orderId ${orderDetails.orderId} and user ${message.userId}`,
-      metadata: message,
-    });
-
-    potentialFraud = true;
-  }
-
-  orderDetails.orderStatus = ORDER_STATUS.PENDING;
-  orderDetails.potentialFraud = potentialFraud;
-
-  updateOrderStatusInRedis(orderDetails);
-  /**
-   * In real world scenario : can use RDI/ redis gears/ any other database to database sync strategy for REDIS-> MongoDB  data transfer.
-   * To keep it simple, adding  data to MongoDB manually in the same service
-   */
-  updateOrderStatusInMongoDB(orderDetails);
-
-  message.orderDetails = JSON.stringify(orderDetails);
-
-  await streamLog({
-    action: TransactionStreamActions.ASSESS_RISK,
-    message: `[${REDIS_STREAMS.CONSUMERS.ORDERS}] Order status updated after fraud checks for orderId ${orderDetails.orderId} and user ${message.userId}`,
-    metadata: message,
-  });
-
-  await nextTransactionStep(message);
-
-  return true;
+  return retVal;
 }
 
 const listen = () => {

@@ -1,15 +1,10 @@
 import type { ICommonFields } from './misc';
+import type { PersonasType } from '../config/constants';
 
 import { Document } from 'mongodb';
 
 interface IProfile extends Document, ICommonFields {
-  persona:
-    | 'GRANDMOTHER'
-    | 'GRANDFATHER'
-    | 'MOTHER'
-    | 'FATHER'
-    | 'SON'
-    | 'DAUGHTER';
+  persona: PersonasType;
   accessories: number;
   apparel: number;
   'accessories:watches': number;

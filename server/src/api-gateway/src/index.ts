@@ -8,6 +8,7 @@ import {
   responseInterceptor,
 } from 'http-proxy-middleware';
 
+import { PERSONAS } from '../../common/config/constants';
 import { ISessionData, SERVER_CONFIG } from '../../common/config/server-config';
 import {
   setRedis,
@@ -36,14 +37,6 @@ const PRODUCTS_API_URL =
   SERVER_CONFIG.PRODUCTS_SERVICE.SERVER_ORIGIN +
   ':' +
   SERVER_CONFIG.PRODUCTS_SERVICE.PORT;
-const personas = [
-  'GRANDMOTHER',
-  'GRANDFATHER',
-  'MOTHER',
-  'FATHER',
-  'SON',
-  'DAUGHTER',
-];
 
 //--- config ends
 
@@ -66,14 +59,12 @@ const getSessionInfo = async (authHeader?: string) => {
   if (nodeRedisClient) {
     const exists = await nodeRedisClient.exists(sessionId);
     if (!exists) {
-      const persona = personas[Math.floor(Math.random() * personas.length)];
-      await nodeRedisClient.set(
-        sessionId,
-        JSON.stringify({
-          userId: 'USR_' + randomUUID(),
-          persona,
-        } as ISessionData),
-      ); //random new userId
+      const persona = PERSONAS[Math.floor(Math.random() * PERSONAS.length)];
+      let sessionData: ISessionData = {
+        userId: 'USR_' + randomUUID(),
+        persona,
+      };
+      await nodeRedisClient.set(sessionId, JSON.stringify(sessionData)); //random new userId
 
       isNewSession = true;
     }

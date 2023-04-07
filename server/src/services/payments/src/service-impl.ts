@@ -23,53 +23,53 @@ const processPayment: IMessageHandler = async (
   message: ITransactionStreamMessage,
   messageId,
 ) => {
-  LoggerCls.info(`Incomming message in Payment Service ${messageId}`);
+  let retVal = false;
+  LoggerCls.info(`Incoming message in Payment Service ${messageId}`);
 
-  if (!message.orderDetails) {
-    return false;
+  if (message.orderDetails) {
+    const orderDetails: IOrderDetails = JSON.parse(message.orderDetails);
+    const userId = message.userId;
+    LoggerCls.info(`order received ${orderDetails.orderId}`);
+
+    //assume payment is processed successfully
+    const paymentStatus = ORDER_STATUS.PAYMENT_SUCCESS;
+    const orderAmount = parseFloat(orderDetails.orderAmount);
+    const payment: IPayment = {
+      orderId: orderDetails.orderId,
+      orderAmount: orderAmount,
+      paidAmount: orderAmount,
+      orderStatusCode: paymentStatus,
+      userId: userId,
+      createdOn: new Date(),
+      createdBy: userId,
+      lastUpdatedOn: null,
+      lastUpdatedBy: null,
+      statusCode: DB_ROW_STATUS.ACTIVE,
+    };
+
+    const mongodbWrapperInst = getMongodb();
+    const paymentId = await mongodbWrapperInst.insertOne(
+      COLLECTIONS.PAYMENTS.collectionName,
+      COLLECTIONS.PAYMENTS.keyName,
+      payment,
+    );
+
+    await streamLog({
+      action: TransactionStreamActions.PROCESS_PAYMENT,
+      message: `[${REDIS_STREAMS.CONSUMERS.PAYMENTS}] Payment ${paymentId} processed for the orderId ${orderDetails.orderId} and user ${userId}`,
+      metadata: message,
+    });
+
+    orderDetails.paymentId = paymentId;
+    message.orderDetails = JSON.stringify(orderDetails);
+    await nextTransactionStep(message);
+
+    retVal = true;
   }
-
-  const orderDetails: IOrderDetails = JSON.parse(message.orderDetails);
-  const userId = message.userId;
-  LoggerCls.info(`order received ${orderDetails.orderId}`);
-
-  //assume payment is processed successfully
-  const paymentStatus = ORDER_STATUS.PAYMENT_SUCCESS;
-  const orderAmount = parseFloat(orderDetails.orderAmount);
-  const payment: IPayment = {
-    orderId: orderDetails.orderId,
-    orderAmount: orderAmount,
-    paidAmount: orderAmount,
-    orderStatusCode: paymentStatus,
-    userId: userId,
-    createdOn: new Date(),
-    createdBy: userId,
-    lastUpdatedOn: null,
-    lastUpdatedBy: null,
-    statusCode: DB_ROW_STATUS.ACTIVE,
-  };
-
-  const mongodbWrapperInst = getMongodb();
-  const paymentId = await mongodbWrapperInst.insertOne(
-    COLLECTIONS.PAYMENTS.collectionName,
-    COLLECTIONS.PAYMENTS.keyName,
-    payment,
-  );
-
-  await streamLog({
-    action: TransactionStreamActions.PROCESS_PAYMENT,
-    message: `[${REDIS_STREAMS.CONSUMERS.PAYMENTS}] Payment ${paymentId} processed for the orderId ${orderDetails.orderId} and user ${userId}`,
-    metadata: message,
-  });
-
-  orderDetails.paymentId = paymentId;
-  message.orderDetails = JSON.stringify(orderDetails);
-  await nextTransactionStep(message);
-
-  return true;
+  return retVal;
 };
 
-const listenToOrdersStream = () => {
+const listen = () => {
   listenToStreams({
     streams: [
       {
@@ -85,7 +85,7 @@ const listenToOrdersStream = () => {
 };
 
 const initialize = () => {
-  listenToOrdersStream();
+  listen();
 };
 
 export { initialize };

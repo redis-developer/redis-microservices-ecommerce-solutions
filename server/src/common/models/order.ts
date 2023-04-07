@@ -6,7 +6,7 @@ import { Document } from 'mongodb';
 import { DB_ROW_STATUS } from './misc';
 
 enum ORDER_STATUS {
-  PAYMENT_FAIL = -3,
+  PAYMENT_FAIL = -4,
   DRAFT = 0,
   CREATED = 1,
   PENDING = 2,
