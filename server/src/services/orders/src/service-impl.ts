@@ -405,7 +405,7 @@ async function checkOrderRiskScore(message: ITransactionStreamMessage) {
   return true;
 }
 
-const listenToPaymentsStream = () => {
+const listen = () => {
   listenToStreams({
     streams: [
       {
@@ -422,7 +422,7 @@ const listenToPaymentsStream = () => {
 };
 
 const initialize = () => {
-  listenToPaymentsStream();
+  listen();
 };
 
 export { createOrder, initialize };

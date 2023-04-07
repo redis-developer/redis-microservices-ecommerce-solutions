@@ -67,22 +67,5 @@ interface IOrderDetails {
   products: IOrderProduct[];
 }
 
-// interface IOrdersStreamMessage {
-//   orderId?: string;
-//   orderAmount?: string;
-//   userId?: string;
-//   sessionId?: string;
-//   order: string;
-// }
-
-// interface IPaymentsStreamMessage {
-//   orderId?: string;
-//   paymentId?: string;
-//   potentialFraud?: boolean;
-//   orderStatusCode?: string;
-//   userId?: string;
-//   sessionId?: string;
-// }
-
 export { DB_ROW_STATUS, TransactionStreamActions, TransactionPipelines };
 export type { ICommonFields, ITransactionStreamMessage, IOrderDetails };

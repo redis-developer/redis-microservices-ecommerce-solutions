@@ -92,7 +92,7 @@ const calculateProfileScore: IMessageHandler = async (
   return true;
 };
 
-const listenToTransactionStream = () => {
+const listen = () => {
   listenToStreams({
     streams: [
       {
@@ -109,7 +109,7 @@ const listenToTransactionStream = () => {
 };
 
 const initialize = () => {
-  listenToTransactionStream();
+  listen();
 };
 
 export { initialize };
