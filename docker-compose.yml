@@ -1,23 +1,23 @@
 version: '3.8'
 services:
-  redis_server:
-    container_name: redis_server
+  redis-server:
+    container_name: redis-server
     image: 'redislabs/redismod'
     volumes:
-      - redis_data:/data
+      - redis-data:/data
     ports: # enable to visualize data in redis insight
       - '${REDIS_INSIGHT_PORT}:6379'
 
-  mongodb_server:
-    container_name: mongodb_server
+  mongodb-server:
+    container_name: mongodb-server
     image: 'mongo'
     volumes:
-      - mongodb_data:/data/db
+      - mongodb-data:/data/db
     ports: # enable to visualize data in mongodb compass
       - '${MONGODB_COMPASS_PORT}:27017'
 
-  mongodb_seed:
-    container_name: mongodb_seed
+  mongodb-seed:
+    container_name: mongodb-seed
     build:
       context: ./
       dockerfile: dockerfile-mongodb-seed
@@ -26,7 +26,7 @@ services:
     env_file:
       - ./.env
     depends_on:
-      - mongodb_server
+      - mongodb-server
 
   cdn:
     container_name: cdn
@@ -38,8 +38,8 @@ services:
     ports:
       - '${CDN_PORT}:80'
 
-  orders_service:
-    container_name: orders_service
+  orders-service:
+    container_name: orders-service
     build:
       context: ./
       dockerfile: dockerfile-server
@@ -48,11 +48,11 @@ services:
     env_file:
       - ./.env
     depends_on:
-      - redis_server
-      - mongodb_server
+      - redis-server
+      - mongodb-server
 
-  order_history_service:
-    container_name: order_history_service
+  order-history-service:
+    container_name: order-history-service
     build:
       context: ./
       dockerfile: dockerfile-server
@@ -61,11 +61,11 @@ services:
     env_file:
       - ./.env
     depends_on:
-      - redis_server
-      - mongodb_server
+      - redis-server
+      - mongodb-server
 
-  products_service:
-    container_name: products_service
+  products-service:
+    container_name: products-service
     build:
       context: ./
       dockerfile: dockerfile-server
@@ -74,11 +74,11 @@ services:
     env_file:
       - ./.env
     depends_on:
-      - redis_server
-      - mongodb_server
+      - redis-server
+      - mongodb-server
 
-  payments_service:
-    container_name: payments_service
+  payments-service:
+    container_name: payments-service
     build:
       context: ./
       dockerfile: dockerfile-server
@@ -87,12 +87,12 @@ services:
     env_file:
       - ./.env
     depends_on:
-      - redis_server
-      - mongodb_server
-      - orders_service
+      - redis-server
+      - mongodb-server
+      - orders-service
 
-  digital_identity_service:
-    container_name: digital_identity_service
+  digital-identity-service:
+    container_name: digital-identity-service
     build:
       context: ./
       dockerfile: dockerfile-server
@@ -101,12 +101,12 @@ services:
     env_file:
       - ./.env
     depends_on:
-      - redis_server
-      - mongodb_server
-      - payments_service
+      - redis-server
+      - mongodb-server
+      - payments-service
 
-  profile_service:
-    container_name: profile_service
+  profile-service:
+    container_name: profile-service
     build:
       context: ./
       dockerfile: dockerfile-server
@@ -115,12 +115,12 @@ services:
     env_file:
       - ./.env
     depends_on:
-      - redis_server
-      - mongodb_server
-      - payments_service
+      - redis-server
+      - mongodb-server
+      - payments-service
 
-  api_gateway:
-    container_name: api_gateway
+  api-gateway:
+    container_name: api-gateway
     build:
       context: ./
       dockerfile: dockerfile-server
@@ -131,10 +131,10 @@ services:
     env_file:
       - ./.env
     depends_on:
-      - orders_service
-      - order_history_service
-      - products_service
-      - digital_identity_service
+      - orders-service
+      - order-history-service
+      - products-service
+      - digital-identity-service
 
   client:
     container_name: client
@@ -152,9 +152,9 @@ services:
     stdin_open: true # -i input flag
     tty: true # -t terminal flag
     depends_on:
-      - api_gateway
+      - api-gateway
       - cdn
 
 volumes:
-  redis_data:
-  mongodb_data:
+  redis-data:
+  mongodb-data:
