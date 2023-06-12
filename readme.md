@@ -49,7 +49,7 @@ docker compose  up -d --build
 # to rebuild image of specific service (after any code changes)
 docker-compose build --no-cache <service_name>
 # example
-docker-compose build --no-cache orders_service
+docker-compose build --no-cache orders-service
 ```
 
 ### Repo formatting
