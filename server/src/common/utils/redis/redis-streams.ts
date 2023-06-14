@@ -29,6 +29,13 @@ interface ListenStreamOptions {
 }
 
 const listenToStreams = async (options: ListenStreamOptions) => {
+  /*
+     (A) create consumer group for the stream
+     (B) read set of messages from the stream
+     (C) process all messages received
+     (D) trigger appropriate action callback for each message
+     (E) acknowledge individual messages after processing
+    */
   const nodeRedisClient = getNodeRedisClient();
   if (nodeRedisClient) {
     const streams = options.streams;
@@ -47,6 +54,8 @@ const listenToStreams = async (options: ListenStreamOptions) => {
       );
 
       try {
+        // (A) create consumer group for the stream
+
         await nodeRedisClient.xGroupCreate(
           stream.streamKeyName,
           groupName,
@@ -71,7 +80,7 @@ const listenToStreams = async (options: ListenStreamOptions) => {
 
     while (true) {
       try {
-        //read set of messages from different streams
+        // (B) read set of messages from different streams
         const dataArr = await nodeRedisClient.xReadGroup(
           commandOptions({
             isolated: true,
@@ -99,6 +108,8 @@ const listenToStreams = async (options: ListenStreamOptions) => {
         //     ],
         //   },
         // ];
+
+        //(C) process all messages received
         if (dataArr && dataArr.length) {
           for (let data of dataArr) {
             for (let messageItem of data.messages) {
@@ -114,9 +125,11 @@ const listenToStreams = async (options: ListenStreamOptions) => {
                 const messageHandler = streamEventHandlers[messageAction];
 
                 if (messageHandler) {
+                  // (D) trigger appropriate action callback for each message
+
                   await messageHandler(messageItem.message, messageItem.id);
                 }
-                //acknowledge individual messages after processing
+                //(E) acknowledge individual messages after processing
                 nodeRedisClient.xAck(streamKeyName, groupName, messageItem.id);
               }
             }
