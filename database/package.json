@@ -4,10 +4,17 @@
   "description": "Database seeder",
   "type": "module",
   "scripts": {
-    "start": "node src/server.js"
+    "build": "npx tsc",
+    "start": "npm run build && concurrently -k \"npx tsc --watch\" \"node  dist/server.js\""
   },
   "dependencies": {
+    "@prisma/client": "^4.16.2",
     "dotenv": "^16.0.3",
-    "mongo-seeding": "^3.7.2"
+    "prisma": "^4.16.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.3.3",
+    "concurrently": "^8.2.0",
+    "typescript": "^5.1.6"
   }
 }
