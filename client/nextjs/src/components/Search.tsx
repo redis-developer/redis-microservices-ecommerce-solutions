@@ -2,7 +2,11 @@
 
 import { useRouter } from 'next/navigation';
 
-export default function Search() {
+interface SearchProps {
+    refreshProducts: (search: string) => void;
+}
+
+export default function Search({ refreshProducts }: SearchProps) {
   const router = useRouter();
 
   return (
@@ -12,8 +16,13 @@ export default function Search() {
         const data: { search: string } = Object.fromEntries(
           new FormData(ev.currentTarget),
         ) as { search: string };
-        router.push(`/?search=${data.search}`);
-        router.replace(`/?search=${data.search}`);
+        if (!data.search) {
+            router.push(`/`);
+        } else {
+            router.push(`/?search=${data.search}`);
+        }
+
+        refreshProducts(data.search);
       }}
       className="order-last mb-0 pr-8"
       action="">
