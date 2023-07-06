@@ -18,7 +18,7 @@ export default function CartItem({
         <Image
           className="rounded-t-lg"
           style={{ height: '80px', width: 'auto' }}
-          src={product.styleImages.default.imageURL}
+          src={product.styleImages_default_imageURL}
           alt={product.productDisplayName}
           width={480}
           height={640}
@@ -26,7 +26,7 @@ export default function CartItem({
         <div className="flex-grow p-2">
           <h5 className="mb-1 font-semibold">{product.productDisplayName}</h5>
           <p className="text-neutral-500 text-sm">
-            {getShortName(product.productDescriptors.description.value)}
+            {getShortName(product.productDescriptors_description_value)}
           </p>
         </div>
       </div>

@@ -18,7 +18,7 @@ export default function ProductCard({ product }: Props) {
         <Image
           className="rounded-t-lg w-auto mx-auto"
           style={{ height: '160px' }}
-          src={product.styleImages.default.imageURL}
+          src={product.styleImages_default_imageURL}
           alt={product.productDisplayName}
           width={480}
           height={640}
@@ -29,7 +29,7 @@ export default function ProductCard({ product }: Props) {
             {product.productDisplayName}
           </h5>
           <p className="mb-4 text-base text-neutral-600">
-            {getShortName(product.productDescriptors.description.value)}
+            {getShortName(product.productDescriptors_description_value)}
           </p>
           <p className="mb-4 text-base font-bold text-neutral-600">
             ${Number(product.price).toLocaleString('en')}

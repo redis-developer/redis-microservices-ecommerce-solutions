@@ -4,6 +4,7 @@ generator client {
 
 datasource db {
   provider = "mongodb"
+  //provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -22,9 +23,11 @@ model Product {
   productDescriptors_description_value String
 
   //common fields
-  createdOn  DateTime? @default(now())
-  updatedOn  DateTime? @updatedAt
-  statusCode Int?      @default(1)
+  createdOn     DateTime? @default(now())
+  createdBy     String?
+  lastUpdatedOn DateTime? @updatedAt
+  lastUpdatedBy String?
+  statusCode    Int?      @default(1)
 
   @@map("products")
 }

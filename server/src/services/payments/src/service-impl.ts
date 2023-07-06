@@ -47,7 +47,7 @@ const processPayment: IMessageHandler = async (
       statusCode: DB_ROW_STATUS.ACTIVE,
     };
 
-    const mongodbWrapperInst = getMongodb();
+    const mongodbWrapperInst = getMongodb(); //TODO: PRISMA
     const paymentId = await mongodbWrapperInst.insertOne(
       COLLECTIONS.PAYMENTS.collectionName,
       COLLECTIONS.PAYMENTS.keyName,

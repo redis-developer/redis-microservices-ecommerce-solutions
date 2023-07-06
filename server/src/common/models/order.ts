@@ -1,5 +1,5 @@
 import type { ICommonFields } from './misc';
-import type { IProductData } from './product';
+import type { IProduct } from './product';
 
 import { Document } from 'mongodb';
 
@@ -15,10 +15,10 @@ enum ORDER_STATUS {
 }
 
 interface IOrderProduct {
-  productId: number;
+  productId: string;
   qty: number;
   productPrice: number;
-  productData?: IProductData;
+  productData?: IProduct;
 }
 
 interface IOrder extends Document, ICommonFields {

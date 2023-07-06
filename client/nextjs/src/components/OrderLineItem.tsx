@@ -12,7 +12,7 @@ export default function OrderLineItem({ item }: Props) {
       <div className="w-32">
         <Image
           className="rounded-t-lg"
-          src={product.styleImages.default.imageURL}
+          src={product.styleImages_default_imageURL}
           alt={product.productDisplayName}
           width={480}
           height={640}

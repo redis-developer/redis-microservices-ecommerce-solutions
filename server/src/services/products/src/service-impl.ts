@@ -11,7 +11,7 @@ interface IProductFilter {
 }
 
 async function getProductsByFilter(productFilter: IProductFilter) {
-  const mongodbWrapperInst = getMongodb();
+  const mongodbWrapperInst = getMongodb(); //TODO: PRISMA
   const filter: Document = {
     statusCode: {
       $eq: DB_ROW_STATUS.ACTIVE,
@@ -19,40 +19,26 @@ async function getProductsByFilter(productFilter: IProductFilter) {
   };
 
   if (productFilter && productFilter.productDisplayName) {
-    filter['data.productDisplayName'] = {
+    filter.productDisplayName = {
       $regex: productFilter.productDisplayName,
       $options: 'i',
     };
   }
 
   const projection: IProduct = {
-    productId: 1,
-    data: {
-      id: 1,
-      price: 1,
-      productDisplayName: 1,
-      variantName: 1,
-      brandName: 1,
-      ageGroup: 1,
-      gender: 1,
-      displayCategories: 1,
-      masterCategory: {
-        typeName: 1,
-      },
-      subCategory: {
-        typeName: 1,
-      },
-      styleImages: {
-        default: {
-          imageURL: 1,
-        },
-      },
-      productDescriptors: {
-        description: {
-          value: 1,
-        },
-      },
-    },
+    productId: '$_id',
+    id: '$_id',
+    price: 1,
+    productDisplayName: 1,
+    variantName: 1,
+    brandName: 1,
+    ageGroup: 1,
+    gender: 1,
+    displayCategories: 1,
+    masterCategory_typeName: 1,
+    subCategory_typeName: 1,
+    styleImages_default_imageURL: 1,
+    productDescriptors_description_value: 1
   };
 
   const limit = MAX_DOCUMENTS_FETCH_LIMIT;

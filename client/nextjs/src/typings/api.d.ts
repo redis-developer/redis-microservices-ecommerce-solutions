@@ -1,10 +1,12 @@
 declare namespace api {
-  type ProductResponse = Response<
-    {
-      _id: number;
-      data: models.Product;
-    }[]
-  >;
+  // type ProductResponse = Response<
+  //   {
+  //     _id: number;
+  //     data: models.Product;
+  //   }[]
+  // >;
+
+  type ProductResponse = Response<models.Product[]>;
 
   type OrderHistoryResponse = Response<models.Order[]>;
   type OrderResponse = Response<string>;

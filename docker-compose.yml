@@ -2,17 +2,31 @@ version: '3.8'
 services:
   redis-server:
     container_name: redis-server
-    image: 'redislabs/redismod'
+    #image: 'redislabs/redismod'
+    image: 'redis/redis-stack-server'
     volumes:
       - redis-data:/data
     ports: # enable to visualize data in redis insight
       - '${REDIS_INSIGHT_PORT}:6379'
 
-  mongodb-server:
+  # mongodb-server:
+  #   container_name: mongodb-server
+  #   image: 'mongo'
+  #   volumes:
+  #     - mongodb-data:/data/db
+  #   ports: 
+  #     - '${MONGODB_COMPASS_PORT}:27017'
+  
+  mongodb-server: # mongodb with replica for transactions support
     container_name: mongodb-server
-    image: 'mongo'
-    volumes:
-      - mongodb-data:/data/db
+    build:
+      context: ./
+      dockerfile: dockerfile-mongodb-replica
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: prisma
+      MONGO_REPLICA_HOST: host.docker.internal
+      MONGO_REPLICA_PORT: 27017
     ports: # enable to visualize data in mongodb compass
       - '${MONGODB_COMPASS_PORT}:27017'
 

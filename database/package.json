@@ -4,7 +4,8 @@
   "description": "Database seeder",
   "type": "module",
   "scripts": {
-    "build": "npx tsc",
+    "schema": "npx prisma db push && npx prisma generate",
+    "build": "npm run schema && npx tsc",
     "start": "npm run build && concurrently -k \"npx tsc --watch\" \"node  dist/server.js\""
   },
   "dependencies": {

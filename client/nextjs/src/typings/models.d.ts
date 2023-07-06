@@ -7,7 +7,7 @@ declare namespace models {
     quantity: number;
   }
   interface OrderItem {
-    productId: number;
+    productId: string;
     qty: number;
     productPrice: number;
     productData: Product;
@@ -25,7 +25,7 @@ declare namespace models {
   }
 
   interface Product {
-    id: number;
+    id: string;
     price: number;
     productDisplayName: string;
     variantName: string;
@@ -33,15 +33,8 @@ declare namespace models {
     ageGroup: string;
     gender: string;
     displayCategories: string;
-    styleImages: {
-      default: {
-        imageURL: string;
-      };
-    };
-    productDescriptors: {
-      description: {
-        value: string;
-      };
-    };
+    styleImages_default_imageURL: string;
+    productDescriptors_description_value: string;
+
   }
 }

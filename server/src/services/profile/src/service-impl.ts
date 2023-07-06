@@ -39,8 +39,8 @@ const calculateProfileScore: IMessageHandler = async (
         [key: string]: boolean;
       } = {};
       const categories = products.reduce((cat, product) => {
-        const masterCategory = product.productData?.masterCategory?.typeName;
-        const subCategory = product.productData?.subCategory?.typeName;
+        const masterCategory = product.productData?.masterCategory_typeName;
+        const subCategory = product.productData?.subCategory_typeName;
 
         if (masterCategory) {
           cat[`${masterCategory}`.toLowerCase()] = true;

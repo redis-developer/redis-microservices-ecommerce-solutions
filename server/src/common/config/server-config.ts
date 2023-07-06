@@ -49,7 +49,7 @@ const COLLECTIONS = {
 const SERVER_CONFIG = {
   CACHE_ASIDE_EXPIRY: 30, //in seconds
   MONGO_DB_URI:
-    envVariables.MONGO_DB_CONNECTION_URI ||
+    envVariables.DATABASE_URL ||
     'mongodb://localhost:27017/dbFashion',
   REDIS_URI: envVariables.REDIS_CONNECTION_URI || 'redis://localhost:6379',
   API_GATEWAY: {

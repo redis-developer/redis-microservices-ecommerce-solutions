@@ -40,7 +40,7 @@
     class="rds-card-container mdc-elevation--z2"
     *ngFor="let item of finalData">
     <div class="rds-card-head">
-      <img [src]="item.styleImages.default.imageURL" class="rds-card-image" />
+      <img [src]="item.styleImages_default_imageURL" class="rds-card-image" />
     </div>
     <div class="rds-card-body">
       <div class="rds-card-body-top">
@@ -49,9 +49,9 @@
         </div>
         <div
           class="rds-card-desc"
-          title="{{ getHtmlToText(item.productDescriptors.description.value) }}"
+          title="{{ getHtmlToText(item.productDescriptors_description_value) }}"
           innerHTML="{{
-            getShortName(item.productDescriptors.description.value)
+            getShortName(item.productDescriptors_description_value)
           }}"></div>
       </div>
       <div class="rds-card-price">${{ item.price }}</div>
@@ -90,7 +90,7 @@
         <div class="rds-cart-top">
           <div class="rds-cart-tile-left">
             <img
-              [src]="item.styleImages.default.imageURL"
+              [src]="item.styleImages_default_imageURL"
               class="rds-cart-img" />
           </div>
           <div class="rds-cart-tile-right">
@@ -98,10 +98,10 @@
             <div
               class="rds-cart-desc"
               title="{{
-                getHtmlToText(item.productDescriptors.description.value)
+                getHtmlToText(item.productDescriptors_description_value)
               }}"
               innerHTML="{{
-                getShortName(item.productDescriptors.description.value)
+                getShortName(item.productDescriptors_description_value)
               }}"></div>
           </div>
         </div>

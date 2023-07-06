@@ -43,7 +43,7 @@ const validateOrder = async (_order) => {
       .array()
       .of(
         yup.object().shape({
-          productId: yup.number().required(),
+          productId: yup.string().required(),
           qty: yup.number().required(),
           productPrice: yup.number().required(),
         }),
@@ -66,9 +66,12 @@ const validateOrder = async (_order) => {
 const addProductDataToOrders = (order: IOrder, products: IProduct[]) => {
   if (order && order.products?.length && products.length) {
     for (let orderedProduct of order.products) {
-      orderedProduct.productData = products.find(
+      const resultProduct = products.find(
         (_p) => _p._id == orderedProduct.productId,
-      )?.data;
+      );
+      if (resultProduct) {
+        orderedProduct.productData = resultProduct;
+      }
     }
   }
   return order;
@@ -81,7 +84,7 @@ const getProductDetails = async (order: IOrder) => {
       return product.productId;
     });
 
-    const mongodbWrapperInst = getMongodb();
+    const mongodbWrapperInst = getMongodb(); //TODO: PRISMA
     const filter: Document = {
       statusCode: {
         $eq: DB_ROW_STATUS.ACTIVE,
@@ -93,34 +96,21 @@ const getProductDetails = async (order: IOrder) => {
     };
 
     const projection: IProduct = {
-      productId: 1,
-      data: {
-        id: 1,
-        price: 1,
-        productDisplayName: 1,
-        variantName: 1,
-        brandName: 1,
-        ageGroup: 1,
-        gender: 1,
-        displayCategories: 1,
-        masterCategory: {
-          typeName: 1,
-        },
-        subCategory: {
-          typeName: 1,
-        },
-        styleImages: {
-          default: {
-            imageURL: 1,
-          },
-        },
-        productDescriptors: {
-          description: {
-            value: 1,
-          },
-        },
-      },
+      productId: '$_id',
+      id: '$_id',
+      price: 1,
+      productDisplayName: 1,
+      variantName: 1,
+      brandName: 1,
+      ageGroup: 1,
+      gender: 1,
+      displayCategories: 1,
+      masterCategory_typeName: 1,
+      subCategory_typeName: 1,
+      styleImages_default_imageURL: 1,
+      productDescriptors_description_value: 1
     };
+
     const limit = MAX_DOCUMENTS_FETCH_LIMIT;
     const sort = {};
     products = await mongodbWrapperInst.find(
@@ -143,7 +133,7 @@ const addOrderToRedis = async (order: IOrder) => {
       const entity = repository.createEntity(order);
       orderId = entity.entityId;
       entity.orderId = orderId;
-      entity.productsStr = JSON.stringify(order.products);
+      entity.productsStr = JSON.stringify(order.products); //TODO: UPDATE REDIS OM
 
       await repository.save(entity);
     }
@@ -153,7 +143,7 @@ const addOrderToRedis = async (order: IOrder) => {
 };
 
 const addOrderToMongoDB = async (order: IOrder) => {
-  const mongodbWrapperInst = getMongodb();
+  const mongodbWrapperInst = getMongodb(); //TODO: PRISMA
   await mongodbWrapperInst.insertOne(
     COLLECTIONS.ORDERS.collectionName,
     COLLECTIONS.ORDERS.keyName,
@@ -200,7 +190,7 @@ const createOrder = async (
      * In real world scenario : can use RDI/ redis gears/ any other database to database sync strategy for REDIS-> MongoDB  data transfer.
      * To keep it simple, adding  data to MongoDB manually in the same service
      */
-    await addOrderToMongoDB(order);
+    await addOrderToMongoDB(order); //TODO: rename function
 
     await streamLog({
       action: 'CREATE_ORDER',
@@ -284,7 +274,7 @@ const updateOrderStatusInMongoDB = async ({
   potentialFraud,
   userId,
 }: UpdateOrder) => {
-  const mongodbWrapperInst = getMongodb();
+  const mongodbWrapperInst = getMongodb(); //TODO: PRISMA and rename function
 
   const filter: Document = {
     _id: orderId,
