@@ -7,18 +7,22 @@ import { getProducts } from '@/utils/services';
 import { useState, useEffect } from 'react';
 
 export default function Home() {
-  const [products, setProduct] = useState<models.Product[]>();
+  const [products, setProducts] = useState<models.Product[]>();
+
+  async function refreshProducts(search: string) {
+    setProducts(await getProducts(search.replace(/\?search=/g, '')));
+  }
 
   useEffect(() => {
     (async () => {
       const search = window?.location?.search ?? '';
-      setProduct(await getProducts(search.replace(/\?search=/g, '')));
+      await refreshProducts(search);
     })();
   }, []);
 
   return (
     <>
-      <Navbar />
+      <Navbar refreshProducts={refreshProducts} />
       <Cart />
       <main className="pt-12">
         <div className="max-w-screen-xl mx-auto mt-6 px-6 pb-6">

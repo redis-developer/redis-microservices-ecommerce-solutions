@@ -4,9 +4,10 @@ import Search from './Search';
 
 export interface NavbarProps {
   path?: string;
+  refreshProducts: (search: string) => void;
 }
 
-export default function Navbar({ path = '' }: NavbarProps) {
+export default function Navbar({ path = '', refreshProducts }: NavbarProps) {
   const isOrders = /orders/.test(path);
   const linkClass =
     'flex flex-initial items-center h-full pt-1 px-4 border-b-4 hover:text-neutral-200 font-bold';
@@ -35,7 +36,7 @@ export default function Navbar({ path = '' }: NavbarProps) {
           </Link>
         </div>
 
-        <Search />
+        <Search refreshProducts={refreshProducts} />
       </div>
     </nav>
   );
