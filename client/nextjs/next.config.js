@@ -4,7 +4,7 @@ const nextConfig = {
     appDir: true,
   },
   images: {
-    domains: ['localhost', 'host.docker.internal'],
+    domains: ['localhost', 'host.docker.internal', 'cdn'],
   },
   reactStrictMode: true,
 };
