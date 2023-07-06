@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 
 interface SearchProps {
-    refreshProducts: (search: string) => void;
+  refreshProducts?: (search: string) => void;
 }
 
 export default function Search({ refreshProducts }: SearchProps) {
@@ -17,12 +17,14 @@ export default function Search({ refreshProducts }: SearchProps) {
           new FormData(ev.currentTarget),
         ) as { search: string };
         if (!data.search) {
-            router.push(`/`);
+          router.push(`/`);
         } else {
-            router.push(`/?search=${data.search}`);
+          router.push(`/?search=${data.search}`);
         }
 
-        refreshProducts(data.search);
+        if (refreshProducts) {
+          refreshProducts(data.search);
+        }
       }}
       className="order-last mb-0 pr-8"
       action="">

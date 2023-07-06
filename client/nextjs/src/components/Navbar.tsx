@@ -4,7 +4,7 @@ import Search from './Search';
 
 export interface NavbarProps {
   path?: string;
-  refreshProducts: (search: string) => void;
+  refreshProducts?: (search: string) => void;
 }
 
 export default function Navbar({ path = '', refreshProducts }: NavbarProps) {
