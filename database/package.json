@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "schema": "npx prisma db push && npx prisma generate",
+    "copy-schema": "./script.sh",
     "build": "npm run schema && npx tsc",
     "start": "npm run build && concurrently -k \"npx tsc --watch\" \"node  dist/server.js\""
   },

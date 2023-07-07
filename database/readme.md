@@ -9,3 +9,15 @@ Only ~100 products are added for the demo to keep repository size smaller but mo
 - Copy all or required json files from "fashion-dataset/styles" to "database/fashion-dataset/001/products/"
 
 - Copy all or required images from "fashion-dataset/images" to "cdn/fashion-dataset/images/"
+
+## Prisma schema
+
+- On prisma schema change (locally), run following
+
+```sh
+# to upgrade db & generate schema
+npm run schema
+
+# to copy schema in other services
+npm run copy-schema
+```

@@ -3,13 +3,16 @@
   "version": "1.0.0",
   "main": "index.ts",
   "scripts": {
-    "build": "npx tsc",
+    "prisma-types": "npx prisma generate --schema=\"prisma-generated/schema.prisma\"",
+    "build": "npm run prisma-types && npx tsc",
     "start": "npm run build && concurrently -k \"npx tsc --watch\" \"nodemon  dist/api-gateway/src/index.js\""
   },
   "dependencies": {
+    "@prisma/client": "^4.16.2",
     "cors": "^2.8.5",
     "express": "^4.18.1",
     "http-proxy-middleware": "^2.0.6",
+    "prisma": "^4.16.2",
     "redis": "^4.6.5",
     "redis-om": "^0.3.6"
   },
