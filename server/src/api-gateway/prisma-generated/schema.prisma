@@ -12,6 +12,7 @@ datasource db {
 
 model Product {
   productId                            String @id @map("_id")
+  id                                   String
   price                                Float
   productDisplayName                   String
   variantName                          String

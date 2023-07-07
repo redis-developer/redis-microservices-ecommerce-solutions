@@ -107,6 +107,20 @@ const SERVER_CONFIG = {
       PREFIX: '/profile',
     },
   },
+  PRISMA_LOG: [
+    {
+      emit: "event",
+      level: "query",
+    },
+    {
+      emit: "stdout",
+      level: "error",
+    },
+    {
+      emit: "stdout",
+      level: "warn", //error, warn, info
+    },
+  ],
 };
 
 export { SERVER_CONFIG, COLLECTIONS, REDIS_STREAMS };

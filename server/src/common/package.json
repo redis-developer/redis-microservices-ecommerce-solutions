@@ -2,11 +2,14 @@
   "name": "utils",
   "version": "1.0.0",
   "scripts": {
+    "prisma-types": "npx prisma generate --schema=\"prisma-generated/schema.prisma\"",
     "comments": "Just to support import types for utils folder"
   },
   "dependencies": {
+    "@prisma/client": "^4.16.2",
     "crypto": "^1.0.1",
     "mongodb": "^4.8.0",
+    "prisma": "^4.16.2",
     "redis": "^4.3.0",
     "redis-om": "^0.3.6",
     "yup": "^1.0.1"

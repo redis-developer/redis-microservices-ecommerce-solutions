@@ -11,6 +11,10 @@ cp -r $SOURCE_PRISMA ../$TARGET_PRISMA
 npm run build
 cd ../../
 
+cd common/utils/
+cp -r $SOURCE_PRISMA ../$TARGET_PRISMA
+npm run prisma-types
+cd ../../
 #---------------------
 
 cd services/digital-identity/

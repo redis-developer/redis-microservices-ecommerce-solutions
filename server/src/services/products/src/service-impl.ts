@@ -1,55 +1,27 @@
-import type { IProduct } from '../../../common/models/product';
-import type { Document } from '../../../common/utils/mongodb/node-mongo-wrapper';
+import type { Product } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 import { DB_ROW_STATUS } from '../../../common/models/order';
-import { COLLECTIONS } from '../../../common/config/server-config';
-import { MAX_DOCUMENTS_FETCH_LIMIT } from '../../../common/config/constants';
-import { getMongodb } from '../../../common/utils/mongodb/node-mongo-wrapper';
+import { getPrismaClient } from '../../../common/utils/prisma/prisma-wrapper';
 
-interface IProductFilter {
-  productDisplayName: string;
-}
+async function getProductsByFilter(productFilter: Product) {
+  const prisma = getPrismaClient();
 
-async function getProductsByFilter(productFilter: IProductFilter) {
-  const mongodbWrapperInst = getMongodb(); //TODO: PRISMA
-  const filter: Document = {
-    statusCode: {
-      $eq: DB_ROW_STATUS.ACTIVE,
-    },
-  };
-
-  if (productFilter && productFilter.productDisplayName) {
-    filter.productDisplayName = {
-      $regex: productFilter.productDisplayName,
-      $options: 'i',
-    };
+  const whereQuery: Prisma.ProductWhereInput = {
+    statusCode: DB_ROW_STATUS.ACTIVE
   }
 
-  const projection: IProduct = {
-    productId: '$_id',
-    id: '$_id',
-    price: 1,
-    productDisplayName: 1,
-    variantName: 1,
-    brandName: 1,
-    ageGroup: 1,
-    gender: 1,
-    displayCategories: 1,
-    masterCategory_typeName: 1,
-    subCategory_typeName: 1,
-    styleImages_default_imageURL: 1,
-    productDescriptors_description_value: 1
-  };
+  if (productFilter && productFilter.productDisplayName) {
+    whereQuery.productDisplayName = {
+      contains: productFilter.productDisplayName,
+      mode: "insensitive",
+    }
+  }
 
-  const limit = MAX_DOCUMENTS_FETCH_LIMIT;
-  const sort = {};
-  const products = await mongodbWrapperInst.find(
-    COLLECTIONS.PRODUCTS.collectionName,
-    filter,
-    projection,
-    limit,
-    sort,
-  );
+  const products: Product[] = await prisma.product.findMany({
+    where: whereQuery
+  });
+
   return products;
 }
 
