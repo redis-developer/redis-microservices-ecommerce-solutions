@@ -1,3 +1,5 @@
+import type { Payment } from '@prisma/client';
+
 import {
   IMessageHandler,
   nextTransactionStep,
@@ -9,15 +11,14 @@ import {
   TransactionStreamActions,
 } from '../../../common/models/misc';
 
-import { IPayment } from '../../../common/models/payment';
 import { ORDER_STATUS, DB_ROW_STATUS } from '../../../common/models/order';
 import {
-  COLLECTIONS,
   REDIS_STREAMS,
 } from '../../../common/config/server-config';
 import { LoggerCls } from '../../../common/utils/logger';
-import { getMongodb } from '../../../common/utils/mongodb/node-mongo-wrapper';
 import { listenToStreams } from '../../../common/utils/redis/redis-streams';
+import { getPrismaClient } from '../../../common/utils/prisma/prisma-wrapper';
+
 
 const processPayment: IMessageHandler = async (
   message: ITransactionStreamMessage,
@@ -34,25 +35,21 @@ const processPayment: IMessageHandler = async (
     //assume payment is processed successfully
     const paymentStatus = ORDER_STATUS.PAYMENT_SUCCESS;
     const orderAmount = parseFloat(orderDetails.orderAmount);
-    const payment: IPayment = {
-      orderId: orderDetails.orderId,
-      orderAmount: orderAmount,
-      paidAmount: orderAmount,
-      orderStatusCode: paymentStatus,
-      userId: userId,
-      createdOn: new Date(),
-      createdBy: userId,
-      lastUpdatedOn: null,
-      lastUpdatedBy: null,
-      statusCode: DB_ROW_STATUS.ACTIVE,
-    };
 
-    const mongodbWrapperInst = getMongodb(); //TODO: PRISMA
-    const paymentId = await mongodbWrapperInst.insertOne(
-      COLLECTIONS.PAYMENTS.collectionName,
-      COLLECTIONS.PAYMENTS.keyName,
-      payment,
-    );
+    const prisma = getPrismaClient();
+    const retPayObj: Payment = await prisma.payment.create({
+      data: {
+        orderId: orderDetails.orderId,
+        orderAmount: orderAmount,
+        paidAmount: orderAmount,
+        orderStatusCode: paymentStatus,
+        userId: userId ?? "",
+        createdBy: userId ?? "",
+        statusCode: DB_ROW_STATUS.ACTIVE,
+      }
+    });
+
+    const paymentId = retPayObj.paymentId;
 
     await streamLog({
       action: TransactionStreamActions.PROCESS_PAYMENT,

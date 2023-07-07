@@ -29,7 +29,7 @@ services:
       MONGO_REPLICA_PORT: 27017
     ports: # enable to visualize data in mongodb compass
       - '${MONGODB_COMPASS_PORT}:27017'
-      # compass url is mongodb://localhost:27017/?directConnection=true
+      # mongodb compass url is mongodb://localhost:27017/?directConnection=true
 
   mongodb-seed:
     container_name: mongodb-seed

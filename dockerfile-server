@@ -16,6 +16,9 @@ RUN cd $COMMON_BASE_PATH/ && npm install
 COPY $BUILD_BASE_PATH/ ./$BUILD_BASE_PATH/
 COPY $COMMON_BASE_PATH/ ./$COMMON_BASE_PATH/
 
+# after copy of prisma-generated folder, generating types in common folder
+RUN cd $COMMON_BASE_PATH/ && npm run prisma-types
+
 # reset (command) work dir
 WORKDIR $INITIAL_WORK_DIR/$BUILD_BASE_PATH
 CMD [ "npm", "start" ]
