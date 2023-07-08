@@ -57,10 +57,10 @@ model Payment {
 }
 
 model Order {
-  orderId         String          @id @default(cuid()) @map("_id")
+  orderId         String          @id @map("_id")
   products        OrdersProduct[] //json type field
   orderStatusCode Int
-  potentialFraud  Boolean
+  potentialFraud  Boolean?
   userId          String
 
   //relation
@@ -85,6 +85,7 @@ type OrdersProduct {
 
 type OrdersProductData {
   productId                            String @map("_id")
+  id                                   String
   price                                Float
   productDisplayName                   String
   variantName                          String

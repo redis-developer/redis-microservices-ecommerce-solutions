@@ -1,11 +1,10 @@
-import type { IProduct } from '../../../common/models/product';
-import type { IOrder } from '../../../common/models/order';
+import type { Product, Order } from '@prisma/client';
+
 import {
   ITransactionStreamMessage,
   IOrderDetails,
   TransactionPipelines,
 } from '../../../common/models/misc';
-import type { Document } from '../../../common/utils/mongodb/node-mongo-wrapper';
 import {
   IMessageHandler,
   nextTransactionStep,
@@ -18,19 +17,17 @@ import * as OrderRepo from '../../../common/models/order-repo';
 import { TransactionStreamActions } from '../../../common/models/misc';
 import { ORDER_STATUS, DB_ROW_STATUS } from '../../../common/models/order';
 import {
-  COLLECTIONS,
   ISessionData,
   REDIS_STREAMS,
 } from '../../../common/config/server-config';
 import {
   USERS,
-  MAX_DOCUMENTS_FETCH_LIMIT,
 } from '../../../common/config/constants';
 import { YupCls } from '../../../common/utils/yup';
 import { LoggerCls } from '../../../common/utils/logger';
-import { getMongodb } from '../../../common/utils/mongodb/node-mongo-wrapper';
 import { listenToStreams } from '../../../common/utils/redis/redis-streams';
 import { addMessageToStream } from '../../../common/utils/redis/redis-streams';
+import { getPrismaClient } from '../../../common/utils/prisma/prisma-wrapper';
 
 const validateOrder = async (_order) => {
   const schema = yup.object().shape({
@@ -50,9 +47,7 @@ const validateOrder = async (_order) => {
       )
       .min(1),
 
-    createdOn: yup.date().required(),
     createdBy: yup.string().required(),
-    lastUpdatedOn: yup.date().nullable(),
     lastUpdatedBy: yup.string().nullable(),
     statusCode: yup.number().required(),
   });
@@ -63,11 +58,11 @@ const validateOrder = async (_order) => {
   return _order;
 };
 
-const addProductDataToOrders = (order: IOrder, products: IProduct[]) => {
+const addProductDataToOrders = (order: Order, products: Product[]) => {
   if (order && order.products?.length && products.length) {
     for (let orderedProduct of order.products) {
       const resultProduct = products.find(
-        (_p) => _p._id == orderedProduct.productId,
+        (_p) => _p.productId == orderedProduct.productId,
       );
       if (resultProduct) {
         orderedProduct.productData = resultProduct;
@@ -76,56 +71,29 @@ const addProductDataToOrders = (order: IOrder, products: IProduct[]) => {
   }
   return order;
 };
-const getProductDetails = async (order: IOrder) => {
-  let products: IProduct[] = [];
+const getProductDetails = async (order: Order) => {
+  let products: Product[] = [];
 
   if (order && order.products?.length) {
     const productIdArr = order.products.map((product) => {
       return product.productId;
     });
 
-    const mongodbWrapperInst = getMongodb(); //TODO: PRISMA
-    const filter: Document = {
-      statusCode: {
-        $eq: DB_ROW_STATUS.ACTIVE,
-      },
-      _id: {
-        //_id == productId
-        $in: productIdArr,
-      },
-    };
-
-    const projection: IProduct = {
-      productId: '$_id',
-      id: '$_id',
-      price: 1,
-      productDisplayName: 1,
-      variantName: 1,
-      brandName: 1,
-      ageGroup: 1,
-      gender: 1,
-      displayCategories: 1,
-      masterCategory_typeName: 1,
-      subCategory_typeName: 1,
-      styleImages_default_imageURL: 1,
-      productDescriptors_description_value: 1
-    };
-
-    const limit = MAX_DOCUMENTS_FETCH_LIMIT;
-    const sort = {};
-    products = await mongodbWrapperInst.find(
-      COLLECTIONS.PRODUCTS.collectionName,
-      filter,
-      projection,
-      limit,
-      sort,
-    );
+    const prisma = getPrismaClient();
+    products = await prisma.product.findMany({
+      where: {
+        statusCode: DB_ROW_STATUS.ACTIVE,
+        productId: {
+          in: productIdArr
+        }
+      }
+    });
   }
 
   return products;
 };
 
-const addOrderToRedis = async (order: IOrder) => {
+const addOrderToRedis = async (order: Order) => {
   let orderId = '';
   if (order) {
     const repository = OrderRepo.getRepository();
@@ -142,13 +110,11 @@ const addOrderToRedis = async (order: IOrder) => {
   return orderId;
 };
 
-const addOrderToMongoDB = async (order: IOrder) => {
-  const mongodbWrapperInst = getMongodb(); //TODO: PRISMA
-  await mongodbWrapperInst.insertOne(
-    COLLECTIONS.ORDERS.collectionName,
-    COLLECTIONS.ORDERS.keyName,
-    order,
-  );
+const addOrderToPrismaDB = async (order: Order) => {
+  const prisma = getPrismaClient();
+  await prisma.order.create({
+    data: order
+  });
 };
 
 const addMessageToTransactionStream = async (
@@ -161,7 +127,7 @@ const addMessageToTransactionStream = async (
 };
 
 const createOrder = async (
-  order: IOrder,
+  order: Order,
   browserAgent: string,
   ipAddress: string,
   sessionId: string,
@@ -172,10 +138,7 @@ const createOrder = async (
 
     order.orderStatusCode = ORDER_STATUS.CREATED;
     order.userId = userId;
-    order.createdOn = new Date();
     order.createdBy = userId;
-    order.lastUpdatedOn = null;
-    order.lastUpdatedBy = null;
     order.statusCode = DB_ROW_STATUS.ACTIVE;
 
     order = await validateOrder(order);
@@ -190,7 +153,7 @@ const createOrder = async (
      * In real world scenario : can use RDI/ redis gears/ any other database to database sync strategy for REDIS-> MongoDB  data transfer.
      * To keep it simple, adding  data to MongoDB manually in the same service
      */
-    await addOrderToMongoDB(order); //TODO: rename function
+    await addOrderToPrismaDB(order);
 
     await streamLog({
       action: 'CREATE_ORDER',
@@ -207,12 +170,12 @@ const createOrder = async (
       orderAmount += product.productPrice * product.qty;
     });
 
-    const orderDetails: IOrderDetails = {
+    const orderDetails: Partial<IOrderDetails> = {
       orderId: orderId,
       orderAmount: orderAmount.toFixed(2),
       userId: userId,
       sessionId: sessionId,
-      orderStatus: order.orderStatusCode,
+      orderStatusCode: order.orderStatusCode,
       products: order.products,
     };
 
@@ -236,25 +199,19 @@ const createOrder = async (
   }
 };
 
-interface UpdateOrder {
-  orderId: string;
-  paymentId?: string;
-  orderStatus?: number;
-  potentialFraud?: boolean;
-  userId: string;
-}
+
 
 const updateOrderStatusInRedis = async ({
   orderId,
   paymentId,
-  orderStatus,
+  orderStatusCode,
   potentialFraud,
   userId,
-}: UpdateOrder) => {
+}: Partial<IOrderDetails>) => {
   const repository = OrderRepo.getRepository();
   if (orderId && repository) {
     const dbOrder = await repository.fetch(orderId);
-    dbOrder.orderStatusCode = orderStatus ?? dbOrder.orderStatusCode;
+    dbOrder.orderStatusCode = orderStatusCode ?? dbOrder.orderStatusCode;
     dbOrder.paymentId = paymentId ?? dbOrder.paymentId;
     dbOrder.potentialFraud =
       potentialFraud === true || potentialFraud === false
@@ -267,34 +224,25 @@ const updateOrderStatusInRedis = async ({
   }
 };
 
-const updateOrderStatusInMongoDB = async ({
+const updateOrderStatusInPrismaDB = async ({
   orderId,
   paymentId,
-  orderStatus,
+  orderStatusCode,
   potentialFraud,
   userId,
-}: UpdateOrder) => {
-  const mongodbWrapperInst = getMongodb(); //TODO: PRISMA and rename function
+}: Partial<IOrderDetails>) => {
 
-  const filter: Document = {
-    _id: orderId,
-  };
-  const updateDocument: Partial<IOrder> = {
-    orderStatusCode: orderStatus,
-    paymentId: paymentId,
-    potentialFraud: potentialFraud,
-    lastUpdatedOn: new Date(),
-    lastUpdatedBy: userId,
-  };
-  const updateProp = {
-    $set: updateDocument,
-  };
-
-  await mongodbWrapperInst.updateOne(
-    COLLECTIONS.ORDERS.collectionName,
-    filter,
-    updateProp,
-  );
+  const prisma = getPrismaClient();
+  await prisma.order.update({
+    where: {
+      orderId: orderId
+    },
+    data: {
+      orderStatusCode: orderStatusCode,
+      potentialFraud: potentialFraud,
+      lastUpdatedBy: userId,
+    }
+  });
 };
 
 const updateOrderStatus: IMessageHandler = async (
@@ -305,19 +253,19 @@ const updateOrderStatus: IMessageHandler = async (
 
   LoggerCls.info(`Incoming message in Order Service ${messageId}`);
   if (message.orderDetails) {
-    const orderDetails: IOrderDetails = JSON.parse(message.orderDetails);
+    const orderDetails: Partial<IOrderDetails> = JSON.parse(message.orderDetails);
 
     if (orderDetails.orderId && orderDetails.paymentId && orderDetails.userId) {
       LoggerCls.info(`payment received ${orderDetails.paymentId}`);
 
-      orderDetails.orderStatus = ORDER_STATUS.PAYMENT_SUCCESS;
+      orderDetails.orderStatusCode = ORDER_STATUS.PAYMENT_SUCCESS;
 
       updateOrderStatusInRedis(orderDetails);
       /**
        * In real world scenario : can use RDI/ redis gears/ any other database to database sync strategy for REDIS-> MongoDB  data transfer.
        * To keep it simple, adding  data to MongoDB manually in the same service
        */
-      updateOrderStatusInMongoDB(orderDetails);
+      updateOrderStatusInPrismaDB(orderDetails);
 
       message.orderDetails = JSON.stringify(orderDetails);
 
@@ -340,7 +288,7 @@ async function checkOrderRiskScore(message: ITransactionStreamMessage) {
 
   LoggerCls.info(`Incoming message in Order Service`);
   if (message.orderDetails) {
-    const orderDetails: IOrderDetails = JSON.parse(message.orderDetails);
+    const orderDetails: Partial<IOrderDetails> = JSON.parse(message.orderDetails);
 
     if (orderDetails.orderId && orderDetails.userId) {
       LoggerCls.info(
@@ -366,7 +314,7 @@ async function checkOrderRiskScore(message: ITransactionStreamMessage) {
         potentialFraud = true;
       }
 
-      orderDetails.orderStatus = ORDER_STATUS.PENDING;
+      orderDetails.orderStatusCode = ORDER_STATUS.PENDING;
       orderDetails.potentialFraud = potentialFraud;
 
       updateOrderStatusInRedis(orderDetails);
@@ -374,7 +322,7 @@ async function checkOrderRiskScore(message: ITransactionStreamMessage) {
        * In real world scenario : can use RDI/ redis gears/ any other database to database sync strategy for REDIS-> MongoDB  data transfer.
        * To keep it simple, adding  data to MongoDB manually in the same service
        */
-      updateOrderStatusInMongoDB(orderDetails);
+      updateOrderStatusInPrismaDB(orderDetails);
 
       message.orderDetails = JSON.stringify(orderDetails);
 

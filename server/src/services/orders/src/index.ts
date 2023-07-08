@@ -4,13 +4,13 @@ import express, { Express, Request, Response } from 'express';
 import { router } from './routes';
 import { initialize } from './service-impl';
 import { SERVER_CONFIG } from '../../../common/config/server-config';
-import { setMongodb } from '../../../common/utils/mongodb/node-mongo-wrapper';
 import { setRedis } from '../../../common/utils/redis/redis-wrapper';
+import { setPrisma } from '../../../common/utils/prisma/prisma-wrapper';
+import { handleProcessAndAppErrors } from '../../../common/utils/misc';
 
 dotenv.config();
 
 //--- config
-const MONGO_DB_URI = SERVER_CONFIG.MONGO_DB_URI;
 const REDIS_URI = SERVER_CONFIG.REDIS_URI;
 const PORT = SERVER_CONFIG.ORDERS_SERVICE.PORT;
 const API_PREFIX = SERVER_CONFIG.ORDERS_SERVICE.API.PREFIX;
@@ -26,10 +26,13 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 app.listen(PORT, async () => {
-  await setMongodb(MONGO_DB_URI);
   await setRedis(REDIS_URI);
+  await setPrisma();
 
   initialize();
 
   console.log(`Server is running at http://localhost:${PORT}`);
 });
+
+handleProcessAndAppErrors(app, process);
+

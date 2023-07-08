@@ -1,4 +1,6 @@
 import { ObjectId } from 'mongodb';
+import type { Product, Order } from '@prisma/client';
+
 import type { IOrder, IOrderProduct, ORDER_STATUS } from './order';
 
 enum DB_ROW_STATUS {
@@ -56,15 +58,10 @@ interface ITransactionStreamMessage {
   others?: string;
 }
 
-interface IOrderDetails {
-  orderId: string;
+interface IOrderDetails extends Order {
   paymentId?: string;
   sessionId: string;
-  userId: string;
-  potentialFraud?: boolean;
-  orderStatus?: ORDER_STATUS;
   orderAmount: string;
-  products: IOrderProduct[];
 }
 
 export { DB_ROW_STATUS, TransactionStreamActions, TransactionPipelines };
