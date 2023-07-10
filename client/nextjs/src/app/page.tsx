@@ -29,7 +29,7 @@ export default function Home() {
           <div className="mb-2">Showing {products?.length} products</div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             {products?.map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <ProductCard key={product.productId} product={product} />
             ))}
           </div>
         </div>

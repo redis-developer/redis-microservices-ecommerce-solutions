@@ -25,7 +25,7 @@ declare namespace models {
   }
 
   interface Product {
-    id: string;
+    productId: string;
     price: number;
     productDisplayName: string;
     variantName: string;

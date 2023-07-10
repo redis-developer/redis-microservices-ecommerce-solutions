@@ -18,10 +18,10 @@ export class Orderconfirmation implements OnInit {
     lblOrderId: 'Your order ID',
     btnTxt: 'CONTINUE SHOPPING',
   };
-  id;
-  constructor(private route: ActivatedRoute, private router: Router) {}
+  productId;
+  constructor(private route: ActivatedRoute, private router: Router) { }
   ngOnInit() {
-    this.id = +this.route.snapshot.params['id'];
+    this.productId = +this.route.snapshot.params['productId'];
   }
   onClickHome() {
     this.router.navigate(['']);

@@ -12,7 +12,6 @@ datasource db {
 
 model Product {
   productId                            String @id @map("_id")
-  id                                   String
   price                                Float
   productDisplayName                   String
   variantName                          String
@@ -85,7 +84,6 @@ type OrdersProduct {
 
 type OrdersProductData {
   productId                            String @map("_id")
-  id                                   String
   price                                Float
   productDisplayName                   String
   variantName                          String

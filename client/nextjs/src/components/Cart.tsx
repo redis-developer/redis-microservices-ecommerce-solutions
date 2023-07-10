@@ -27,7 +27,7 @@ export default function Cart() {
     const order = await createOrder(
       cart.map((item) => {
         return {
-          productId: item.product.id,
+          productId: item.product.productId,
           qty: item.quantity,
           productPrice: item.product.price,
         };
@@ -80,7 +80,7 @@ export default function Cart() {
               {cart.map((item) => {
                 return (
                   <CartItem
-                    key={item.product.id}
+                    key={item.product.productId}
                     {...item}
                     handleChange={(value) => {
                       cartDispatch({

@@ -39,7 +39,6 @@ const seedPrismaDatabase = async () => {
       let product: Prisma.ProductCreateInput = {
         //custom
         productId: json.id.toString(),
-        id: json.id.toString(),
         styleImages_default_imageURL: `http://${process.env.CDN_HOST}:${process.env.CDN_PORT}/images/${json.id}.jpg`,
 
         //from json

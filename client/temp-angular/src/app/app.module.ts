@@ -14,7 +14,7 @@ import { Orderconfirmation } from './components/order-confirmation/order-confirm
 const appRouter: Routes = [
   { path: '', component: HomeComponent },
   { path: 'orders', component: OrderComponent },
-  { path: 'orderconfirm/:id', component: Orderconfirmation },
+  { path: 'orderconfirm/:productId', component: Orderconfirmation },
 ];
 
 @NgModule({
@@ -34,4 +34,4 @@ const appRouter: Routes = [
   providers: [],
   bootstrap: [AppComponent],
 })
-export class AppModule {}
+export class AppModule { }

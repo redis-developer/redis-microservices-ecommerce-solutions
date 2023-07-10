@@ -8,18 +8,18 @@ import {
 const DIGITAL_IDENTITY_KEY_PREFIX = 'DigitalIdentity';
 
 const schema = new RedisSchema(DIGITAL_IDENTITY_KEY_PREFIX, {
-  action: { type: 'string' },
-  browserFingerprint: { type: 'string' },
-  ipAddress: { type: 'string' },
-  userId: { type: 'string' },
-  sessionId: { type: 'string' },
-  identityScore: { type: 'string' },
+  action: { type: 'string', indexed: true }, //--
+  browserFingerprint: { type: 'string', indexed: false },
+  ipAddress: { type: 'string', indexed: false },
+  userId: { type: 'string', indexed: true }, //--
+  sessionId: { type: 'string', indexed: false },
+  identityScore: { type: 'string', indexed: false },
 
-  createdOn: { type: 'date' },
-  createdBy: { type: 'string' },
-  lastUpdatedOn: { type: 'date' },
-  lastUpdatedBy: { type: 'string' },
-  statusCode: { type: 'number' },
+  createdOn: { type: 'date', indexed: false },
+  createdBy: { type: 'string', indexed: false },
+  lastUpdatedOn: { type: 'date', indexed: false },
+  lastUpdatedBy: { type: 'string', indexed: false },
+  statusCode: { type: 'number', indexed: true }, //--
 });
 
 /*

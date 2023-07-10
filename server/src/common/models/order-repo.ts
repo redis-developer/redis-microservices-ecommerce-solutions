@@ -47,37 +47,17 @@ SAMPLE ORDER
 const ORDER_KEY_PREFIX = 'Order';
 
 const schema = new RedisSchema(ORDER_KEY_PREFIX, {
-  orderId: { type: 'string' },
+  orderId: { type: 'string', indexed: true },//--
 
-  orderStatusCode: { type: 'number' },
-  potentialFraud: { type: 'boolean' },
-  userId: { type: 'string' },
+  orderStatusCode: { type: 'number', indexed: true },//--
+  potentialFraud: { type: 'boolean', indexed: false },
+  userId: { type: 'string', indexed: true },//--
 
-  createdOn: { type: 'date' },
-  createdBy: { type: 'string' },
-  lastUpdatedOn: { type: 'date' },
-  lastUpdatedBy: { type: 'string' },
-  statusCode: { type: 'number' },
-
-  //----------- products array----
-  productId: { type: "string", path: "$.products[*].productId" },
-  productPrice: { type: "number", path: "$.products[*].productPrice" },
-  productQty: { type: "number", path: "$.products[*].qty" },
-
-  productDataId: { type: "string", path: "$.products[*].productData.productId" },
-  productDataPrice: { type: "string", path: "$.products[*].productData.price" },
-  productDisplayName: { type: "string", path: "$.products[*].productData.productDisplayName" },
-  productVariantName: { type: "string", path: "$.products[*].productData.variantName" },
-  productBrandName: { type: "string", path: "$.products[*].productData.brandName" },
-  productAgeGroup: { type: "string", path: "$.products[*].productData.ageGroup" },
-  productGender: { type: "string", path: "$.products[*].productData.gender" },
-  productDisplayCategories: { type: "string", path: "$.products[*].productData.displayCategories" },
-  productMasterCategoryType: { type: "string", path: "$.products[*].productData.masterCategory_typeName" },
-  productSubCategoryType: { type: "string", path: "$.products[*].productData.subCategory_typeName" },
-  productImageURL: { type: "string", path: "$.products[*].productData.styleImages_default_imageURL" },
-  productDescription: { type: "string", path: "$.products[*].productData.productDescriptors_description_value" },
-  //----------- products array ends----
-
+  createdOn: { type: 'date', indexed: false },
+  createdBy: { type: 'string', indexed: true },//--
+  lastUpdatedOn: { type: 'date', indexed: false },
+  lastUpdatedBy: { type: 'string', indexed: false },
+  statusCode: { type: 'number', indexed: true },//--
 
 });
 

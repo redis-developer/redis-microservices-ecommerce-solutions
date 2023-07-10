@@ -9,19 +9,19 @@ import {
 const PROFILE_KEY_PREFIX = 'Profile';
 
 const schema = new RedisSchema(PROFILE_KEY_PREFIX, {
-  persona: { type: 'string' },
-  accessories: { type: 'number' },
-  apparel: { type: 'number' },
-  'accessories:watches': { type: 'number' },
-  'apparel:topwear': { type: 'number' },
-  'apparel:bottomwear': { type: 'number' },
-  avgCartPrice: { type: 'number' },
+  persona: { type: 'string', indexed: true },//--
+  accessories: { type: 'number', indexed: false },
+  apparel: { type: 'number', indexed: false },
+  'accessories:watches': { type: 'number', indexed: false },
+  'apparel:topwear': { type: 'number', indexed: false },
+  'apparel:bottomwear': { type: 'number', indexed: false },
+  avgCartPrice: { type: 'number', indexed: false },
 
-  createdOn: { type: 'date' },
-  createdBy: { type: 'string' },
-  lastUpdatedOn: { type: 'date' },
-  lastUpdatedBy: { type: 'string' },
-  statusCode: { type: 'number' },
+  createdOn: { type: 'date', indexed: false },
+  createdBy: { type: 'string', indexed: false },
+  lastUpdatedOn: { type: 'date', indexed: false },
+  lastUpdatedBy: { type: 'string', indexed: false },
+  statusCode: { type: 'number', indexed: true },//--
 });
 
 /*

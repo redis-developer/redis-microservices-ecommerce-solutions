@@ -23,7 +23,7 @@ export class HomeComponent implements OnInit {
   finalData = [];
   details = [
     {
-      id: 11001,
+      productId: 11001,
       price: 5450,
       productDisplayName: 'Puma Men Top Fluctuation Red Black Watches',
       brandName: 'Puma',
@@ -264,7 +264,7 @@ export class HomeComponent implements OnInit {
       },
     },
     {
-      id: 11002,
+      productId: 11002,
       price: 4950,
       productDisplayName: 'Puma Men Race Black Watch',
       brandName: 'Puma',
@@ -505,7 +505,7 @@ export class HomeComponent implements OnInit {
       },
     },
     {
-      id: 11003,
+      productId: 11003,
       price: 3950,
       productDisplayName: 'Puma Men Fluctuation Red Dial Watch',
       brandName: 'Puma',
@@ -746,7 +746,7 @@ export class HomeComponent implements OnInit {
       },
     },
     {
-      id: 11004,
+      productId: 11004,
       price: 5995,
       productDisplayName: 'Puma Men Track Black Watch',
       brandName: 'Puma',
@@ -987,7 +987,7 @@ export class HomeComponent implements OnInit {
       },
     },
     {
-      id: 11005,
+      productId: 11005,
       price: 5495,
       productDisplayName: 'Puma Men Visor 3HD Black Watch',
       brandName: 'Puma',
@@ -1228,7 +1228,7 @@ export class HomeComponent implements OnInit {
       },
     },
     {
-      id: 11006,
+      productId: 11006,
       price: 7795,
       productDisplayName: 'Puma Men Race Luminous Black Chronograph Watch',
       brandName: 'Puma',
@@ -1469,7 +1469,7 @@ export class HomeComponent implements OnInit {
       },
     },
     {
-      id: 11007,
+      productId: 11007,
       price: 9495,
       productDisplayName: 'Puma Men Turbo Black Chronograph Watch',
       brandName: 'Puma',
@@ -1710,7 +1710,7 @@ export class HomeComponent implements OnInit {
       },
     },
     {
-      id: 11008,
+      productId: 11008,
       price: 499,
       productDisplayName: 'Inkfruit Women Behind Cream Tshirts',
       brandName: 'Inkfruit',
@@ -1914,7 +1914,7 @@ export class HomeComponent implements OnInit {
       },
     },
     {
-      id: 11009,
+      productId: 11009,
       price: 499,
       productDisplayName: 'Inkfruit Men Let Me Skate White Tshirts',
       brandName: 'Inkfruit',
@@ -2118,7 +2118,7 @@ export class HomeComponent implements OnInit {
       },
     },
     {
-      id: 11010,
+      productId: 11010,
       price: 1095,
       productDisplayName: 'Wrangler Women Smocked Yoke Purple Tops',
       brandName: 'Wrangler',
@@ -2334,7 +2334,7 @@ export class HomeComponent implements OnInit {
       },
     },
   ];
-  constructor(private router: Router) {}
+  constructor(private router: Router) { }
   ngOnInit() {
     this.showLoader = true;
     setTimeout(() => {
@@ -2367,9 +2367,9 @@ export class HomeComponent implements OnInit {
   }
 
   onClickAddToCart(_element) {
-    if (_element && _element.id) {
+    if (_element && _element.productId) {
       let existElmIndex = this.carts.findIndex(
-        (_elm) => _elm.id == _element.id,
+        (_elm) => _elm.productId == _element.productId,
       );
       if (existElmIndex > -1) {
         _element.quantity = _element.quantity ? _element.quantity + 1 : 1;
@@ -2405,7 +2405,7 @@ export class HomeComponent implements OnInit {
 
   onClickRemoveFromCart(_item) {
     if (_item) {
-      let elmIndex = this.carts.findIndex((_elm) => _elm.id == _item.id);
+      let elmIndex = this.carts.findIndex((_elm) => _elm.productId == _item.productId);
       this.carts.splice(elmIndex, 1);
       if (_item.quantity) {
         this.totalQuantity = this.totalQuantity - _item.quantity;

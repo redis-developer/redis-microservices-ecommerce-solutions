@@ -20,7 +20,7 @@ export class OrderComponent {
       orderDate: '01/31/2023',
       items: [
         {
-          id: 11001,
+          productId: 11001,
           price: 5450,
           productDisplayName: 'Puma Men Top Fluctuation Red Black Watches',
           brandName: 'Puma',
@@ -261,7 +261,7 @@ export class OrderComponent {
           },
         },
         {
-          id: 11002,
+          productId: 11002,
           price: 4950,
           productDisplayName: 'Puma Men Race Black Watch',
           brandName: 'Puma',
@@ -509,7 +509,7 @@ export class OrderComponent {
       orderDate: '02/22/2023',
       items: [
         {
-          id: 11005,
+          productId: 11005,
           price: 5495,
           productDisplayName: 'Puma Men Visor 3HD Black Watch',
           brandName: 'Puma',
@@ -753,7 +753,7 @@ export class OrderComponent {
     },
   ];
   lblNoData = 'No data to display!';
-  constructor(private router: Router) {}
+  constructor(private router: Router) { }
   onClickHome() {
     this.router.navigate(['']);
   }

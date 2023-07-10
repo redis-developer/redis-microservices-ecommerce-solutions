@@ -7,7 +7,7 @@ export default function cartReducer(
       let found = false;
 
       cart = cart.map((c) => {
-        if (c.product.id === action.item.product.id) {
+        if (c.product.productId === action.item.product.productId) {
           found = true;
           c.quantity += 1;
           return c;
@@ -25,7 +25,7 @@ export default function cartReducer(
     case 'update_quantity': {
       return cart
         .map((c) => {
-          if (c.product.id === action.item.product.id) {
+          if (c.product.productId === action.item.product.productId) {
             c.quantity = action.item.quantity;
             return c;
           } else {
@@ -35,7 +35,7 @@ export default function cartReducer(
         .filter((c) => c.quantity > 0);
     }
     case 'remove_from_cart': {
-      return cart.filter((i) => i.product.id !== action.item.product.id);
+      return cart.filter((i) => i.product.productId !== action.item.product.productId);
     }
     case 'clear_cart': {
       return [];
