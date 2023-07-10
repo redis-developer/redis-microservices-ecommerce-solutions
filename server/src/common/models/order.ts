@@ -18,7 +18,6 @@ enum ORDER_STATUS {
 }
 
 interface IOrder extends Order, Document {
-  productsStr?: string; //temp redis om
 
   paymentId?: string;
   sessionId?: string;
@@ -26,4 +25,4 @@ interface IOrder extends Order, Document {
 }
 
 export { ORDER_STATUS, DB_ROW_STATUS };
-export type { IOrder, OrdersProduct, OrdersProductData, Product };
+export type { IOrder, Order, OrdersProduct, OrdersProductData, Product };

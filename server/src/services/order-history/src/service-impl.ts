@@ -25,9 +25,7 @@ const viewOrderHistory = async (userId: string) => {
           orderId: elm.orderId,
           userId: elm.userId,
           orderStatusCode: elm.orderStatusCode,
-          products: elm.productsStr
-            ? JSON.parse(elm.productsStr.toString())
-            : [], //temp
+          products: elm.products,
           createdOn: elm.createdOn,
           createdBy: elm.createdBy,
           lastUpdatedOn: elm.lastUpdatedOn,

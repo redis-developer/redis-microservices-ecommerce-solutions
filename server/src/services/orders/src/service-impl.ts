@@ -1,5 +1,4 @@
-import type { Product, Order } from '@prisma/client';
-import type { IOrder } from '../../../common/models/order';
+import type { IOrder, Order, OrdersProduct, OrdersProductData, Product } from '../../../common/models/order';
 
 import * as yup from 'yup';
 import { v4 as uuidv4 } from 'uuid';
@@ -100,8 +99,20 @@ const addOrderToRedis = async (order: Order) => {
 
     const repository = OrderRepo.getRepository();
     const entity: Partial<IOrder> = { ...order };
-    entity.productsStr = JSON.stringify(order.products); //TODO: UPDATE REDIS OM SCHEMA
-    delete entity.products;
+
+    //@ts-ignore
+    entity.products = order.products.map((_ordProduct: Partial<OrdersProduct>) => {
+      const orderProductData: Partial<OrdersProductData> = _ordProduct?.productData ?? {};
+
+      if (orderProductData) {
+        delete orderProductData.createdOn;
+        delete orderProductData.createdBy;
+        delete orderProductData.lastUpdatedOn;
+        delete orderProductData.lastUpdatedBy;
+        delete orderProductData.statusCode;
+      }
+      return _ordProduct
+    });
 
     await repository.save(orderId, entity);
   }
