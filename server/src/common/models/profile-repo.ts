@@ -1,27 +1,14 @@
 import type { IProfile } from './profile';
 import {
-  getRedisOmClient,
   getNodeRedisClient,
-  RedisEntity,
   RedisSchema,
+  RedisRepository,
+  RedisEntityId,
 } from '../utils/redis/redis-wrapper';
 
-//for typescript
-interface ProfileEntity extends IProfile {}
+const PROFILE_KEY_PREFIX = 'Profile';
 
-/*
-An Entity is the class that holds you data when you work with it.
-It is what you create, read, update, and delete.
-*/
-class ProfileEntity extends RedisEntity {}
-
-/*
-schema defines the fields on your entity, their types, and
-how they are mapped internally to Redis.
-Valid types are: string, number, boolean, string[], date, point, and text.
-*/
-
-const schema = new RedisSchema(ProfileEntity, {
+const schema = new RedisSchema(PROFILE_KEY_PREFIX, {
   persona: { type: 'string' },
   accessories: { type: 'number' },
   apparel: { type: 'number' },
@@ -42,20 +29,19 @@ const schema = new RedisSchema(ProfileEntity, {
  */
 
 const getRepository = () => {
-  const redisOmClient = getRedisOmClient();
-  return redisOmClient?.fetchRepository(schema);
+  const redisClient = getNodeRedisClient();
+  const repository = new RedisRepository(schema, redisClient);
+  return repository;
 };
 
 /*
 we need to create an index or we won't be able to search.
-Redis OM uses hash to see if index needs to be recreated or not
+Redis OM uses hash to see if index needs to be recreated or not 
 */
 
 const createRedisIndex = async () => {
   const repository = getRepository();
-  if (repository) {
-    await repository.createIndex();
-  }
+  await repository.createIndex();
 };
 
 const DEFAULT_PROFILES: IProfile[] = [
@@ -119,57 +105,53 @@ const initialize = async () => {
   await createRedisIndex();
 
   const repository = getRepository();
-  if (repository) {
-    const exists = await repository
-      .search()
-      .where('persona')
-      .equals('GRANDMOTHER')
-      .return.count();
+  const exists = await repository
+    .search()
+    .where('persona')
+    .equals('GRANDMOTHER')
+    .return.count();
 
-    if (exists <= 0) {
-      const nodeRedisClient = getNodeRedisClient();
-      DEFAULT_PROFILES.forEach(async (profile) => {
-        await repository.createAndSave(profile);
+  if (exists <= 0) {
+    const nodeRedisClient = getNodeRedisClient();
+    DEFAULT_PROFILES.forEach(async (profile) => {
+      await repository.save(profile);
 
-        if (profile.accessories > 0) {
-          await nodeRedisClient?.bf.add(
-            'bfprofile:accessories',
-            profile.persona.toLowerCase(),
-          );
-        }
+      if (profile.accessories > 0) {
+        await nodeRedisClient?.bf.add(
+          'bfprofile:accessories',
+          profile.persona.toLowerCase(),
+        );
+      }
 
-        if (profile.apparel > 0) {
-          await nodeRedisClient?.bf.add(
-            'bfprofile:apparel',
-            profile.persona.toLowerCase(),
-          );
-        }
+      if (profile.apparel > 0) {
+        await nodeRedisClient?.bf.add(
+          'bfprofile:apparel',
+          profile.persona.toLowerCase(),
+        );
+      }
 
-        if (profile['accessories:watches'] > 0) {
-          await nodeRedisClient?.bf.add(
-            'bfprofile:accessories:watches',
-            profile.persona.toLowerCase(),
-          );
-        }
+      if (profile['accessories:watches'] > 0) {
+        await nodeRedisClient?.bf.add(
+          'bfprofile:accessories:watches',
+          profile.persona.toLowerCase(),
+        );
+      }
 
-        if (profile['apparel:topwear'] > 0) {
-          await nodeRedisClient?.bf.add(
-            'bfprofile:apparel:topwear',
-            profile.persona.toLowerCase(),
-          );
-        }
+      if (profile['apparel:topwear'] > 0) {
+        await nodeRedisClient?.bf.add(
+          'bfprofile:apparel:topwear',
+          profile.persona.toLowerCase(),
+        );
+      }
 
-        if (profile['apparel:bottomwear'] > 0) {
-          await nodeRedisClient?.bf.add(
-            'bfprofile:apparel:bottomwear',
-            profile.persona.toLowerCase(),
-          );
-        }
-      });
-    }
+      if (profile['apparel:bottomwear'] > 0) {
+        await nodeRedisClient?.bf.add(
+          'bfprofile:apparel:bottomwear',
+          profile.persona.toLowerCase(),
+        );
+      }
+    });
   }
 };
 
-export { getRepository, initialize };
-
-export type { ProfileEntity, IProfile };
+export { getRepository, initialize, RedisEntityId };

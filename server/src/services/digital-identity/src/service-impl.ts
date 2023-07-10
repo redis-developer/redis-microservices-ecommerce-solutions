@@ -1,5 +1,6 @@
-import { ITransactionStreamMessage } from '../../../common/models/misc';
+import type { ITransactionStreamMessage } from '../../../common/models/misc';
 import type { IDigitalIdentity } from '../../../common/models/digital-identity';
+
 import {
   IMessageHandler,
   nextTransactionStep,
@@ -11,6 +12,7 @@ import {
   TransactionStreamActions,
   DB_ROW_STATUS,
 } from '../../../common/models/misc';
+
 import * as digitalIdentityRepo from '../../../common/models/digital-identity-repo';
 import { REDIS_STREAMS } from '../../../common/config/server-config';
 import { CryptoCls } from '../../../common/utils/crypto';
@@ -49,10 +51,8 @@ const addDigitalIdentityToRedis = async (
     }
 
     const repository = digitalIdentityRepo.getRepository();
-    if (repository) {
-      const entity = repository.createEntity(digitalIdentity);
-      insertedKey = await repository.save(entity);
-    }
+    const entity = await repository.save(digitalIdentity);
+    insertedKey = entity[digitalIdentityRepo.RedisEntityId] ?? '';
   } else {
     throw 'addDigitalIdentityToRedis() input params failed ! ';
   }

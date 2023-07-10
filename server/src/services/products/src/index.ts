@@ -7,7 +7,6 @@ import { setRedis } from '../../../common/utils/redis/redis-wrapper';
 import { setPrisma } from '../../../common/utils/prisma/prisma-wrapper';
 import { handleProcessAndAppErrors } from '../../../common/utils/misc';
 
-
 dotenv.config();
 
 //--- config

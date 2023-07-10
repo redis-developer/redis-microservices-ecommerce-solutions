@@ -14,9 +14,9 @@ services:
   #   image: 'mongo'
   #   volumes:
   #     - mongodb-data:/data/db
-  #   ports: 
+  #   ports:
   #     - '${MONGODB_COMPASS_PORT}:27017'
-  
+
   mongodb-server: # mongodb with replica for transactions support
     container_name: mongodb-server
     build:

@@ -1,7 +1,10 @@
-import type { ICommonFields } from './misc';
-import type { IProduct } from './product';
-
-import { Document } from 'mongodb';
+import type {
+  Product,
+  Order,
+  OrdersProduct,
+  OrdersProductData,
+} from '@prisma/client';
+import { Document } from 'mongodb'; //to allow other dynamic props
 
 import { DB_ROW_STATUS } from './misc';
 
@@ -14,23 +17,13 @@ enum ORDER_STATUS {
   PAYMENT_SUCCESS = 4,
 }
 
-interface IOrderProduct {
-  productId: string;
-  qty: number;
-  productPrice: number;
-  productData?: IProduct;
-}
-
-interface IOrder extends Document, ICommonFields {
-  orderId?: string;
-  userId?: string;
-  orderStatusCode?: ORDER_STATUS;
-  paymentId?: string;
-  potentialFraud?: boolean;
-
-  products: IOrderProduct[];
+interface IOrder extends Order, Document {
   productsStr?: string; //temp redis om
+
+  paymentId?: string;
+  sessionId?: string;
+  orderAmount?: string;
 }
 
 export { ORDER_STATUS, DB_ROW_STATUS };
-export type { IOrder, IOrderProduct };
+export type { IOrder, OrdersProduct, OrdersProductData, Product };

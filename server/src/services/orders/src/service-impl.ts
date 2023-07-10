@@ -1,8 +1,11 @@
 import type { Product, Order } from '@prisma/client';
+import type { IOrder } from '../../../common/models/order';
+
+import * as yup from 'yup';
+import { v4 as uuidv4 } from 'uuid';
 
 import {
   ITransactionStreamMessage,
-  IOrderDetails,
   TransactionPipelines,
 } from '../../../common/models/misc';
 import {
@@ -11,8 +14,6 @@ import {
   streamLog,
 } from '../../../common/utils/redis/redis-streams';
 
-import * as yup from 'yup';
-
 import * as OrderRepo from '../../../common/models/order-repo';
 import { TransactionStreamActions } from '../../../common/models/misc';
 import { ORDER_STATUS, DB_ROW_STATUS } from '../../../common/models/order';
@@ -20,9 +21,7 @@ import {
   ISessionData,
   REDIS_STREAMS,
 } from '../../../common/config/server-config';
-import {
-  USERS,
-} from '../../../common/config/constants';
+import { USERS } from '../../../common/config/constants';
 import { YupCls } from '../../../common/utils/yup';
 import { LoggerCls } from '../../../common/utils/logger';
 import { listenToStreams } from '../../../common/utils/redis/redis-streams';
@@ -84,9 +83,9 @@ const getProductDetails = async (order: Order) => {
       where: {
         statusCode: DB_ROW_STATUS.ACTIVE,
         productId: {
-          in: productIdArr
-        }
-      }
+          in: productIdArr,
+        },
+      },
     });
   }
 
@@ -96,15 +95,15 @@ const getProductDetails = async (order: Order) => {
 const addOrderToRedis = async (order: Order) => {
   let orderId = '';
   if (order) {
-    const repository = OrderRepo.getRepository();
-    if (repository) {
-      const entity = repository.createEntity(order);
-      orderId = entity.entityId;
-      entity.orderId = orderId;
-      entity.productsStr = JSON.stringify(order.products); //TODO: UPDATE REDIS OM
+    orderId = uuidv4();
+    order.orderId = orderId;
 
-      await repository.save(entity);
-    }
+    const repository = OrderRepo.getRepository();
+    const entity: Partial<IOrder> = { ...order };
+    entity.productsStr = JSON.stringify(order.products); //TODO: UPDATE REDIS OM SCHEMA
+    delete entity.products;
+
+    await repository.save(orderId, entity);
   }
 
   return orderId;
@@ -113,7 +112,7 @@ const addOrderToRedis = async (order: Order) => {
 const addOrderToPrismaDB = async (order: Order) => {
   const prisma = getPrismaClient();
   await prisma.order.create({
-    data: order
+    data: order,
   });
 };
 
@@ -170,7 +169,7 @@ const createOrder = async (
       orderAmount += product.productPrice * product.qty;
     });
 
-    const orderDetails: Partial<IOrderDetails> = {
+    const orderDetails: Partial<IOrder> = {
       orderId: orderId,
       orderAmount: orderAmount.toFixed(2),
       userId: userId,
@@ -199,15 +198,13 @@ const createOrder = async (
   }
 };
 
-
-
 const updateOrderStatusInRedis = async ({
   orderId,
   paymentId,
   orderStatusCode,
   potentialFraud,
   userId,
-}: Partial<IOrderDetails>) => {
+}: Partial<IOrder>) => {
   const repository = OrderRepo.getRepository();
   if (orderId && repository) {
     const dbOrder = await repository.fetch(orderId);
@@ -230,18 +227,17 @@ const updateOrderStatusInPrismaDB = async ({
   orderStatusCode,
   potentialFraud,
   userId,
-}: Partial<IOrderDetails>) => {
-
+}: Partial<IOrder>) => {
   const prisma = getPrismaClient();
   await prisma.order.update({
     where: {
-      orderId: orderId
+      orderId: orderId,
     },
     data: {
       orderStatusCode: orderStatusCode,
       potentialFraud: potentialFraud,
       lastUpdatedBy: userId,
-    }
+    },
   });
 };
 
@@ -253,7 +249,7 @@ const updateOrderStatus: IMessageHandler = async (
 
   LoggerCls.info(`Incoming message in Order Service ${messageId}`);
   if (message.orderDetails) {
-    const orderDetails: Partial<IOrderDetails> = JSON.parse(message.orderDetails);
+    const orderDetails: Partial<IOrder> = JSON.parse(message.orderDetails);
 
     if (orderDetails.orderId && orderDetails.paymentId && orderDetails.userId) {
       LoggerCls.info(`payment received ${orderDetails.paymentId}`);
@@ -288,7 +284,7 @@ async function checkOrderRiskScore(message: ITransactionStreamMessage) {
 
   LoggerCls.info(`Incoming message in Order Service`);
   if (message.orderDetails) {
-    const orderDetails: Partial<IOrderDetails> = JSON.parse(message.orderDetails);
+    const orderDetails: Partial<IOrder> = JSON.parse(message.orderDetails);
 
     if (orderDetails.orderId && orderDetails.userId) {
       LoggerCls.info(

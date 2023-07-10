@@ -5,7 +5,6 @@ import {
 
 import { Request } from 'express';
 
-import { TransactionStreamActions } from '../../common/models/misc';
 import { REDIS_STREAMS } from '../../common/config/server-config';
 import { addMessageToStream } from '../../common/utils/redis/redis-streams';
 

@@ -1,7 +1,4 @@
 import { ObjectId } from 'mongodb';
-import type { Product, Order } from '@prisma/client';
-
-import type { IOrder, IOrderProduct, ORDER_STATUS } from './order';
 
 enum DB_ROW_STATUS {
   ACTIVE = 1,
@@ -58,11 +55,5 @@ interface ITransactionStreamMessage {
   others?: string;
 }
 
-interface IOrderDetails extends Order {
-  paymentId?: string;
-  sessionId: string;
-  orderAmount: string;
-}
-
 export { DB_ROW_STATUS, TransactionStreamActions, TransactionPipelines };
-export type { ICommonFields, ITransactionStreamMessage, IOrderDetails };
+export type { ICommonFields, ITransactionStreamMessage };

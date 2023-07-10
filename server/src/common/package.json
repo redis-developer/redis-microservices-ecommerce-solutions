@@ -10,8 +10,8 @@
     "crypto": "^1.0.1",
     "mongodb": "^4.8.0",
     "prisma": "^4.16.2",
-    "redis": "^4.3.0",
-    "redis-om": "^0.3.6",
+    "redis": "^4.6.7",
+    "redis-om": "^0.4.0",
     "yup": "^1.0.1"
   },
   "devDependencies": {

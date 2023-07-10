@@ -8,18 +8,18 @@ async function getProductsByFilter(productFilter: Product) {
   const prisma = getPrismaClient();
 
   const whereQuery: Prisma.ProductWhereInput = {
-    statusCode: DB_ROW_STATUS.ACTIVE
-  }
+    statusCode: DB_ROW_STATUS.ACTIVE,
+  };
 
   if (productFilter && productFilter.productDisplayName) {
     whereQuery.productDisplayName = {
       contains: productFilter.productDisplayName,
-      mode: "insensitive",
-    }
+      mode: 'insensitive',
+    };
   }
 
   const products: Product[] = await prisma.product.findMany({
-    where: whereQuery
+    where: whereQuery,
   });
 
   return products;

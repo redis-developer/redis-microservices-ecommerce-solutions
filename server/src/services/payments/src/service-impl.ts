@@ -1,4 +1,5 @@
 import type { Payment } from '@prisma/client';
+import type { IOrder } from '../../../common/models/order';
 
 import {
   IMessageHandler,
@@ -7,18 +8,14 @@ import {
 } from '../../../common/utils/redis/redis-streams';
 import {
   ITransactionStreamMessage,
-  IOrderDetails,
   TransactionStreamActions,
 } from '../../../common/models/misc';
 
 import { ORDER_STATUS, DB_ROW_STATUS } from '../../../common/models/order';
-import {
-  REDIS_STREAMS,
-} from '../../../common/config/server-config';
+import { REDIS_STREAMS } from '../../../common/config/server-config';
 import { LoggerCls } from '../../../common/utils/logger';
 import { listenToStreams } from '../../../common/utils/redis/redis-streams';
 import { getPrismaClient } from '../../../common/utils/prisma/prisma-wrapper';
-
 
 const processPayment: IMessageHandler = async (
   message: ITransactionStreamMessage,
@@ -28,13 +25,13 @@ const processPayment: IMessageHandler = async (
   LoggerCls.info(`Incoming message in Payment Service ${messageId}`);
 
   if (message.orderDetails) {
-    const orderDetails: IOrderDetails = JSON.parse(message.orderDetails);
+    const orderDetails: IOrder = JSON.parse(message.orderDetails);
     const userId = message.userId;
     LoggerCls.info(`order received ${orderDetails.orderId}`);
 
     //assume payment is processed successfully
     const paymentStatus = ORDER_STATUS.PAYMENT_SUCCESS;
-    const orderAmount = parseFloat(orderDetails.orderAmount);
+    const orderAmount = parseFloat(orderDetails.orderAmount ?? '0');
 
     const prisma = getPrismaClient();
     const retPayObj: Payment = await prisma.payment.create({
@@ -43,10 +40,10 @@ const processPayment: IMessageHandler = async (
         orderAmount: orderAmount,
         paidAmount: orderAmount,
         orderStatusCode: paymentStatus,
-        userId: userId ?? "",
-        createdBy: userId ?? "",
+        userId: userId ?? '',
+        createdBy: userId ?? '',
         statusCode: DB_ROW_STATUS.ACTIVE,
-      }
+      },
     });
 
     const paymentId = retPayObj.paymentId;

@@ -1,7 +1,7 @@
 import type { ICommonFields } from './misc';
 import type { PersonasType } from '../config/constants';
 
-import { Document } from 'mongodb';
+import { Document } from 'mongodb'; //to allow other dynamic props
 
 interface IProfile extends Document, ICommonFields {
   persona: PersonasType;

@@ -1,26 +1,13 @@
-import type { IDigitalIdentity } from './digital-identity';
 import {
-  getRedisOmClient,
-  RedisEntity,
+  getNodeRedisClient,
   RedisSchema,
+  RedisRepository,
+  RedisEntityId,
 } from '../utils/redis/redis-wrapper';
 
-//for typescript
-interface DigitalIdentityEntity extends IDigitalIdentity {}
+const DIGITAL_IDENTITY_KEY_PREFIX = 'DigitalIdentity';
 
-/*
-An Entity is the class that holds you data when you work with it.
-It is what you create, read, update, and delete.
-*/
-class DigitalIdentityEntity extends RedisEntity {}
-
-/*
-schema defines the fields on your entity, their types, and
-how they are mapped internally to Redis.
-Valid types are: string, number, boolean, string[], date, point, and text.
-*/
-
-const schema = new RedisSchema(DigitalIdentityEntity, {
+const schema = new RedisSchema(DIGITAL_IDENTITY_KEY_PREFIX, {
   action: { type: 'string' },
   browserFingerprint: { type: 'string' },
   ipAddress: { type: 'string' },
@@ -40,8 +27,9 @@ const schema = new RedisSchema(DigitalIdentityEntity, {
  */
 
 const getRepository = () => {
-  const redisOmClient = getRedisOmClient();
-  return redisOmClient?.fetchRepository(schema);
+  const redisClient = getNodeRedisClient();
+  const repository = new RedisRepository(schema, redisClient);
+  return repository;
 };
 
 /*
@@ -51,11 +39,7 @@ Redis OM uses hash to see if index needs to be recreated or not
 
 const createRedisIndex = async () => {
   const repository = getRepository();
-  if (repository) {
-    await repository.createIndex();
-  }
+  await repository.createIndex();
 };
 
-export { getRepository, createRedisIndex };
-
-export type { DigitalIdentityEntity, IDigitalIdentity };
+export { getRepository, createRedisIndex, RedisEntityId };

@@ -1,23 +1,23 @@
 import { createClient, commandOptions } from 'redis';
 import {
-  Client as RedisOmClient,
+  //types
   Entity as RedisEntity,
+  RedisConnection,
+  //values
   Schema as RedisSchema,
+  Repository as RedisRepository,
+  EntityId as RedisEntityId,
 } from 'redis-om';
 
 import { LoggerCls } from '../logger';
 
-type NodeRedisClientType = ReturnType<typeof createClient>;
-
 class RedisWrapperCls {
   connectionURL: string;
-  nodeRedisClient: NodeRedisClientType | null;
-  redisOmClient: RedisOmClient | null;
+  nodeRedisClient: RedisConnection | null;
 
   constructor(_connectionURL: string) {
     this.connectionURL = _connectionURL;
     this.nodeRedisClient = null;
-    this.redisOmClient = null;
   }
 
   async getConnection() {
@@ -46,13 +46,6 @@ let redisWrapperInst: RedisWrapperCls;
 const setRedis = async (_connectionURL: string) => {
   redisWrapperInst = new RedisWrapperCls(_connectionURL);
   const nodeRedisClient = await redisWrapperInst.getConnection();
-
-  //---RedisOM
-  if (nodeRedisClient) {
-    const redisOmPromObj = new RedisOmClient().use(nodeRedisClient);
-    redisWrapperInst.redisOmClient = await redisOmPromObj;
-  }
-  //---
   return nodeRedisClient;
 };
 
@@ -60,10 +53,10 @@ const getRedis = (): RedisWrapperCls => {
   return redisWrapperInst;
 };
 const getNodeRedisClient = () => {
+  if (!redisWrapperInst.nodeRedisClient) {
+    throw 'nodeRedisClient is not created!';
+  }
   return redisWrapperInst.nodeRedisClient;
-};
-const getRedisOmClient = () => {
-  return redisWrapperInst.redisOmClient;
 };
 
 export {
@@ -71,9 +64,9 @@ export {
   getRedis,
   getNodeRedisClient,
   commandOptions,
-  getRedisOmClient,
-  RedisEntity,
   RedisSchema,
+  RedisRepository,
+  RedisEntityId,
 };
 
-export type { RedisWrapperCls, NodeRedisClientType };
+export type { RedisWrapperCls, RedisEntity };

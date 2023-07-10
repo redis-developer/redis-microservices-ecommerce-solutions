@@ -1,4 +1,4 @@
-import type { IOrder } from '../../../common//models/order-repo';
+import type { IOrder } from '../../../common/models/order';
 
 import { ORDER_STATUS, DB_ROW_STATUS } from '../../../common/models/order';
 import * as OrderRepo from '../../../common/models/order-repo';
@@ -6,7 +6,7 @@ import * as OrderRepo from '../../../common/models/order-repo';
 const viewOrderHistory = async (userId: string) => {
   if (userId) {
     const repository = OrderRepo.getRepository();
-    let orders: IOrder[] = [];
+    let orders: Partial<IOrder>[] = [];
     if (repository) {
       const queryBuilder = repository
         .search()
@@ -18,14 +18,16 @@ const viewOrderHistory = async (userId: string) => {
         .eq(DB_ROW_STATUS.ACTIVE);
 
       console.log(queryBuilder.query);
-      const result = await queryBuilder.return.all();
+      const result = <Partial<IOrder>[]>await queryBuilder.return.all();
 
       orders = result.map((elm) => {
-        let item: IOrder = {
+        let item: Partial<IOrder> = {
           orderId: elm.orderId,
           userId: elm.userId,
           orderStatusCode: elm.orderStatusCode,
-          products: elm.productsStr ? JSON.parse(elm.productsStr) : [], //temp
+          products: elm.productsStr
+            ? JSON.parse(elm.productsStr.toString())
+            : [], //temp
           createdOn: elm.createdOn,
           createdBy: elm.createdBy,
           lastUpdatedOn: elm.lastUpdatedOn,

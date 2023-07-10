@@ -56,8 +56,8 @@ export async function getProducts(search?: string): Promise<models.Product[]> {
       body: !search
         ? undefined
         : JSON.stringify({
-          productDisplayName: search,
-        }),
+            productDisplayName: search,
+          }),
     },
   );
 

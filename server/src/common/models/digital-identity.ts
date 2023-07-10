@@ -1,6 +1,6 @@
 import type { ICommonFields } from './misc';
 
-import { Document } from 'mongodb';
+import { Document } from 'mongodb'; //to allow other dynamic props
 
 interface IDigitalIdentity extends Document, ICommonFields {
   action?: string;

@@ -1,7 +1,5 @@
-import type {
-  IOrderDetails,
-  ITransactionStreamMessage,
-} from '../../../common/models/misc';
+import type { IOrder } from '../../../common/models/order';
+import type { ITransactionStreamMessage } from '../../../common/models/misc';
 import {
   IMessageHandler,
   nextTransactionStep,
@@ -29,7 +27,7 @@ const calculateProfileScore: IMessageHandler = async (
     });
 
     // check profile score
-    const { products }: IOrderDetails = JSON.parse(message.orderDetails);
+    const { products }: IOrder = JSON.parse(message.orderDetails);
     const persona = message.persona.toLowerCase();
     let score = 0;
     const nodeRedisClient = getNodeRedisClient();
