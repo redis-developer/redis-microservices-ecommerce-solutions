@@ -31,6 +31,24 @@ services:
       - '${MONGODB_COMPASS_PORT}:27017'
       # mongodb compass url is mongodb://localhost:27017/?directConnection=true
 
+  postgres-prisma:
+      image: postgres:latest
+      restart: unless-stopped
+      environment:
+        - POSTGRES_DB=tests
+        - POSTGRES_USER=prisma
+        - POSTGRES_PASSWORD=prisma
+      ports:
+        - "${POSTGRES_PORT}:5432"
+
+  postgres-pg-admin-gui:
+      image: dpage/pgadmin4
+      environment:
+        - PGADMIN_DEFAULT_EMAIL=user@domain.com
+        - PGADMIN_DEFAULT_PASSWORD=SuperSecret
+      ports:
+        - "${POSTGRES_PG_ADMIN_PORT}:80"      
+
   mongodb-seed:
     container_name: mongodb-seed
     build:
