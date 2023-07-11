@@ -1,8 +1,7 @@
 import type {
   Product,
   Order,
-  OrdersProduct,
-  OrdersProductData,
+  OrderProduct,
 } from '@prisma/client';
 import { Document } from 'mongodb'; //to allow other dynamic props
 
@@ -25,4 +24,4 @@ interface IOrder extends Order, Document {
 }
 
 export { ORDER_STATUS, DB_ROW_STATUS };
-export type { IOrder, Order, OrdersProduct, OrdersProductData, Product };
+export type { IOrder, Order, OrderProduct, Product };

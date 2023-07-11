@@ -52,36 +52,29 @@ docker-compose build --no-cache <service_name>
 docker-compose build --no-cache orders-service
 ```
 
-### To Change Database (from MongoDB to Postgresql)
+### To Change Database ( MongoDB or Postgresql)
 
 1. Configure `DATABASE_URL` in root `.env` file
 
 ```sh
 DATABASE_URL=mongodb://mongodb-server:27017/dbFashion
-# DATABASE_URL="postgresql://prisma:prisma@postgresql-server:5432/dbFashion?schema=public"
+# OR
+DATABASE_URL="postgresql://prisma:prisma@postgresql-server:5432/dbFashion?schema=public"
 ```
 
-2. Configure `provider` in `database/prisma/schema.prisma` file
-
-```js
-provider = 'mongodb';
-//provider = "postgresql"
-```
-
-3. Execute below commands at root level (It generates db schema & copy to all microservices)
+2. Run anyone db schema generation
 
 ```sh
-cd database
-chmod +x ./script.sh
-npm run schema
-npm run copy-schema
+npm run mongodb-schema
+# OR
+npm run relational-schema
 ```
 
-4. Rebuild docker `docker compose up -d --build`
+4. Start docker `docker compose up -d --build`
 
 ### View database
 
--For MongoDB, [download mongodb compass](https://www.mongodb.com/try/download/compass) and connect with url `mongodb://localhost:27017/?directConnection=true`
+-For MongoDB, [download mongodb compass](https://www.mongodb.com/try/download/compass) and connect with url `mongodb://localhost:27017/dbFashion?directConnection=true`
 
 - For postgresql, connection url is `postgresql://prisma:prisma@localhost:5432/dbFashion?schema=public`
 

@@ -3,11 +3,14 @@
   "version": "1.0.0",
   "description": "To start docker compose up -d",
   "main": "index.js",
+  "type": "module",
   "directories": {
     "doc": "docs"
   },
   "scripts": {
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "mongodb-schema": "node script.js mongodb",
+    "relational-schema": "node script.js relational"
   },
   "author": "",
   "license": "ISC",

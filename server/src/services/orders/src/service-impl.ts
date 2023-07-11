@@ -1,4 +1,4 @@
-import type { IOrder, Order, OrdersProduct, OrdersProductData, Product } from '../../../common/models/order';
+import type { IOrder, Order, OrderProduct, Product } from '../../../common/models/order';
 
 import * as yup from 'yup';
 import { v4 as uuidv4 } from 'uuid';
@@ -101,8 +101,8 @@ const addOrderToRedis = async (order: Order) => {
     const entity: Partial<IOrder> = { ...order };
 
     //@ts-ignore
-    entity.products = order.products.map((_ordProduct: Partial<OrdersProduct>) => {
-      const orderProductData: Partial<OrdersProductData> = _ordProduct?.productData ?? {};
+    entity.products = order.products.map((_ordProduct: Partial<OrderProduct>) => {
+      const orderProductData: Partial<Product> = _ordProduct?.productData ?? {};
 
       if (orderProductData) {
         delete orderProductData.createdOn;

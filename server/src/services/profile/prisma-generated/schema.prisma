@@ -6,7 +6,6 @@ generator client {
 
 datasource db {
   provider = "mongodb"
-  //provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -56,8 +55,8 @@ model Payment {
 }
 
 model Order {
-  orderId         String          @id @map("_id")
-  products        OrdersProduct[] //json type field
+  orderId         String         @id @map("_id")
+  products        OrderProduct[] // type field
   orderStatusCode Int
   potentialFraud  Boolean?
   userId          String
@@ -75,14 +74,14 @@ model Order {
   @@map("orders")
 }
 
-type OrdersProduct {
+type OrderProduct {
   productId    String
   productPrice Int
   qty          Int
-  productData  OrdersProductData
+  productData  OrderProductData
 }
 
-type OrdersProductData {
+type OrderProductData {
   productId                            String @map("_id")
   price                                Float
   productDisplayName                   String
