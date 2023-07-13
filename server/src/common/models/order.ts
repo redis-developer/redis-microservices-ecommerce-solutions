@@ -1,8 +1,10 @@
 import type {
   Product,
   Order,
-  OrderProduct,
+  OrderProduct
 } from '@prisma/client';
+
+import { Prisma } from '@prisma/client';
 import { Document } from 'mongodb'; //to allow other dynamic props
 
 import { DB_ROW_STATUS } from './misc';
@@ -16,7 +18,11 @@ enum ORDER_STATUS {
   PAYMENT_SUCCESS = 4,
 }
 
-interface IOrder extends Order, Document {
+type OrderWithIncludes = Prisma.OrderGetPayload<{
+  include: { products: true, Payment: true },
+}>
+
+interface IOrder extends OrderWithIncludes, Document { //,Order
 
   paymentId?: string;
   sessionId?: string;
@@ -24,4 +30,4 @@ interface IOrder extends Order, Document {
 }
 
 export { ORDER_STATUS, DB_ROW_STATUS };
-export type { IOrder, Order, OrderProduct, Product };
+export type { IOrder, OrderWithIncludes, OrderProduct, Product };

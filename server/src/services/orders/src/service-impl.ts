@@ -1,7 +1,10 @@
-import type { IOrder, Order, OrderProduct, Product } from '../../../common/models/order';
+import type { IOrder, OrderWithIncludes, OrderProduct, Product } from '../../../common/models/order';
+
+
 
 import * as yup from 'yup';
 import { v4 as uuidv4 } from 'uuid';
+import { Prisma } from '@prisma/client';
 
 import {
   ITransactionStreamMessage,
@@ -56,7 +59,7 @@ const validateOrder = async (_order) => {
   return _order;
 };
 
-const addProductDataToOrders = (order: Order, products: Product[]) => {
+const addProductDataToOrders = (order: OrderWithIncludes, products: Product[]) => {
   if (order && order.products?.length && products.length) {
     for (let orderedProduct of order.products) {
       const resultProduct = products.find(
@@ -64,12 +67,14 @@ const addProductDataToOrders = (order: Order, products: Product[]) => {
       );
       if (resultProduct) {
         orderedProduct.productData = resultProduct;
+        orderedProduct.createdBy = order.createdBy;
       }
     }
   }
   return order;
 };
-const getProductDetails = async (order: Order) => {
+
+const getProductDetails = async (order: OrderWithIncludes) => {
   let products: Product[] = [];
 
   if (order && order.products?.length) {
@@ -91,39 +96,30 @@ const getProductDetails = async (order: Order) => {
   return products;
 };
 
-const addOrderToRedis = async (order: Order) => {
-  let orderId = '';
+const addOrderToRedis = async (order: OrderWithIncludes) => {
   if (order) {
-    orderId = uuidv4();
-    order.orderId = orderId;
-
     const repository = OrderRepo.getRepository();
-    const entity: Partial<IOrder> = { ...order };
 
-    //@ts-ignore
-    entity.products = order.products.map((_ordProduct: Partial<OrderProduct>) => {
-      const orderProductData: Partial<Product> = _ordProduct?.productData ?? {};
-
-      if (orderProductData) {
-        delete orderProductData.createdOn;
-        delete orderProductData.createdBy;
-        delete orderProductData.lastUpdatedOn;
-        delete orderProductData.lastUpdatedBy;
-        delete orderProductData.statusCode;
-      }
-      return _ordProduct
-    });
-
-    await repository.save(orderId, entity);
+    await repository.save(order.orderId, order);
   }
-
-  return orderId;
 };
 
-const addOrderToPrismaDB = async (order: Order) => {
+const addOrderToPrismaDB = async (order: OrderWithIncludes) => {
   const prisma = getPrismaClient();
   await prisma.order.create({
-    data: order,
+    data: {
+      orderId: order.orderId,
+      orderStatusCode: order.orderStatusCode,
+      potentialFraud: order.potentialFraud,
+      userId: order.userId,
+      createdBy: order.createdBy,
+
+      products: {
+        createMany: {
+          data: <Prisma.OrderProductCreateManyOrderInput[]>order.products
+        }
+      }
+    },
   });
 };
 
@@ -137,7 +133,7 @@ const addMessageToTransactionStream = async (
 };
 
 const createOrder = async (
-  order: Order,
+  order: IOrder,
   browserAgent: string,
   ipAddress: string,
   sessionId: string,
@@ -145,19 +141,21 @@ const createOrder = async (
 ) => {
   if (order) {
     const userId = order.userId || USERS.DEFAULT; //temp as no login/ users functionality;
+    const orderId = uuidv4();
 
+    order.orderId = orderId;
     order.orderStatusCode = ORDER_STATUS.CREATED;
     order.userId = userId;
     order.createdBy = userId;
     order.statusCode = DB_ROW_STATUS.ACTIVE;
+    order.potentialFraud = false;
 
     order = await validateOrder(order);
 
     const products = await getProductDetails(order);
     addProductDataToOrders(order, products);
 
-    const orderId = await addOrderToRedis(order);
-    order.orderId = orderId;
+    await addOrderToRedis(order);
 
     /**
      * In real world scenario : can use RDI/ redis gears/ any other database to database sync strategy for REDIS-> MongoDB  data transfer.
@@ -211,18 +209,17 @@ const createOrder = async (
 
 const updateOrderStatusInRedis = async ({
   orderId,
-  paymentId,
   orderStatusCode,
   potentialFraud,
   userId,
-}: Partial<IOrder>) => {
+}: Partial<OrderWithIncludes>) => {
   const repository = OrderRepo.getRepository();
   if (orderId && repository) {
     const dbOrder = await repository.fetch(orderId);
+
     dbOrder.orderStatusCode = orderStatusCode ?? dbOrder.orderStatusCode;
-    dbOrder.paymentId = paymentId ?? dbOrder.paymentId;
     dbOrder.potentialFraud =
-      potentialFraud === true || potentialFraud === false
+      (potentialFraud === true || potentialFraud === false)
         ? potentialFraud
         : dbOrder.potentialFraud;
     dbOrder.lastUpdatedOn = new Date();
@@ -234,22 +231,36 @@ const updateOrderStatusInRedis = async ({
 
 const updateOrderStatusInPrismaDB = async ({
   orderId,
-  paymentId,
   orderStatusCode,
   potentialFraud,
   userId,
-}: Partial<IOrder>) => {
+}: Partial<OrderWithIncludes>) => {
   const prisma = getPrismaClient();
-  await prisma.order.update({
+
+  const dbOrder = await prisma.order.findUnique({
     where: {
-      orderId: orderId,
+      orderId: orderId
     },
-    data: {
-      orderStatusCode: orderStatusCode,
-      potentialFraud: potentialFraud,
-      lastUpdatedBy: userId,
-    },
+    select: {
+      orderStatusCode: true,
+      potentialFraud: true
+    }
   });
+
+  if (dbOrder) {
+    await prisma.order.update({
+      where: {
+        orderId: orderId,
+      },
+      data: {
+        orderStatusCode: orderStatusCode ?? dbOrder.orderStatusCode,
+        potentialFraud: (potentialFraud === true || potentialFraud === false)
+          ? potentialFraud
+          : dbOrder.potentialFraud,
+        lastUpdatedBy: userId,
+      },
+    });
+  }
 };
 
 const updateOrderStatus: IMessageHandler = async (

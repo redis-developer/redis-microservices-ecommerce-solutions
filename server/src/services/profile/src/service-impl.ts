@@ -1,5 +1,8 @@
-import type { IOrder } from '../../../common/models/order';
+import type { IOrder, Product } from '../../../common/models/order';
 import type { ITransactionStreamMessage } from '../../../common/models/misc';
+
+import { Prisma } from '@prisma/client';
+
 import {
   IMessageHandler,
   nextTransactionStep,
@@ -37,8 +40,9 @@ const calculateProfileScore: IMessageHandler = async (
         [key: string]: boolean;
       } = {};
       const categories = products.reduce((cat, product) => {
-        const masterCategory = product.productData?.masterCategory_typeName;
-        const subCategory = product.productData?.subCategory_typeName;
+        const productData = <Product>product.productData;
+        const masterCategory = productData.masterCategory_typeName;
+        const subCategory = productData.subCategory_typeName;
 
         if (masterCategory) {
           cat[`${masterCategory}`.toLowerCase()] = true;

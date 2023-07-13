@@ -75,16 +75,23 @@ model Order {
 }
 
 model OrderProduct {
-  id String @id @map("_id")
+  id String @id @default(cuid()) @map("_id")
 
   productId    String
   productPrice Int
   qty          Int
-  productData  Json?
+  productData  Json
 
   //relation
   orderId String
   Order   Order  @relation(fields: [orderId], references: [orderId])
+
+  //common fields
+  createdOn     DateTime? @default(now())
+  createdBy     String?
+  lastUpdatedOn DateTime? @updatedAt
+  lastUpdatedBy String?
+  statusCode    Int?      @default(1)
 
   @@map("orderProducts")
 }

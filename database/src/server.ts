@@ -40,6 +40,7 @@ const seedPrismaDatabase = async () => {
         //custom
         productId: json.id.toString(),
         styleImages_default_imageURL: `http://${process.env.CDN_HOST}:${process.env.CDN_PORT}/images/${json.id}.jpg`,
+        createdBy: 'ADMIN',
 
         //from json
         price: Number(json.price),

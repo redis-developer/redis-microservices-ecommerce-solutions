@@ -9,14 +9,6 @@ services:
     ports: # enable to visualize data in redis insight
       - '${REDIS_INSIGHT_PORT}:6379'
 
-  # mongodb-server:
-  #   container_name: mongodb-server
-  #   image: 'mongo'
-  #   volumes:
-  #     - mongodb-data:/data/db
-  #   ports:
-  #     - '${MONGODB_COMPASS_PORT}:27017'
-
   mongodb-server: # mongodb with replica for transactions support
     container_name: mongodb-server
     build:
@@ -47,21 +39,22 @@ services:
       image: dpage/pgadmin4
       environment:
         - PGADMIN_DEFAULT_EMAIL=user@domain.com
-        - PGADMIN_DEFAULT_PASSWORD=SuperSecret
+        - PGADMIN_DEFAULT_PASSWORD=password
       ports:
         - "${POSTGRES_PG_ADMIN_PORT}:80"      
 
-  mongodb-seed:
-    container_name: mongodb-seed
+  database-seed:
+    container_name: database-seed
     build:
       context: ./
-      dockerfile: dockerfile-mongodb-seed
+      dockerfile: dockerfile-database-seed
       args:
         BUILD_BASE_PATH: database
     env_file:
       - ./.env
     depends_on:
       - mongodb-server
+      - postgresql-server
 
   cdn:
     container_name: cdn
