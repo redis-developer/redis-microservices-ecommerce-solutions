@@ -136,3 +136,69 @@ Smaller dataset of products is used for the demo, but refer [database docs](./da
   - **services** : Some microservices of ecommerce app
   - **api-gateway** : Sample http proxy in-front of micro services
   - **common** : Shared files among microservices
+
+## Screenshots
+
+### Product
+
+- **dashboard**
+
+![dashboard](./docs/images/app-design/design-1-dashboard.png)
+
+- **cart**
+
+![cart](./docs/images/app-design/design-2-cart.png)
+
+- **order history**
+
+![order-history](./docs/images/app-design/design-3-order-history.png)
+
+- **search products**
+
+![search-products](./docs/images/app-design/design-4-search-products.png)
+
+### MongoDB
+
+- **products table**
+
+![products](./docs/images/order-transaction/db-mongodb-1-products.png)
+
+- **orders table**
+
+![orders](./docs/images/order-transaction/db-mongodb-2-orders.png)
+
+- **orderProducts table**
+
+![order-products](./docs/images/order-transaction/db-mongodb-3-order-products.png)
+
+- **payments table**
+
+![payments](./docs/images/order-transaction/db-mongodb-4-payments.png)
+
+### Postgressql
+
+- **products table**
+
+![products](./docs/images/order-transaction/db-postgresql-1-products.png)
+
+- **orders table**
+
+![orders](./docs/images/order-transaction/db-postgresql-2-orders.png)
+
+- **orderProducts table**
+
+![order-products](./docs/images/order-transaction/db-postgresql-3-order-products.png)
+
+- **payments table**
+
+![payments](./docs/images/order-transaction/db-postgresql-4-payments.png)
+
+### Redis
+
+- **order-with-products**
+
+![order-with-products](./docs/images/order-transaction/redis-1-order-with-products.png)
+
+- **transaction-stream**
+
+![transaction-stream](./docs/images/order-transaction/redis-2-transaction-stream.png)
