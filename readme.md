@@ -56,6 +56,32 @@ docker-compose build --no-cache <service_name>
 docker-compose build --no-cache orders-service
 ```
 
+### To change Database
+
+1. Configure `DATABASE_URL` in root `.env` file
+
+```sh
+DATABASE_URL=mongodb://mongodb-server:27017/dbFashion
+# OR
+DATABASE_URL="postgresql://prisma:prisma@postgresql-server:5432/dbFashion?schema=public"
+```
+
+2. Run specific db schema generation
+
+```sh
+npm run mongodb-schema
+# OR
+npm run relational-schema
+```
+
+Note : above command copies database prisma schema file to various services (orders, payments..etc) and generate prisma types
+
+3. Start docker
+
+```sh
+docker compose up -d --build
+```
+
 ### View database
 
 -For MongoDB, [download mongodb compass](https://www.mongodb.com/try/download/compass) and connect with url `mongodb://localhost:27017/dbFashion?directConnection=true`
@@ -110,23 +136,3 @@ Smaller dataset of products is used for the demo, but refer [database docs](./da
   - **services** : Some microservices of ecommerce app
   - **api-gateway** : Sample http proxy in-front of micro services
   - **common** : Shared files among microservices
-
-## Local Development ( if prisma schema changes)
-
-1. Configure `DATABASE_URL` in root `.env` file
-
-```sh
-DATABASE_URL=mongodb://mongodb-server:27017/dbFashion
-# OR
-DATABASE_URL="postgresql://prisma:prisma@postgresql-server:5432/dbFashion?schema=public"
-```
-
-2. Run anyone db schema generation
-
-```sh
-npm run mongodb-schema
-# OR
-npm run relational-schema
-```
-
-3. Start docker `docker compose up -d --build`

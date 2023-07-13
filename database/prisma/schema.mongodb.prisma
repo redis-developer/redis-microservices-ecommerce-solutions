@@ -56,7 +56,7 @@ model Payment {
 
 model Order {
   orderId         String         @id @map("_id")
-  products        OrderProduct[] // type field
+  products        OrderProduct[]
   orderStatusCode Int
   potentialFraud  Boolean?
   userId          String
@@ -74,31 +74,24 @@ model Order {
   @@map("orders")
 }
 
-type OrderProduct {
+model OrderProduct {
+  id String @id @default(cuid()) @map("_id")
+
   productId    String
   productPrice Int
   qty          Int
-  productData  OrderProductData
-}
+  productData  Json
 
-type OrderProductData {
-  productId                            String @map("_id")
-  price                                Float
-  productDisplayName                   String
-  variantName                          String
-  brandName                            String
-  ageGroup                             String
-  gender                               String
-  displayCategories                    String
-  masterCategory_typeName              String
-  subCategory_typeName                 String
-  styleImages_default_imageURL         String
-  productDescriptors_description_value String
+  //relation
+  orderId String
+  Order   Order  @relation(fields: [orderId], references: [orderId])
 
   //common fields
-  createdOn     DateTime?
+  createdOn     DateTime? @default(now())
   createdBy     String?
-  lastUpdatedOn DateTime?
+  lastUpdatedOn DateTime? @updatedAt
   lastUpdatedBy String?
-  statusCode    Int?
+  statusCode    Int?      @default(1)
+
+  @@map("orderProducts")
 }
