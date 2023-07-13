@@ -16,68 +16,67 @@ Request Header -> Authorization (type) -> Bearer Token -> use "auth" Token recei
 {
   "data": [
     {
-      "orderId": "01GTH7JTQWP5QSEY32NNKT6B88",
-      "userId": "ADMIN",
-      "orderStatusCode": 1,
+      "orderId": "d4075f43-c262-4027-ad25-7b1bc8c490b6",
+      "userId": "USR_22fcf2ee-465f-4341-89c2-c9d16b1f711b",
+      "orderStatusCode": 4,
       "products": [
         {
-          "productId": 11000,
-          "qty": 10,
-          "productPrice": 3995,
+          "productId": "11002",
+          "qty": 1,
+          "productPrice": 4950,
           "productData": {
-            "id": 11000,
-            "price": 3995,
-            "productDisplayName": "Puma Men Slick 3HD Yellow Black Watches",
-            "variantName": "Slick 3HD Yellow",
+            "productId": "11002",
+            "price": 4950,
+            "productDisplayName": "Puma Men Race Black Watch",
+            "variantName": "Race 85",
             "brandName": "Puma",
             "ageGroup": "Adults-Men",
             "gender": "Men",
             "displayCategories": "Accessories",
-            "styleImages": {
-              "default": {
-                "imageURL": "http://host.docker.internal:8080/images/11000.jpg"
-              }
-            },
-            "productDescriptors": {
-              "description": {
-                "value": "<p style=\"text-align: justify;\">Stylish and comfortable, this motorsport inspired wrist watch from puma is designed with a plastic case and a PU strap thereby&nbsp;    giving a sleek look. The perfect accessory for all urban trend setters, this watch is great for everyday casual wear.<br /><br /><strong>Case diameter</strong>: 40 mm<br /><strong>Case thickness</strong>: 12 mm<br /><strong>Dial shape</strong>: Round<br /><strong>Warranty</strong>: 2 Years<br /><br />Plastic case with a fixed bezel for added durability, style and comfort <br />PU straps with a tang clasp for comfort and style<br />Black dial with cat logo below 3 o&amp;  rsquo  clock marking<br />12, 6 and 9 o'clock written boldly<br />Smaller markings showing the hours, minutes, seconds and nano seconds<br />Quartz movement of time display <br />Screw to reset time <br />Solid case back made of stainless steel for enhanced durability<br />Water resistant up to 50 meters</p>"
-              }
-            }
-          }
+            "masterCategory_typeName": "Accessories",
+            "subCategory_typeName": "Watches",
+            "styleImages_default_imageURL": "http://host.docker.internal:8080/images/11002.jpg",
+            "productDescriptors_description_value": "<p>This watch from puma comes in a heavy duty design. The assymentric dial and chunky...",
+            "createdOn": "2023-07-13T14:07:38.024Z",
+            "createdBy": "ADMIN",
+            "lastUpdatedOn": "2023-07-13T14:07:38.024Z",
+            "lastUpdatedBy": null,
+            "statusCode": 1
+          },
+          "createdBy": "USR_22fcf2ee-465f-4341-89c2-c9d16b1f711b"
         },
         {
-          "productId": 11001,
-          "qty": 19,
-          "productPrice": 5450,
+          "productId": "11012",
+          "qty": 2,
+          "productPrice": 1195,
           "productData": {
-            "id": 11001,
-            "price": 5450,
-            "productDisplayName": "Puma Men Top Fluctuation Red Black Watches",
-            "variantName": "Top Fluctuation Red",
-            "brandName": "Puma",
-            "ageGroup": "Adults-Men",
-            "gender": "Men",
-            "displayCategories": "Accessories",
-            "styleImages": {
-              "default": {
-                "imageURL": "http://host.docker.internal:8080/images/11001.jpg"
-              }
-            },
-            "productDescriptors": {
-              "description": {
-                "value": "<p style=\"text-align: justify;\">This watch from puma comes in a clean sleek design. This active watch is perfect for urban wear and can serve you well in the gym or a night of clubbing.<br /><strong><br />Case diamete</strong>r: 40 mm&lt;</p>"
-              }
-            }
-          }
+            "productId": "11012",
+            "price": 1195,
+            "productDisplayName": "Wrangler Women Frill Check Multi Tops",
+            "variantName": "FRILL CHECK",
+            "brandName": "Wrangler",
+            "ageGroup": "Adults-Women",
+            "gender": "Women",
+            "displayCategories": "Sale and Clearance,Casual Wear",
+            "masterCategory_typeName": "Apparel",
+            "subCategory_typeName": "Topwear",
+            "styleImages_default_imageURL": "http://host.docker.internal:8080/images/11012.jpg",
+            "productDescriptors_description_value": "<p><strong>Composition</strong><br /> Navy blue, red, yellow and white checked top made of 100% cotton, with a jabot collar, buttoned ...",
+            "createdOn": "2023-07-13T14:07:38.048Z",
+            "createdBy": "ADMIN",
+            "lastUpdatedOn": "2023-07-13T14:07:38.048Z",
+            "lastUpdatedBy": null,
+            "statusCode": 1
+          },
+          "createdBy": "USR_22fcf2ee-465f-4341-89c2-c9d16b1f711b"
         }
       ],
-      "createdOn": "2023-03-02T13:18:31.657Z",
-      "createdBy": "ADMIN",
-      "lastUpdatedOn": null,
-      "lastUpdatedBy": null
+      "createdBy": "USR_22fcf2ee-465f-4341-89c2-c9d16b1f711b",
+      "lastUpdatedOn": "2023-07-13T14:11:49.997Z",
+      "lastUpdatedBy": "USR_22fcf2ee-465f-4341-89c2-c9d16b1f711b"
     }
-    //...
   ],
-  "error": null
+  "error": null,
+  "auth": "SES_37ef6fb0-cdda-4d91-952a-4042adca5cae"
 }
 ```

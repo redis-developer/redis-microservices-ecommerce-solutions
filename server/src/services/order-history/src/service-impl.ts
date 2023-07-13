@@ -18,22 +18,7 @@ const viewOrderHistory = async (userId: string) => {
         .eq(DB_ROW_STATUS.ACTIVE);
 
       console.log(queryBuilder.query);
-      const result = <Partial<IOrder>[]>await queryBuilder.return.all();
-
-      orders = result.map((elm) => {
-        let item: Partial<IOrder> = {
-          orderId: elm.orderId,
-          userId: elm.userId,
-          orderStatusCode: elm.orderStatusCode,
-          products: elm.products,
-          createdOn: elm.createdOn,
-          createdBy: elm.createdBy,
-          lastUpdatedOn: elm.lastUpdatedOn,
-          lastUpdatedBy: elm.lastUpdatedBy,
-        };
-
-        return item;
-      });
+      orders = <Partial<IOrder>[]>await queryBuilder.return.all();
     }
 
     return orders;

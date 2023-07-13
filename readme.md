@@ -15,7 +15,7 @@ Following are the Microservice tutorials referring this application :
 
 - Front end : built using nextJs and Tailwind
 - Backend : built using express (nodejs)
-- Database : MongoDB , Redis
+- Database : Prisma (MongoDB, Postgresql ..etc) , Redis
 
 ## Manage application
 

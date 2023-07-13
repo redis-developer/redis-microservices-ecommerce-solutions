@@ -5,16 +5,18 @@
 ```json
 POST http://localhost:3000/orders/createOrder
 {
-    "products":[{
-        "productId":11000,
-        "qty":2,
-        "productPrice":3995
+  "products": [
+    {
+      "productId": "11002",
+      "qty": 1,
+      "productPrice": 4950
     },
     {
-        "productId":11001,
-        "qty":1,
-        "productPrice":5450
-    }]
+      "productId": "11012",
+      "qty": 2,
+      "productPrice": 1195
+    }
+  ]
 }
 ```
 
@@ -22,8 +24,8 @@ POST http://localhost:3000/orders/createOrder
 
 ```json
 {
-  "data": "63f5f8dc3696d145a45775a6", //orderId
+  "data": "d4075f43-c262-4027-ad25-7b1bc8c490b6", //orderId
   "error": null,
-  "auth": "SES_94ff24a8-65b5-4795-9227-99906a43884e"
+  "auth": "SES_37ef6fb0-cdda-4d91-952a-4042adca5cae"
 }
 ```
