@@ -49,6 +49,7 @@ const validateOrder = async (_order) => {
       .min(1),
 
     createdBy: yup.string().required(),
+    createdOn: yup.date().required(),
     lastUpdatedBy: yup.string().nullable(),
     statusCode: yup.number().required(),
   });
