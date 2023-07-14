@@ -49,7 +49,7 @@ const generateTypesInAllServices = async () => {
         try {
 
             let promObj = new Promise((resolve, reject) => {
-                let cmd = `cd ${destPath} && cd .. && npm run build`;
+                let cmd = `cd ${destPath} && cd .. && npm install && npm run build`;
                 console.log(cmd);
 
                 const process = spawn(cmd, { shell: true });
