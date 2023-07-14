@@ -68,6 +68,8 @@ const addProductDataToOrders = (order: OrderWithIncludes, products: Product[]) =
       if (resultProduct) {
         orderedProduct.productData = resultProduct;
         orderedProduct.createdBy = order.createdBy;
+        orderedProduct.createdOn = order.createdOn;
+        orderedProduct.statusCode = DB_ROW_STATUS.ACTIVE;
       }
     }
   }
@@ -147,6 +149,7 @@ const createOrder = async (
     order.orderStatusCode = ORDER_STATUS.CREATED;
     order.userId = userId;
     order.createdBy = userId;
+    order.createdOn = new Date();
     order.statusCode = DB_ROW_STATUS.ACTIVE;
     order.potentialFraud = false;
 
@@ -258,6 +261,7 @@ const updateOrderStatusInPrismaDB = async ({
           ? potentialFraud
           : dbOrder.potentialFraud,
         lastUpdatedBy: userId,
+        // lastUpdatedOn: new Date() //auto update
       },
     });
   }
