@@ -22,6 +22,7 @@ import { ORDER_STATUS, DB_ROW_STATUS } from '../../../common/models/order';
 import {
   ISessionData,
   REDIS_STREAMS,
+  SERVER_CONFIG
 } from '../../../common/config/server-config';
 import { USERS } from '../../../common/config/constants';
 import { YupCls } from '../../../common/utils/yup';
@@ -159,7 +160,9 @@ const createOrder = async (
     const products = await getProductDetails(order);
     addProductDataToOrders(order, products);
 
-    await addOrderToRedis(order);
+    if (!SERVER_CONFIG.IS_RDI_ENABLED) {
+      await addOrderToRedis(order);
+    }
 
     /**
      * In real world scenario : can use RDI/ redis gears/ any other database to database sync strategy for REDIS-> MongoDB  data transfer.
@@ -283,7 +286,9 @@ const updateOrderStatus: IMessageHandler = async (
 
       orderDetails.orderStatusCode = ORDER_STATUS.PAYMENT_SUCCESS;
 
-      updateOrderStatusInRedis(orderDetails);
+      if (!SERVER_CONFIG.IS_RDI_ENABLED) {
+        updateOrderStatusInRedis(orderDetails);
+      }
       /**
        * In real world scenario : can use RDI/ redis gears/ any other database to database sync strategy for REDIS-> MongoDB  data transfer.
        * To keep it simple, adding  data to MongoDB manually in the same service
@@ -340,7 +345,9 @@ async function checkOrderRiskScore(message: ITransactionStreamMessage) {
       orderDetails.orderStatusCode = ORDER_STATUS.PENDING;
       orderDetails.potentialFraud = potentialFraud;
 
-      updateOrderStatusInRedis(orderDetails);
+      if (!SERVER_CONFIG.IS_RDI_ENABLED) {
+        updateOrderStatusInRedis(orderDetails);
+      }
       /**
        * In real world scenario : can use RDI/ redis gears/ any other database to database sync strategy for REDIS-> MongoDB  data transfer.
        * To keep it simple, adding  data to MongoDB manually in the same service

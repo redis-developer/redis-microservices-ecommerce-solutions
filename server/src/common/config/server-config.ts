@@ -120,6 +120,7 @@ const SERVER_CONFIG = {
       level: 'warn', //error, warn, info
     },
   ],
+  IS_RDI_ENABLED: false
 };
 
 export { SERVER_CONFIG, COLLECTIONS, REDIS_STREAMS };
