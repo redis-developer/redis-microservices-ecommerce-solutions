@@ -12,10 +12,6 @@ export interface ISessionData {
 //@ts-ignore
 const envVariables = process.env;
 
-if (envVariables.IS_RDI_ENABLED === "true" || envVariables.IS_RDI_ENABLED === true) {
-  envVariables.IS_RDI_ENABLED = true;
-}
-
 const REDIS_STREAMS = {
   GROUPS: {
     ORDERS: 'ORDERS_CON_GROUP',
@@ -124,7 +120,7 @@ const SERVER_CONFIG = {
       level: 'warn', //error, warn, info
     },
   ],
-  IS_RDI_ENABLED: envVariables.IS_RDI_ENABLED || false
+  IS_RDI_ENABLED: envVariables.IS_RDI_ENABLED === "true" ? true : false
 };
 
 export { SERVER_CONFIG, COLLECTIONS, REDIS_STREAMS };
