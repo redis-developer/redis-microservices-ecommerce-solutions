@@ -13,6 +13,7 @@ const convertNestedProductsObjToArray = (orders: Partial<IOrder>[]) => {
         "productid": "11007",
         "productprice": 9495,
         "qty": 1,
+        "productData":"", //as string
          ...
       },
       "clk2s6nq10002p58jcg2gkksm": {
@@ -20,6 +21,7 @@ const convertNestedProductsObjToArray = (orders: Partial<IOrder>[]) => {
         "productid": "11008",
         "productprice": 499,
         "qty": 1,
+        "productData":"", //as string
          ...
       }
     },
@@ -36,7 +38,22 @@ const convertNestedProductsObjToArray = (orders: Partial<IOrder>[]) => {
   if (orders && orders.length) {
     for (let ord of orders) {
       if (ord.products && Object.values(ord.products)?.length) {
+        //FIX 1 (object to array)
         ord.products = Object.values(ord.products);
+
+        for (let prod of ord.products) {
+          if (prod.productData && typeof prod.productData == "string") {
+            //FIX 2
+            prod.productData = JSON.parse(prod.productData);
+          }
+        }
+      }
+      //FIX 3
+      if (ord.createdOn && typeof ord.createdOn == "number") {
+        ord.createdOn = new Date(ord.createdOn);
+      }
+      if (ord.lastUpdatedOn && typeof ord.lastUpdatedOn == "number") {
+        ord.lastUpdatedOn = new Date(ord.lastUpdatedOn);
       }
     }
   }
