@@ -48,13 +48,6 @@ const convertNestedProductsObjToArray = (orders: Partial<IOrder>[]) => {
           }
         }
       }
-      //FIX 3
-      if (ord.createdOn && typeof ord.createdOn == "number") {
-        ord.createdOn = new Date(ord.createdOn);
-      }
-      if (ord.lastUpdatedOn && typeof ord.lastUpdatedOn == "number") {
-        ord.lastUpdatedOn = new Date(ord.lastUpdatedOn);
-      }
     }
   }
   return orders;
