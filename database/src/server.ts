@@ -29,6 +29,7 @@ const seedPrismaDatabase = async () => {
   console.log('-----Seeding started-----');
   jsonFilesInDir.forEach(async (file) => {
     const filePath = path.join(productJSONFolder, file);
+    const DEFAULT_QTY = 10;
 
     try {
       //read file data
@@ -41,6 +42,7 @@ const seedPrismaDatabase = async () => {
         productId: json.id.toString(),
         styleImages_default_imageURL: `http://${process.env.CDN_HOST}:${process.env.CDN_PORT}/images/${json.id}.jpg`,
         createdBy: 'ADMIN',
+        stockQty: DEFAULT_QTY,
 
         //from json
         price: Number(json.price),

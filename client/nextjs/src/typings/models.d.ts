@@ -35,5 +35,6 @@ declare namespace models {
     displayCategories: string;
     styleImages_default_imageURL: string;
     productDescriptors_description_value: string;
+    stockQty: number;
   }
 }

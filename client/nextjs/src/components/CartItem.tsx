@@ -38,11 +38,13 @@ export default function CartItem({
           <input
             className="text-center w-12"
             type="number"
-            defaultValue={quantity}
+            value={quantity}
             onChange={(ev) => {
               handleChange(Number(ev.currentTarget.value));
             }}
+            max={Number(product.stockQty)}
           />
+          <span> of {Number(product.stockQty)}</span>
         </div>
         <div
           onClick={() => {

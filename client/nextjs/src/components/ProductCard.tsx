@@ -31,8 +31,10 @@ export default function ProductCard({ product }: Props) {
           <p className="mb-4 text-base text-neutral-600">
             {getShortName(product.productDescriptors_description_value)}
           </p>
-          <p className="mb-4 text-base font-bold text-neutral-600">
-            ${Number(product.price).toLocaleString('en')}
+          <p className="mb-4 text-base font-bold text-neutral-600 flex justify-between">
+            <span>Price : ${Number(product.price).toLocaleString('en')} </span>
+
+            <span>Stock Qty: {Number(product.stockQty)} </span>
           </p>
           <button
             type="button"

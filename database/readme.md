@@ -12,12 +12,19 @@ Only ~100 products are added for the demo to keep repository size smaller but mo
 
 ## Prisma schema
 
-- On prisma schema change (locally), run following
+- On prisma schema change (locally), run following in `database`
 
 ```sh
 # to upgrade db & generate schema
 npm run schema
-
-# to copy schema in other services
-npm run copy-schema
 ```
+
+- Run specific db schema generation at `project root`
+
+```sh
+npm run mongodb-schema
+# OR
+npm run relational-schema
+```
+
+Note : above command copies database prisma schema file to various services (orders, payments..etc) and generate prisma types

@@ -9,6 +9,9 @@ async function getProductsByFilter(productFilter: Product) {
 
   const whereQuery: Prisma.ProductWhereInput = {
     statusCode: DB_ROW_STATUS.ACTIVE,
+    stockQty: {
+      gt: 0
+    }
   };
 
   if (productFilter && productFilter.productDisplayName) {

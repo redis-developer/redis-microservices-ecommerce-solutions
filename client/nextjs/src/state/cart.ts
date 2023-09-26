@@ -1,3 +1,6 @@
+
+const QTY_EXCEED_MSG = "The quantity you have selected for this product exceeds the available limit.";
+
 export default function cartReducer(
   cart: models.CartItem[],
   action: actions.CartAction,
@@ -10,6 +13,12 @@ export default function cartReducer(
         if (c.product.productId === action.item.product.productId) {
           found = true;
           c.quantity += 1;
+
+          if (c.quantity > c.product.stockQty) {
+            c.quantity = c.product.stockQty;
+            alert(QTY_EXCEED_MSG)
+          }
+
           return c;
         } else {
           return c;
@@ -26,7 +35,15 @@ export default function cartReducer(
       return cart
         .map((c) => {
           if (c.product.productId === action.item.product.productId) {
-            c.quantity = action.item.quantity;
+
+            if (action.item.quantity > c.product.stockQty) {
+              c.quantity = c.product.stockQty;
+              //alert(QTY_EXCEED_MSG)
+            }
+            else {
+              c.quantity = action.item.quantity;
+            }
+
             return c;
           } else {
             return c;

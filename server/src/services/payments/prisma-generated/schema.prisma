@@ -22,6 +22,7 @@ model Product {
   subCategory_typeName                 String
   styleImages_default_imageURL         String
   productDescriptors_description_value String
+  stockQty                             Int
 
   //common fields
   createdOn     DateTime? @default(now())
