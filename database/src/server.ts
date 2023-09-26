@@ -3,21 +3,19 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { PrismaClient, Prisma } from '@prisma/client';
+import { createClient } from 'redis';
+
+const PRODUCT_KEY_PREFIX = 'products:productId';
 
 dotenv.config();
 
-const seedPrismaDatabase = async () => {
+const seedPrismaAndRedisDatabase = async (prisma: PrismaClient, redisClient) => {
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
   const productJSONFolder = __dirname + '/../fashion-dataset/001/products';
 
-  let prisma = new PrismaClient();
-
-  //connect database
-  await prisma.$connect();
-
   //delete products
-  console.log('-----delete existing products-----');
+  console.log('-----PrismaDB: delete existing products-----');
   await prisma.product.deleteMany({});
 
   //get file list from directory
@@ -27,7 +25,8 @@ const seedPrismaDatabase = async () => {
   );
 
   console.log('-----Seeding started-----');
-  jsonFilesInDir.forEach(async (file) => {
+
+  for (let file of jsonFilesInDir) {
     const filePath = path.join(productJSONFolder, file);
     const DEFAULT_QTY = 10;
 
@@ -59,16 +58,42 @@ const seedPrismaDatabase = async () => {
       };
 
       //insert product to database
-      await prisma.product.create({
+      const insertedProduct = await prisma.product.create({
         data: product,
       });
+
+      if (redisClient) {
+        // insert product to Redis
+        const productKey = PRODUCT_KEY_PREFIX + ':' + insertedProduct.productId;
+        await redisClient.json.set(productKey, '.', insertedProduct);
+      }
+
     } catch (err) {
       console.log(`${filePath} insertion failed `, err);
     }
-  });
+  }
   console.log('-----Seeding completed-----');
 
-  await prisma.$disconnect();
 };
 
-seedPrismaDatabase();
+
+const init = async () => {
+  try {
+    let prisma = new PrismaClient();
+    const redisClient = createClient({ url: process.env.REDIS_CONNECTION_URI });
+
+    await prisma.$connect(); //connect db
+    await redisClient.connect();
+
+    await seedPrismaAndRedisDatabase(prisma, redisClient);
+
+    await redisClient.disconnect();
+    await prisma.$disconnect();
+  }
+  catch (err) {
+    console.log(err);
+  }
+
+};
+
+init();

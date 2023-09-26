@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import express, { Express, Request, Response } from 'express';
 
 import { router } from './routes';
+import * as ProductRepo from '../../../common/models/product-repo';
 import { SERVER_CONFIG } from '../../../common/config/server-config';
 import { setRedis } from '../../../common/utils/redis/redis-wrapper';
 import { setPrisma } from '../../../common/utils/prisma/prisma-wrapper';
@@ -27,6 +28,7 @@ app.get('/', (req: Request, res: Response) => {
 app.listen(PORT, async () => {
   await setRedis(REDIS_URI);
   await setPrisma();
+  await ProductRepo.createRedisIndex();
 
   console.log(`Server is running at http://localhost:${PORT}`);
 });
