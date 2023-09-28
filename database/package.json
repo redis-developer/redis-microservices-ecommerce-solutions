@@ -4,9 +4,10 @@
   "description": "Database seeder",
   "type": "module",
   "scripts": {
+    "copy-js": "cp -r src/triggers dist/",
     "schema": "npx prisma generate",
-    "build": "npm run schema && npx tsc",
-    "start": "npx prisma db push  && npm run build &&  concurrently -k \"npx tsc --watch\" \"node  dist/server.js\""
+    "build": "npm run schema && npx tsc && npm run copy-js",
+    "start": "npx prisma db push  && npm run build &&  concurrently -k \"npx tsc\" \"node  dist/server.js\""
   },
   "dependencies": {
     "@prisma/client": "^4.16.2",

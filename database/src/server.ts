@@ -5,13 +5,16 @@ import { fileURLToPath } from 'url';
 import { PrismaClient, Prisma } from '@prisma/client';
 import { createClient } from 'redis';
 
+type NodeRedisClientType = ReturnType<typeof createClient>;
+
 const PRODUCT_KEY_PREFIX = 'products:productId';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
-const seedPrismaAndRedisDatabase = async (prisma: PrismaClient, redisClient) => {
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
+const seedPrismaAndRedisDatabase = async (prisma: PrismaClient, redisClient: NodeRedisClientType) => {
+
   const productJSONFolder = __dirname + '/../fashion-dataset/001/products';
 
   //delete products
@@ -28,7 +31,7 @@ const seedPrismaAndRedisDatabase = async (prisma: PrismaClient, redisClient) => 
 
   for (let file of jsonFilesInDir) {
     const filePath = path.join(productJSONFolder, file);
-    const DEFAULT_QTY = 10;
+    const DEFAULT_QTY = 25;
 
     try {
       //read file data
@@ -76,6 +79,22 @@ const seedPrismaAndRedisDatabase = async (prisma: PrismaClient, redisClient) => 
 
 };
 
+const addTriggersToRedis = async (redisClient: NodeRedisClientType, fileRelativePath: string) => {
+
+  const filePath = path.join(__dirname, fileRelativePath);
+  const fileData = await fs.readFile(filePath);
+  let jsCode = fileData.toString();
+  jsCode = jsCode.replace(/\r?\n/g, '\n');
+
+  try {
+    const result = await redisClient.sendCommand(["TFUNCTION", "LOAD", "REPLACE", jsCode])
+    console.log(`addTriggersToRedis ${fileRelativePath}`, result);
+  }
+  catch (err) {
+    console.log(err);
+  }
+}
+
 
 const init = async () => {
   try {
@@ -86,6 +105,9 @@ const init = async () => {
     await redisClient.connect();
 
     await seedPrismaAndRedisDatabase(prisma, redisClient);
+
+    await addTriggersToRedis(redisClient, 'triggers/key-space-triggers.js');
+    await addTriggersToRedis(redisClient, 'triggers/key-space-triggers-manual-test.js');
 
     await redisClient.disconnect();
     await prisma.$disconnect();

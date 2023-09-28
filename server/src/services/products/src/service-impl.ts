@@ -25,7 +25,7 @@ const getProductsByFilter = async (productFilter: Product) => {
     }
 
     console.log(queryBuilder.query);
-    products = <IProduct[]>await queryBuilder.return.all();
+    products = <IProduct[]>await queryBuilder.sortAsc("productId").return.all();
   }
 
   return products;
