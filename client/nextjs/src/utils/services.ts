@@ -56,10 +56,21 @@ export async function getProducts(search?: string): Promise<models.Product[]> {
       body: !search
         ? undefined
         : JSON.stringify({
-            productDisplayName: search,
-          }),
+          productDisplayName: search,
+        }),
     },
   );
 
   return result.data?.map((product) => product) ?? [];
+}
+
+export async function triggerResetInventory(): Promise<string> {
+  const result: string = await request(
+    `${process.env.NEXT_PUBLIC_API_GATEWAY_URI}/products/triggerResetInventory`,
+    {
+      method: 'POST'
+    }
+  );
+
+  return result;
 }

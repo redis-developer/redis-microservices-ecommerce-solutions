@@ -3,13 +3,25 @@
 import { CartContext, CartDispatchContext } from '@/components/CartProvider';
 import Alert from '@/components/Alert';
 import { createOrder } from '@/utils/services';
-import { useContext, useRef, useState } from 'react';
+import {
+  useContext, useRef, useState,
+  //types
+  Dispatch, SetStateAction
+} from 'react';
 import CartItem from './CartItem';
 import { createPortal } from 'react-dom';
 
-export default function Cart() {
+export interface CartProps {
+  refreshProducts?: (search: string) => void;
+  setAlertNotification?: Dispatch<SetStateAction<{
+    title: string;
+    message: string;
+  }>>;
+}
+
+
+export default function Cart({ refreshProducts, setAlertNotification }: CartProps) {
   const [open, setOpen] = useState(false);
-  const [notification, setNotification] = useState({ title: '', message: '' });
   const overlay = useRef<HTMLDivElement>(null);
   const cart = useContext(CartContext);
   const cartDispatch = useContext(CartDispatchContext);
@@ -24,6 +36,10 @@ export default function Cart() {
   }
 
   async function submitOrder() {
+    if (setAlertNotification) {
+      setAlertNotification({ title: '', message: '' });
+    }
+
     const order = await createOrder(
       cart.map((item) => {
         return {
@@ -40,11 +56,17 @@ export default function Cart() {
 
     toggleOpen();
 
-    setNotification({
-      title: `Order #${order.data}`,
-      message:
-        'Order placed, click on the "Orders" tab to see your order status!',
-    });
+    if (setAlertNotification) {
+      setAlertNotification({
+        title: `Order #${order.data}`,
+        message:
+          'Order placed, click on the "Orders" tab to see your order status!',
+      });
+    }
+
+    if (refreshProducts) {
+      refreshProducts("");
+    }
   }
 
   return (
@@ -111,9 +133,6 @@ export default function Cart() {
           </div>
         </div>
       )}
-      {!!notification &&
-        typeof window !== 'undefined' &&
-        createPortal(<Alert {...notification} />, document.body)}
     </>
   );
 }

@@ -29,9 +29,10 @@ const seedPrismaAndRedisDatabase = async (prisma: PrismaClient, redisClient: Nod
 
   console.log('-----Seeding started-----');
 
+  const DEFAULT_QTY = 25; //also in triggers/manual-trigger.js
+
   for (let file of jsonFilesInDir) {
     const filePath = path.join(productJSONFolder, file);
-    const DEFAULT_QTY = 25;
 
     try {
       //read file data
@@ -108,6 +109,8 @@ const init = async () => {
 
     await addTriggersToRedis(redisClient, 'triggers/key-space-triggers.js');
     await addTriggersToRedis(redisClient, 'triggers/key-space-triggers-manual-test.js');
+
+    await addTriggersToRedis(redisClient, 'triggers/manual-trigger.js');
 
     await redisClient.disconnect();
     await prisma.$disconnect();

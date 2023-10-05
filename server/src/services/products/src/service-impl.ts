@@ -7,6 +7,8 @@ import { DB_ROW_STATUS } from '../../../common/models/order';
 import { getPrismaClient } from '../../../common/utils/prisma/prisma-wrapper';
 import * as ProductRepo from '../../../common/models/product-repo';
 
+import { getNodeRedisClient } from '../../../common/utils/redis/redis-wrapper';
+
 const getProductsByFilter = async (productFilter: Product) => {
   const repository = ProductRepo.getRepository();
   let products: IProduct[] = [];
@@ -55,4 +57,16 @@ async function getProductsByFilterFromDB(productFilter: Product) {
   return products;
 }
 
-export { getProductsByFilter, getProductsByFilterFromDB };
+const triggerResetInventory = async () => {
+  const redisClient = getNodeRedisClient();
+
+  //@ts-ignore
+  const result = await redisClient.sendCommand(["TFCALLASYNC", "ManualTriggers.resetInventory", "0"], {
+    isolated: true
+  });
+  console.log(`triggerResetInventory :  `, result);
+
+  return result;
+}
+
+export { getProductsByFilter, getProductsByFilterFromDB, triggerResetInventory };

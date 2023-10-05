@@ -79,6 +79,7 @@ const SERVER_CONFIG = {
     API: {
       PREFIX: '/products',
       GET_PRODUCTS_BY_FILTER: '/getProductsByFilter',
+      TRIGGER_RESET_INVENTORY: '/triggerResetInventory',
     },
   },
   PAYMENTS_SERVICE: {
