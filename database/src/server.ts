@@ -107,8 +107,8 @@ const init = async () => {
 
     await seedPrismaAndRedisDatabase(prisma, redisClient);
 
-    await addTriggersToRedis(redisClient, 'triggers/key-space-triggers.js');
-    await addTriggersToRedis(redisClient, 'triggers/key-space-triggers-manual-test.js');
+    await addTriggersToRedis(redisClient, 'triggers/key-space-trigger.js');
+    await addTriggersToRedis(redisClient, 'triggers/key-space-trigger-manual-test.js');
 
     await addTriggersToRedis(redisClient, 'triggers/manual-trigger.js');
 
