@@ -31,6 +31,15 @@ const REDIS_STREAMS = {
   },
 };
 
+const REDIS_KEYS = {
+  STATS: {
+    TOTAL_PURCHASE_AMOUNT: "statsTotalPurchaseAmount",
+    PRODUCT_PURCHASE_QTY_SET: "statsProductPurchaseQtySet",
+    CATEGORY_PURCHASE_AMOUNT_SET: "statsCategoryPurchaseAmountSet",
+    BRAND_PURCHASE_AMOUNT_SET: "statsBrandPurchaseAmountSet",
+  }
+}
+
 const COLLECTIONS = {
   ORDERS: {
     collectionName: 'orders',
@@ -61,6 +70,7 @@ const SERVER_CONFIG = {
     API: {
       PREFIX: '/orders',
       CREATE_ORDER: '/createOrder', // http://localhost:3000/orders/createOrder
+      GET_ORDER_STATS: '/getOrderStats',
     },
   },
   ORDER_HISTORY_SERVICE: {
@@ -123,6 +133,6 @@ const SERVER_CONFIG = {
   ],
 };
 
-export { SERVER_CONFIG, COLLECTIONS, REDIS_STREAMS };
+export { SERVER_CONFIG, COLLECTIONS, REDIS_STREAMS, REDIS_KEYS };
 
 export type { IApiResponseBody };

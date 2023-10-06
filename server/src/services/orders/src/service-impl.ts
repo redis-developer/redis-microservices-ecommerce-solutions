@@ -1,7 +1,5 @@
 import type { IOrder, OrderWithIncludes, OrderProduct, Product } from '../../../common/models/order';
 
-
-
 import * as yup from 'yup';
 import { v4 as uuidv4 } from 'uuid';
 import { Prisma } from '@prisma/client';
@@ -20,14 +18,14 @@ import * as OrderRepo from '../../../common/models/order-repo';
 import { TransactionStreamActions } from '../../../common/models/misc';
 import { ORDER_STATUS, DB_ROW_STATUS } from '../../../common/models/order';
 import {
-  ISessionData,
-  REDIS_STREAMS,
+  ISessionData, REDIS_STREAMS, REDIS_KEYS
 } from '../../../common/config/server-config';
 import { USERS } from '../../../common/config/constants';
 import { YupCls } from '../../../common/utils/yup';
 import { LoggerCls } from '../../../common/utils/logger';
 import { listenToStreams } from '../../../common/utils/redis/redis-streams';
 import { addMessageToStream } from '../../../common/utils/redis/redis-streams';
+import { getNodeRedisClient } from '../../../common/utils/redis/redis-wrapper';
 import { getPrismaClient } from '../../../common/utils/prisma/prisma-wrapper';
 
 const validateOrder = async (_order) => {
@@ -363,6 +361,25 @@ async function checkOrderRiskScore(message: ITransactionStreamMessage) {
   return retVal;
 }
 
+const getOrderStats = async () => {
+  const redisClient = getNodeRedisClient();
+
+  const totalPurchaseAmount = await redisClient.get(REDIS_KEYS.STATS.TOTAL_PURCHASE_AMOUNT);
+
+  const productPurchaseQtySet = await redisClient.zRangeWithScores(REDIS_KEYS.STATS.PRODUCT_PURCHASE_QTY_SET, "0", "-1");
+  const categoryPurchaseAmountSet = await redisClient.zRangeWithScores(REDIS_KEYS.STATS.CATEGORY_PURCHASE_AMOUNT_SET, "0", "-1");
+  const brandPurchaseAmountSet = await redisClient.zRangeWithScores(REDIS_KEYS.STATS.BRAND_PURCHASE_AMOUNT_SET, "0", "-1");
+
+  const retValue = {
+    totalPurchaseAmount,
+    productPurchaseQtySet,
+    categoryPurchaseAmountSet,
+    brandPurchaseAmountSet,
+  };
+
+  return retValue;
+}
+
 const listen = () => {
   listenToStreams({
     streams: [
@@ -383,4 +400,4 @@ const initialize = () => {
   listen();
 };
 
-export { createOrder, initialize };
+export { createOrder, initialize, getOrderStats };

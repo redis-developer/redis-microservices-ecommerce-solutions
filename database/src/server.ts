@@ -112,6 +112,8 @@ const init = async () => {
 
     await addTriggersToRedis(redisClient, 'triggers/manual-trigger.js');
 
+    await addTriggersToRedis(redisClient, 'triggers/stream-trigger.js');
+
     await redisClient.disconnect();
     await prisma.$disconnect();
   }

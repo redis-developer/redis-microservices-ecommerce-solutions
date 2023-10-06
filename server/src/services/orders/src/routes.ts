@@ -5,7 +5,7 @@ import type {
 
 import express, { Request, Response } from 'express';
 
-import { createOrder } from './service-impl';
+import { createOrder, getOrderStats } from './service-impl';
 import { SERVER_CONFIG } from '../../../common/config/server-config';
 import { HTTP_STATUS_CODES, USERS } from '../../../common/config/constants';
 import { LoggerCls } from '../../../common/utils/logger';
@@ -52,5 +52,30 @@ router.post(API_NAMES.CREATE_ORDER, async (req: Request, res: Response) => {
 
   res.send(result);
 });
+
+router.post(
+  API_NAMES.GET_ORDER_STATS,
+  async (req: Request, res: Response) => {
+    const body = req.body;
+    const result: IApiResponseBody = {
+      data: null,
+      error: null,
+    };
+
+    try {
+      result.data = await getOrderStats();
+    } catch (err) {
+      const pureErr = LoggerCls.getPureError(err);
+      result.error = pureErr;
+      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR);
+      LoggerCls.error(
+        `${API_NAMES.GET_ORDER_STATS} API failed !`,
+        pureErr,
+      );
+    }
+
+    res.send(result);
+  },
+);
 
 export { router };
