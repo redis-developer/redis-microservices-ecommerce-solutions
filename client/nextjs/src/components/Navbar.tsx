@@ -9,11 +9,16 @@ export interface NavbarProps {
 
 export default function Navbar({ path = '', refreshProducts }: NavbarProps) {
   const isOrders = /orders/.test(path);
+  const isAdmin = /admin/.test(path);
   const linkClass =
     'flex flex-initial items-center h-full pt-1 px-4 border-b-4 hover:text-neutral-200 font-bold';
   const ordersClass = clsx(linkClass, {
     'border-transparent': !isOrders,
     'border-orange-300': isOrders,
+  });
+  const adminClass = clsx(linkClass, {
+    'border-transparent': !isAdmin,
+    'border-orange-300': isAdmin,
   });
 
   return (
@@ -33,6 +38,10 @@ export default function Navbar({ path = '', refreshProducts }: NavbarProps) {
         <div className="order-first flex flex-row items-center h-full text-white space-y-0 space-x-3">
           <Link prefetch={false} className={ordersClass} href="/orders">
             Orders
+          </Link>
+
+          <Link prefetch={false} className={adminClass} href="/admin">
+            Admin
           </Link>
         </div>
 

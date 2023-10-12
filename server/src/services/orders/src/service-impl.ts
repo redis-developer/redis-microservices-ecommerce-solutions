@@ -382,10 +382,18 @@ const getOrderStats = async () => {
   const categoryPurchaseAmountSet = await redisClient.zRangeWithScores(REDIS_KEYS.STATS.CATEGORY_PURCHASE_AMOUNT_SET, "0", "-1");
   const brandPurchaseAmountSet = await redisClient.zRangeWithScores(REDIS_KEYS.STATS.BRAND_PURCHASE_AMOUNT_SET, "0", "-1");
 
+  productPurchaseQtySet.reverse();
+  categoryPurchaseAmountSet.reverse();
+  brandPurchaseAmountSet.reverse();
+
   if (productPurchaseQtySet && productPurchaseQtySet.length) {
-    productPurchaseQtySet.reverse();
     const productIdArr = productPurchaseQtySet.map(itm => itm.value);
     products = await getProductByIds(productIdArr);
+
+    products.sort((a, b) => {
+      return productIdArr.indexOf(a.productId) - productIdArr.indexOf(b.productId);
+    });
+
   }
 
   const retValue = {

@@ -19,30 +19,30 @@ interface IChartInfo {
     yAxisLabel?: string;
 }
 
-
 const colors = [
-    "#FF5733",
-    "#581845",
-    "#E9724D",
-    "#D6D727",
-    "#92CAD1",
-    "#79CCB3",
-    "#868686",
-    "#F4ECC1",
-    "#F781BF",
-    "#A6ACAF",
-    "#F2F2F2",
-    "#E9F9FF",
-    "#CCEEFF",
-    "#9BD1FF",
-    "#6ACFFF",
+    "#FF9999",// - Light Red
+    "#66CCFF",// - Light Sky Blue
+    "#99FF99",// - Pale Green
+    "#FFFF66",// - Pale Yellow
+    "#FFCC99",// - Peach
+    "#99E6E6",// - Pale Cyan
+    "#FF99FF",// - Light Magenta
+    // "#FF6666",// - Soft Red
+    // "#99E699",// - Soft Green
+    // "#99CCFF",// - Soft Blue
+    "#D9B3FF",// - Pastel Purple
+    "#80E0FF",// - Light Turquoise
+    "#FFCC66",// - Gold
+    "#C2C2F0",// - Lavender
+    "#FFB366",// - Light Orange
 ];
 
-const reverseColors = [...colors].reverse();
 
-function createBasicChartData(_chartInfo: IChartInfo, _colors?: string[]) {
-    if (!_colors) {
-        _colors = reverseColors;
+function createBasicChartData(_chartInfo: IChartInfo, isReverseColors?: boolean) {
+    let chartColors: string[] = colors;
+
+    if (isReverseColors) {
+        chartColors = [...colors].reverse();
     }
 
     const chartData = {
@@ -58,8 +58,8 @@ function createBasicChartData(_chartInfo: IChartInfo, _colors?: string[]) {
                 label: dataSet.name,
                 data: dataSet.values,
                 borderWidth: 1,
-                backgroundColor: _colors,
-                // borderColor: _colors,
+                backgroundColor: chartColors,
+                // borderColor: chartColors,
             });
         }
     }
@@ -89,7 +89,7 @@ function createBasicChartData(_chartInfo: IChartInfo, _colors?: string[]) {
 }
 
 function createBarChartData(_ChartInfo: IChartInfo) {
-    let { chartData, chartOptions } = createBasicChartData(_ChartInfo, colors);
+    let { chartData, chartOptions } = createBasicChartData(_ChartInfo, true);
 
     //custom options
     chartOptions.scales = {

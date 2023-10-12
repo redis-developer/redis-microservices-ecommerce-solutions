@@ -2,6 +2,10 @@
 import type { IChartInfo } from './chart';
 import { useEffect, useState } from 'react';
 
+import Navbar from '@/components/Navbar';
+import Image from 'next/image';
+import { getShortName } from '@/utils/convert';
+
 import {
     Bar, Doughnut, PolarArea,
     createBarChartData, createBasicChartData
@@ -30,7 +34,7 @@ function getBrandPurchaseChartInfo(_orderStats?: api.OrderStatsResponse) {
     }
 
     //const { chartData, chartOptions } = createBarChartData(chartInfo);
-    const { chartData, chartOptions } = createBasicChartData(chartInfo);
+    const { chartData, chartOptions } = createBasicChartData(chartInfo, false);
 
     return {
         chartData,
@@ -59,7 +63,7 @@ function getCategoryPurchaseChartInfo(_orderStats?: api.OrderStatsResponse) {
         }];
     }
 
-    const { chartData, chartOptions } = createBasicChartData(chartInfo);
+    const { chartData, chartOptions } = createBasicChartData(chartInfo, true);
     return {
         chartData,
         chartOptions
@@ -238,55 +242,111 @@ export default function Home() {
     const categoryPurchaseChart = getCategoryPurchaseChartInfo(orderStats);
     const productPurchaseChart = getProductPurchaseChartInfo(orderStats);
 
+    async function refreshBtnClick() {
+        const result = await getOrderStats();
+        const MAX_TRENDING_ITEMS = 6;
+
+        if (result?.products?.length) {
+            result.products = result.products.slice(0, MAX_TRENDING_ITEMS);
+        }
+
+        setOrderStats(result);
+    }
+
     useEffect(() => {
         (async () => {
-            const result = await getOrderStats();
-            setOrderStats(result);
+            await refreshBtnClick();
             //setOrderStats(getDummyData());
         })();
     }, []);
 
+
+
     return (
-        <main>
-            <div>
-                (add nav bar)
-                RefreshButton functionality
-            </div>
-            <div>
-                Total Purchase Amount : {orderStats?.totalPurchaseAmount}
-            </div>
-            <hr />
-            <div>
-                <div>
-                    Brand wise revenue
-                </div>
-                <div style={{ height: "400px" }}>
-                    {//@ts-ignore
-                        <Doughnut data={brandPurchaseChart.chartData} options={brandPurchaseChart.chartOptions} />
-                    }
+        <>
+            <Navbar path="admin" />
+            <main>
+                <div className="max-w-screen-xl mx-auto p-6 pt-16">
+                    <div className="mb-2 flex justify-between">
+                        <h5 className="font-bold uppercase">
+                            Total Purchase Amount :
+                            <span className="text-sm pl-1">
+                                ${Number(orderStats?.totalPurchaseAmount).toLocaleString('en')}
+                            </span>
+                        </h5>
 
-                </div>
-                <hr />
-                <div>
-                    Category wise interests
-                </div>
-                <div style={{ height: "400px" }}>
-                    {//@ts-ignore
-                        <PolarArea data={categoryPurchaseChart.chartData} options={categoryPurchaseChart.chartOptions} />
-                    }
-                </div>
-                <hr />
-                <div>
-                    Top Trending Products
-                </div>
-                <div style={{ height: "400px" }}>
-                    {//@ts-ignore
-                        <Bar data={productPurchaseChart.chartData} options={productPurchaseChart.chartOptions} />
-                    }
-                </div>
-            </div>
+                        <button
+                            type="button"
+                            onClick={refreshBtnClick}
+                            className="inline-block rounded bg-slate-300 hover:bg-slate-400 px-4 pt-2 pb-2 text-xs font-semibold uppercase leading-normal text-black">
+                            Refresh Stats
+                        </button>
+                    </div>
 
-        </main >
+                    <hr />
+
+                    <div className="pt-3 flex justify-between">
+                        <div>
+                            <div className="font-bold uppercase">
+                                Brand wise revenue
+                            </div>
+                            <div style={{ width: "500px" }}>
+                                {//@ts-ignore
+                                    <Doughnut data={brandPurchaseChart.chartData} options={brandPurchaseChart.chartOptions} />
+                                }
+                            </div>
+                        </div>
+                        <div>
+                            <div className="font-bold uppercase">
+                                Category wise interests
+                            </div>
+                            <div style={{ width: "500px" }}>
+                                {//@ts-ignore
+                                    <PolarArea data={categoryPurchaseChart.chartData} options={categoryPurchaseChart.chartOptions} />
+                                }
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <hr />
+
+                    <div className="pt-3">
+                        <div className="font-bold uppercase">
+                            Top Trending Products
+                        </div>
+                        {/* <div style={{ height: "400px" }}>
+                            {//@ts-ignore
+                                <Bar data={productPurchaseChart.chartData} options={productPurchaseChart.chartOptions} />
+                            }
+                        </div> */}
+                        <div className="pt-3 flex flex-wrap justify-between">
+                            {orderStats?.products?.map((product) => (
+                                <div key={product.productId} className="block max-w-sm rounded bg-white shadow-lg border border-neutral-200 m-2">
+                                    <Image
+                                        className="rounded-t-lg w-auto mx-auto"
+                                        style={{ height: '160px' }}
+                                        src={product.styleImages_default_imageURL}
+                                        alt={product.productDisplayName}
+                                        width={480}
+                                        height={640}
+                                    />
+                                    <hr />
+                                    <div className="p-6 bg-slate-100">
+                                        <h5 className="mb-2 h-20 text-xl font-medium leading-tight text-neutral-800">
+                                            {product.productDisplayName}
+                                        </h5>
+                                        <p className="mb-4 text-base text-neutral-600">
+                                            {getShortName(product.productDescriptors_description_value)}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </main >
+        </>
 
     );
 }
