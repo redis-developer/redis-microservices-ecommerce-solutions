@@ -75,6 +75,24 @@ const addProductDataToOrders = (order: OrderWithIncludes, products: Product[]) =
   return order;
 };
 
+const getProductByIds = async (_productIdArr: string[]) => {
+  const prisma = getPrismaClient();
+  let products: Product[] = [];
+
+  if (_productIdArr && _productIdArr.length) {
+    products = await prisma.product.findMany({
+      where: {
+        statusCode: DB_ROW_STATUS.ACTIVE,
+        productId: {
+          in: _productIdArr,
+        },
+      },
+    });
+  }
+
+  return products;
+}
+
 const getProductDetails = async (order: OrderWithIncludes) => {
   let products: Product[] = [];
 
@@ -83,15 +101,7 @@ const getProductDetails = async (order: OrderWithIncludes) => {
       return product.productId;
     });
 
-    const prisma = getPrismaClient();
-    products = await prisma.product.findMany({
-      where: {
-        statusCode: DB_ROW_STATUS.ACTIVE,
-        productId: {
-          in: productIdArr,
-        },
-      },
-    });
+    products = await getProductByIds(productIdArr);
   }
 
   return products;
@@ -363,6 +373,8 @@ async function checkOrderRiskScore(message: ITransactionStreamMessage) {
 
 const getOrderStats = async () => {
   const redisClient = getNodeRedisClient();
+  let products: Product[] = [];
+
 
   const totalPurchaseAmount = await redisClient.get(REDIS_KEYS.STATS.TOTAL_PURCHASE_AMOUNT);
 
@@ -370,11 +382,18 @@ const getOrderStats = async () => {
   const categoryPurchaseAmountSet = await redisClient.zRangeWithScores(REDIS_KEYS.STATS.CATEGORY_PURCHASE_AMOUNT_SET, "0", "-1");
   const brandPurchaseAmountSet = await redisClient.zRangeWithScores(REDIS_KEYS.STATS.BRAND_PURCHASE_AMOUNT_SET, "0", "-1");
 
+  if (productPurchaseQtySet && productPurchaseQtySet.length) {
+    productPurchaseQtySet.reverse();
+    const productIdArr = productPurchaseQtySet.map(itm => itm.value);
+    products = await getProductByIds(productIdArr);
+  }
+
   const retValue = {
     totalPurchaseAmount,
     productPurchaseQtySet,
     categoryPurchaseAmountSet,
     brandPurchaseAmountSet,
+    products
   };
 
   return retValue;

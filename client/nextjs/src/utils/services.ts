@@ -74,3 +74,14 @@ export async function triggerResetInventory(): Promise<string> {
 
   return result;
 }
+
+export async function getOrderStats(): Promise<api.OrderStatsResponse> {
+  const result = await request(
+    `${process.env.NEXT_PUBLIC_API_GATEWAY_URI}/orders/getOrderStats`,
+    {
+      method: 'POST'
+    }
+  );
+
+  return result.data;
+}

@@ -19,4 +19,17 @@ declare namespace api {
     error: Error;
     data: T;
   }
+
+  interface ISortedSet {
+    score: number;
+    value: string;
+  };
+
+  interface OrderStatsResponse {
+    totalPurchaseAmount?: string | null;
+    productPurchaseQtySet?: ISortedSet[];
+    categoryPurchaseAmountSet?: ISortedSet[];
+    brandPurchaseAmountSet?: ISortedSet[];
+    products?: models.Product[]
+  }
 }
