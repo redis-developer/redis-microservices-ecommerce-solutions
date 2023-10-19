@@ -2,7 +2,6 @@
   "name": "database",
   "version": "1.0.0",
   "description": "Database seeder",
-  "type": "module",
   "scripts": {
     "copy-js": "cp -r src/triggers dist/",
     "schema": "npx prisma generate",

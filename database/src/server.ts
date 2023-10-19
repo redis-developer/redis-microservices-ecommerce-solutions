@@ -1,25 +1,31 @@
+import type { NodeRedisClientType } from './config.js';
+
 import * as dotenv from 'dotenv';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { fileURLToPath } from 'url';
+//import { fileURLToPath } from 'url';
 import { PrismaClient, Prisma } from '@prisma/client';
 import { createClient } from 'redis';
 
-type NodeRedisClientType = ReturnType<typeof createClient>;
+import * as CONFIG from './config.js';
+import {
+  deleteExistingKeysInRedis,
+  addProductsToRandomStoresInRedis,
+} from './stores-inventory-data.js';
 
-const PRODUCT_KEY_PREFIX = 'products:productId';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+//const __filename = fileURLToPath(import.meta.url);
+//const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
-const seedPrismaAndRedisDatabase = async (prisma: PrismaClient, redisClient: NodeRedisClientType) => {
-
+const addProductsToRedisAndPrismaDB = async (prisma: PrismaClient, redisClient: NodeRedisClientType) => {
+  const products: Prisma.ProductCreateInput[] = [];
   const productJSONFolder = __dirname + '/../fashion-dataset/001/products';
 
   //delete products
   console.log('-----PrismaDB: delete existing products-----');
   await prisma.product.deleteMany({});
+  await deleteExistingKeysInRedis(CONFIG.PRODUCT_KEY_PREFIX, redisClient);
 
   //get file list from directory
   const allFilesInDir = await fs.readdir(productJSONFolder);
@@ -27,9 +33,8 @@ const seedPrismaAndRedisDatabase = async (prisma: PrismaClient, redisClient: Nod
     (file) => path.extname(file) === '.json',
   );
 
-  console.log('-----Seeding started-----');
+  console.log('-----Products seeding started-----');
 
-  const DEFAULT_QTY = 25; //also in triggers/manual-trigger.js
 
   for (let file of jsonFilesInDir) {
     const filePath = path.join(productJSONFolder, file);
@@ -45,7 +50,7 @@ const seedPrismaAndRedisDatabase = async (prisma: PrismaClient, redisClient: Nod
         productId: json.id.toString(),
         styleImages_default_imageURL: `http://${process.env.CDN_HOST}:${process.env.CDN_PORT}/images/${json.id}.jpg`,
         createdBy: 'ADMIN',
-        stockQty: DEFAULT_QTY,
+        stockQty: CONFIG.DEFAULT_PRODUCT_QTY,
 
         //from json
         price: Number(json.price),
@@ -68,19 +73,20 @@ const seedPrismaAndRedisDatabase = async (prisma: PrismaClient, redisClient: Nod
 
       if (redisClient) {
         // insert product to Redis
-        const productKey = PRODUCT_KEY_PREFIX + ':' + insertedProduct.productId;
+        const productKey = CONFIG.PRODUCT_KEY_PREFIX + ':' + insertedProduct.productId;
         await redisClient.json.set(productKey, '.', insertedProduct);
       }
+      products.push(product);
 
     } catch (err) {
       console.log(`${filePath} insertion failed `, err);
     }
   }
-  console.log('-----Seeding completed-----');
-
+  console.log('-----Products seeding completed-----');
+  return products;
 };
 
-const addTriggersToRedis = async (redisClient: NodeRedisClientType, fileRelativePath: string) => {
+const addTriggerToRedis = async (fileRelativePath: string, redisClient: NodeRedisClientType) => {
 
   const filePath = path.join(__dirname, fileRelativePath);
   const fileData = await fs.readFile(filePath);
@@ -102,17 +108,21 @@ const init = async () => {
     let prisma = new PrismaClient();
     const redisClient = createClient({ url: process.env.REDIS_CONNECTION_URI });
 
+    // redisClient.on('error', (err) => {
+    //   console.error('Redis error:', err);
+    // });
+
     await prisma.$connect(); //connect db
     await redisClient.connect();
 
-    await seedPrismaAndRedisDatabase(prisma, redisClient);
+    const products = await addProductsToRedisAndPrismaDB(prisma, redisClient);
 
-    await addTriggersToRedis(redisClient, 'triggers/key-space-trigger.js');
-    await addTriggersToRedis(redisClient, 'triggers/key-space-trigger-manual-test.js');
+    await addTriggerToRedis('triggers/key-space-trigger.js', redisClient);
+    await addTriggerToRedis('triggers/key-space-trigger-manual-test.js', redisClient);
+    await addTriggerToRedis('triggers/manual-trigger.js', redisClient);
+    await addTriggerToRedis('triggers/stream-trigger.js', redisClient);
 
-    await addTriggersToRedis(redisClient, 'triggers/manual-trigger.js');
-
-    await addTriggersToRedis(redisClient, 'triggers/stream-trigger.js');
+    await addProductsToRandomStoresInRedis(products, CONFIG.PRODUCT_IN_MAX_STORES, redisClient);
 
     await redisClient.disconnect();
     await prisma.$disconnect();
@@ -122,5 +132,6 @@ const init = async () => {
   }
 
 };
+
 
 init();
