@@ -11,6 +11,7 @@ import * as CONFIG from './config.js';
 import {
   deleteExistingKeysInRedis,
   addProductsToRandomStoresInRedis,
+  addZipCodeDetailsInRedis,
 } from './stores-inventory-data.js';
 
 //const __filename = fileURLToPath(import.meta.url);
@@ -123,6 +124,8 @@ const init = async () => {
     await addTriggerToRedis('triggers/stream-trigger.js', redisClient);
 
     await addProductsToRandomStoresInRedis(products, CONFIG.PRODUCT_IN_MAX_STORES, redisClient);
+
+    await addZipCodeDetailsInRedis(redisClient)
 
     await redisClient.disconnect();
     await prisma.$disconnect();

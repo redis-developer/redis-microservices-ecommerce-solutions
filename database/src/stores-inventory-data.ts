@@ -1,4 +1,4 @@
-import type { NodeRedisClientType, IStore, IStoreInventory } from './config.js';
+import type { NodeRedisClientType, IStore, IStoreInventory, IZipCode } from './config.js';
 
 import { Prisma } from '@prisma/client';
 import * as CONFIG from './config.js';
@@ -13,6 +13,167 @@ const deleteExistingKeysInRedis = async (_keyPrefix: string, redisClient: NodeRe
             await redisClient?.del(existingKeys);
         }
     }
+}
+
+const addZipCodeDetailsInRedis = async (redisClient: NodeRedisClientType) => {
+
+    await deleteExistingKeysInRedis(CONFIG.ZIP_CODE_KEY_PREFIX, redisClient);
+
+
+    const zipCodeDetails: IZipCode[] = [
+        {
+            zipLocation: {
+                latitude: 40.785091,
+                longitude: -73.968285,
+            },
+            zipCode: 10022
+        },
+        {
+            zipLocation: {
+                latitude: 40.931210,
+                longitude: -73.898747,
+            },
+            zipCode: 10701
+        },
+        {
+            zipLocation: {
+                latitude: 41.033986,
+                longitude: -73.762910,
+            },
+            zipCode: 10601
+        },
+        {
+            zipLocation: {
+                latitude: 40.911488,
+                longitude: -73.782355,
+            },
+            zipCode: 10801
+        },
+        {
+            zipLocation: {
+                latitude: 42.886447,
+                longitude: -78.878369,
+            },
+            zipCode: 14202
+        },
+        {
+            zipLocation: {
+                latitude: 43.161030,
+                longitude: -77.610924,
+            },
+            zipCode: 14604
+        },
+        {
+            zipLocation: {
+                latitude: 43.048122,
+                longitude: -76.147424,
+            },
+            zipCode: 13202
+        },
+        {
+            zipLocation: {
+                latitude: 42.652580,
+                longitude: -73.756233,
+            },
+            zipCode: 12207
+        },
+        {
+            zipLocation: {
+                latitude: 42.098687,
+                longitude: -75.917974,
+            },
+            zipCode: 13901
+        },
+        {
+            zipLocation: {
+                latitude: 40.837049,
+                longitude: -73.865430,
+            },
+            zipCode: 10451
+        },
+        {
+            zipLocation: {
+                latitude: 40.678178,
+                longitude: -73.944158,
+            },
+            zipCode: 11201
+        },
+        {
+            zipLocation: {
+                latitude: 40.728224,
+                longitude: -73.794852,
+            },
+            zipCode: 11354
+        },
+        {
+            zipLocation: {
+                latitude: 40.579532,
+                longitude: -74.150201,
+            },
+            zipCode: 10301
+        },
+        {
+            zipLocation: {
+                latitude: 40.706212,
+                longitude: -73.618739,
+            },
+            zipCode: 11550
+        },
+        {
+            zipLocation: {
+                latitude: 40.963434,
+                longitude: -72.184801,
+            },
+            zipCode: 11937
+        },
+        {
+            zipLocation: {
+                latitude: 41.503427,
+                longitude: -74.010418,
+            },
+            zipCode: 12550
+        },
+        {
+            zipLocation: {
+                latitude: 42.443961,
+                longitude: -76.501881,
+            },
+            zipCode: 14850
+        },
+        {
+            zipLocation: {
+                latitude: 41.700371,
+                longitude: -73.920970,
+            },
+            zipCode: 12601
+        },
+        {
+            zipLocation: {
+                latitude: 43.096214,
+                longitude: -79.037739,
+            },
+            zipCode: 14301
+        },
+        {
+            zipLocation: {
+                latitude: 43.083130,
+                longitude: -73.784565,
+            },
+            zipCode: 12866
+        }
+    ];
+
+    for (let zipCodeData of zipCodeDetails) {
+        zipCodeData.statusCode = 1;
+        if (typeof zipCodeData?.zipLocation != "string") {
+            //zipLocation = "-73.41512,40.79343"
+            zipCodeData.zipLocation = zipCodeData.zipLocation?.longitude + "," + zipCodeData.zipLocation?.latitude;
+        }
+        const id = CONFIG.ZIP_CODE_KEY_PREFIX + ':' + zipCodeData.zipCode;
+        //@ts-ignore
+        await redisClient.json.set(id, '.', zipCodeData);
+    }
+
 }
 
 const getStoreDetails = (): IStore[] => {
@@ -120,11 +281,17 @@ const addProductsToRandomStoresInRedis = async (_products: Prisma.ProductCreateI
             for (let product of _products) {
                 const randomStores = getRandomStores(_storeCount);
                 for (let store of randomStores) {
+                    if (typeof store?.storeLocation != "string") {
+                        //"-73.41512,40.79343"
+                        store.storeLocation = store.storeLocation?.longitude + "," + store.storeLocation?.latitude;
+                    }
                     const storesInventory: IStoreInventory = {
                         storeId: store.storeId,
                         storeLocation: store.storeLocation,
                         productId: product.productId,
-                        quantity: CONFIG.MAX_PRODUCT_QTY_IN_STORE
+                        productDisplayName: product.productDisplayName,
+                        quantity: CONFIG.MAX_PRODUCT_QTY_IN_STORE,
+                        statusCode: 1
                     }
                     const id = CONFIG.STORE_INVENTORY_KEY_PREFIX + ':' + store.storeId + "_" + product.productId;
                     //@ts-ignore
@@ -144,4 +311,5 @@ const addProductsToRandomStoresInRedis = async (_products: Prisma.ProductCreateI
 export {
     deleteExistingKeysInRedis,
     addProductsToRandomStoresInRedis,
+    addZipCodeDetailsInRedis
 }

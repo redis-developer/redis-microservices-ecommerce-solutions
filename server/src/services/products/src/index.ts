@@ -3,6 +3,7 @@ import express, { Express, Request, Response } from 'express';
 
 import { router } from './routes';
 import * as ProductRepo from '../../../common/models/product-repo';
+import * as ZipCodeRepo from '../../../common/models/zip-code-repo';
 import { SERVER_CONFIG } from '../../../common/config/server-config';
 import { setRedis } from '../../../common/utils/redis/redis-wrapper';
 import { setPrisma } from '../../../common/utils/prisma/prisma-wrapper';
@@ -29,6 +30,7 @@ app.listen(PORT, async () => {
   await setRedis(REDIS_URI);
   await setPrisma();
   await ProductRepo.createRedisIndex();
+  await ZipCodeRepo.createRedisIndex();
 
   console.log(`Server is running at http://localhost:${PORT}`);
 });

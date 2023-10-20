@@ -90,6 +90,7 @@ const SERVER_CONFIG = {
       PREFIX: '/products',
       GET_PRODUCTS_BY_FILTER: '/getProductsByFilter',
       TRIGGER_RESET_INVENTORY: '/triggerResetInventory',
+      GET_ZIP_CODES: '/getZipCodes',
     },
   },
   PAYMENTS_SERVICE: {

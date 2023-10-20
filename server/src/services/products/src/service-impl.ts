@@ -1,11 +1,13 @@
 import type { Product } from '@prisma/client';
 import type { IProduct } from '../../../common/models/product';
+import type { IZipCode } from '../../../common/models/zip-code';
 
 import { Prisma } from '@prisma/client';
 
 import { DB_ROW_STATUS } from '../../../common/models/order';
 import { getPrismaClient } from '../../../common/utils/prisma/prisma-wrapper';
 import * as ProductRepo from '../../../common/models/product-repo';
+import * as ZipCodeRepo from '../../../common/models/zip-code-repo';
 
 import { getNodeRedisClient } from '../../../common/utils/redis/redis-wrapper';
 
@@ -69,4 +71,25 @@ const triggerResetInventory = async () => {
   return result;
 }
 
-export { getProductsByFilter, getProductsByFilterFromDB, triggerResetInventory };
+const getZipCodes = async () => {
+  const repository = ZipCodeRepo.getRepository();
+  let zipCodes: IZipCode[] = [];
+  if (repository) {
+    let queryBuilder = repository
+      .search()
+      .and('statusCode')
+      .eq(DB_ROW_STATUS.ACTIVE);
+
+    console.log(queryBuilder.query);
+    zipCodes = <IZipCode[]>await queryBuilder.return.all();
+  }
+
+  return zipCodes;
+};
+
+export {
+  getProductsByFilter,
+  getProductsByFilterFromDB,
+  triggerResetInventory,
+  getZipCodes
+};

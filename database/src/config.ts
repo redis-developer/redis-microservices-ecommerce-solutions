@@ -11,7 +11,18 @@ interface IStore {
 }
 interface IStoreInventory extends IStore {
     productId?: string;
+    productDisplayName?: string;
     quantity?: number;
+    statusCode?: number
+}
+
+interface IZipCode {
+    zipCode?: number;
+    zipLocation?: {
+        latitude?: number;
+        longitude?: number;
+    } | string,
+    statusCode?: number
 }
 
 //#endregion
@@ -22,6 +33,7 @@ const PRODUCT_IN_MAX_STORES = 5;
 const MAX_PRODUCT_QTY_IN_STORE = Math.floor(DEFAULT_PRODUCT_QTY / PRODUCT_IN_MAX_STORES);
 const STORE_INVENTORY_KEY_PREFIX = 'storeInventory:storeInventoryId';
 const PRODUCT_KEY_PREFIX = 'products:productId';
+const ZIP_CODE_KEY_PREFIX = 'zipCodes:zipCode';
 
 //#endregion
 
@@ -32,10 +44,12 @@ export {
     MAX_PRODUCT_QTY_IN_STORE,
     STORE_INVENTORY_KEY_PREFIX,
     PRODUCT_KEY_PREFIX,
+    ZIP_CODE_KEY_PREFIX,
 }
 
 export type {
     NodeRedisClientType,
     IStore,
-    IStoreInventory
+    IStoreInventory,
+    IZipCode
 }

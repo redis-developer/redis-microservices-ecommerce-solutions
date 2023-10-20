@@ -26,7 +26,7 @@ SAMPLE PRODUCT
 }
  
 */
-const PRODUCT_KEY_PREFIX = 'products:productId'; //also in database/src/server.ts
+const PRODUCT_KEY_PREFIX = 'products:productId'; //also in database/src/config.ts
 
 const schema = new RedisSchema(PRODUCT_KEY_PREFIX, {
   productId: { type: 'string', indexed: true },
