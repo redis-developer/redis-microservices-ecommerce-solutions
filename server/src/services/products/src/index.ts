@@ -4,6 +4,8 @@ import express, { Express, Request, Response } from 'express';
 import { router } from './routes';
 import * as ProductRepo from '../../../common/models/product-repo';
 import * as ZipCodeRepo from '../../../common/models/zip-code-repo';
+import * as StoreInventoryRepo from '../../../common/models/store-inventory-repo';
+
 import { SERVER_CONFIG } from '../../../common/config/server-config';
 import { setRedis } from '../../../common/utils/redis/redis-wrapper';
 import { setPrisma } from '../../../common/utils/prisma/prisma-wrapper';
@@ -31,7 +33,7 @@ app.listen(PORT, async () => {
   await setPrisma();
   await ProductRepo.createRedisIndex();
   await ZipCodeRepo.createRedisIndex();
-
+  await StoreInventoryRepo.createRedisIndex();
   console.log(`Server is running at http://localhost:${PORT}`);
 });
 

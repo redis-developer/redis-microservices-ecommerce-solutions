@@ -1,4 +1,4 @@
-import { createClient, commandOptions } from 'redis';
+import { createClient, commandOptions, AggregateSteps } from 'redis';
 import {
   //types
   Entity as RedisEntity,
@@ -67,6 +67,7 @@ export {
   RedisSchema,
   RedisRepository,
   RedisEntityId,
+  AggregateSteps,
 };
 
 export type { RedisWrapperCls, RedisEntity };

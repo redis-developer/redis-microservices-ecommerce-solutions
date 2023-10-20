@@ -1,6 +1,7 @@
 import type { Product } from '@prisma/client';
 import type { IProduct } from '../../../common/models/product';
 import type { IZipCode } from '../../../common/models/zip-code';
+import type { IStoreInventory } from '../../../common/models/store-inventory';
 
 import { Prisma } from '@prisma/client';
 
@@ -8,8 +9,18 @@ import { DB_ROW_STATUS } from '../../../common/models/order';
 import { getPrismaClient } from '../../../common/utils/prisma/prisma-wrapper';
 import * as ProductRepo from '../../../common/models/product-repo';
 import * as ZipCodeRepo from '../../../common/models/zip-code-repo';
+import * as StoreInventoryRepo from '../../../common/models/store-inventory-repo';
 
-import { getNodeRedisClient } from '../../../common/utils/redis/redis-wrapper';
+import { getNodeRedisClient, AggregateSteps } from '../../../common/utils/redis/redis-wrapper';
+
+interface IInventoryBodyFilter {
+  productDisplayName?: string;
+  searchRadiusInKm?: number;
+  userLocation?: {
+    latitude?: number;
+    longitude?: number;
+  }
+}
 
 const getProductsByFilter = async (productFilter: Product) => {
   const repository = ProductRepo.getRepository();
@@ -87,9 +98,114 @@ const getZipCodes = async () => {
   return zipCodes;
 };
 
+
+const getStoreProductsByGeoFilter = async (_inventoryFilter: IInventoryBodyFilter) => {
+  const redisClient = getNodeRedisClient();
+  const repository = StoreInventoryRepo.getRepository();
+  let storeProducts: IStoreInventory[] = [];
+  const trimmedStoreProducts: IStoreInventory[] = [] // similar item in other stores are removed
+
+  if (repository
+    && _inventoryFilter?.userLocation?.latitude
+    && _inventoryFilter?.userLocation?.longitude) {
+
+    const lat = _inventoryFilter.userLocation.latitude;
+    const long = _inventoryFilter.userLocation.longitude;
+    const radiusInKm = _inventoryFilter.searchRadiusInKm || 1000;
+
+    let queryBuilder = repository
+      .search()
+      .and('statusCode')
+      .eq(DB_ROW_STATUS.ACTIVE)
+      .and('storeLocation')
+      .inRadius((circle) => {
+        return circle
+          .latitude(lat)
+          .longitude(long)
+          .radius(radiusInKm)
+          .kilometers
+      });;
+
+    if (_inventoryFilter.productDisplayName) {
+      queryBuilder = queryBuilder
+        .and('productDisplayName')
+        .matches(_inventoryFilter.productDisplayName)
+    }
+
+    console.log(queryBuilder.query);
+    /* Sample queryBuilder query 
+    "( ( (@statusCode:[1 1]) (@storeLocation:[-73.968285 40.785091 1000 km]) ) (@productDisplayName:'puma') )" 
+    */
+
+    /* Sample command to run query directly on CLI
+    FT.SEARCH "storeInventory:storeInventoryId:index" "( ( (@statusCode:[1 1]) (@storeLocation:[-73.968285 40.785091 1000 km]) ) (@productDisplayName:'puma') )" 
+            */
+
+    const indexName = `${StoreInventoryRepo.STORE_INVENTORY_KEY_PREFIX}:index`;
+    const aggregator = await redisClient.ft.aggregate(
+      indexName,
+      queryBuilder.query,
+      {
+        LOAD: ["@storeId", "@storeLocation", "@productId", "@productDisplayName", "@quantity"],
+        STEPS: [{
+          type: AggregateSteps.APPLY,
+          expression: `geodistance(@storeLocation, ${long}, ${lat})/1000`,
+          AS: 'distInKm'
+        }, {
+          type: AggregateSteps.SORTBY,
+          BY: "@distInKm"
+        }, {
+          type: AggregateSteps.LIMIT,
+          from: 0,
+          size: 100,
+        }]
+      });
+
+    /* Sample command to run query directly on CLI
+        FT.AGGREGATE "storeInventory:storeInventoryId:index" 
+          "( ( (@statusCode:[1 1]) (@storeLocation:[-73.968285 40.785091 1000 km]) ) (@productDisplayName:'puma') )" 
+          LOAD 5 "@storeId" "@storeLocation" "@productId" "@productDisplayName" "@quantity" 
+          APPLY "geodistance(@storeLocation, -73.968285, 40.785091)/1000" "AS" "distInKm" 
+          SORTBY 1 "@distInKm"
+          LIMIT 0 100
+    */
+
+    storeProducts = <IStoreInventory[]>aggregator.results;
+
+    if (!storeProducts.length) {
+      // throw `Product not found with in ${radiusInKm}km range!`;
+    }
+    else {
+      const uniqueStoreProducts = {};
+
+      storeProducts.forEach((storeProduct) => {
+        if (storeProduct?.productId && !uniqueStoreProducts[storeProduct.productId]) {
+          uniqueStoreProducts[storeProduct.productId] = true;
+
+          if (typeof storeProduct.storeLocation == "string") {
+            const location = storeProduct.storeLocation.split(",");
+            storeProduct.storeLocation = {
+              longitude: Number(location[0]),
+              latitude: Number(location[1]),
+            }
+          }
+
+          trimmedStoreProducts.push(storeProduct)
+        }
+      });
+    }
+  }
+  else {
+    throw "Mandatory fields like userLocation latitude / longitude missing !"
+  }
+
+  return trimmedStoreProducts;
+};
+
 export {
   getProductsByFilter,
   getProductsByFilterFromDB,
   triggerResetInventory,
-  getZipCodes
+  getZipCodes,
+  getStoreProductsByGeoFilter
 };

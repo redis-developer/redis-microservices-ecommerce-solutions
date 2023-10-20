@@ -2,7 +2,10 @@ import type { IApiResponseBody } from '../../../common/config/server-config';
 
 import express, { Request, Response } from 'express';
 
-import { getProductsByFilter, triggerResetInventory, getZipCodes } from './service-impl';
+import {
+  getProductsByFilter, triggerResetInventory,
+  getZipCodes, getStoreProductsByGeoFilter
+} from './service-impl';
 import { HTTP_STATUS_CODES } from '../../../common/config/constants';
 import { SERVER_CONFIG } from '../../../common/config/server-config';
 import { LoggerCls } from '../../../common/utils/logger';
@@ -98,6 +101,34 @@ router.post(
       res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR);
       LoggerCls.error(
         `${API_NAMES.GET_ZIP_CODES} API failed !`,
+        pureErr,
+      );
+    }
+
+    res.send(result);
+  },
+);
+
+router.post(
+  API_NAMES.GET_STORE_PRODUCTS_BY_ZEO_FILTER,
+  async (req: Request, res: Response) => {
+    const body = req.body;
+    const result: IApiResponseBody = {
+      data: null,
+      error: null,
+    };
+
+    try {
+
+      const storeProducts = await getStoreProductsByGeoFilter(body);
+      result.data = storeProducts;
+
+    } catch (err) {
+      const pureErr = LoggerCls.getPureError(err);
+      result.error = pureErr;
+      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR);
+      LoggerCls.error(
+        `${API_NAMES.GET_STORE_PRODUCTS_BY_ZEO_FILTER} API failed !`,
         pureErr,
       );
     }
