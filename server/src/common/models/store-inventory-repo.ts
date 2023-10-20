@@ -14,7 +14,7 @@ const schema = new RedisSchema(STORE_INVENTORY_KEY_PREFIX, {
 
   productId: { type: 'string', indexed: true },
   productDisplayName: { type: 'text', indexed: true },
-  quantity: { type: 'number', indexed: true },
+  stockQty: { type: 'number', indexed: true },
   statusCode: { type: 'number', indexed: true },
 });
 

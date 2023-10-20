@@ -29,6 +29,7 @@ POST http://localhost:3000/products/getProductsByFilter
       "subCategory_typeName": "Watches",
       "styleImages_default_imageURL": "http://host.docker.internal:8080/images/11000.jpg",
       "productDescriptors_description_value": "<p style=\"text-align: justify;\">Stylish and comfortable, ...",
+      "stockQty": 25,
       "createdOn": "2023-07-13T14:07:38.020Z",
       "createdBy": "ADMIN",
       "lastUpdatedOn": "2023-07-13T14:07:38.020Z",

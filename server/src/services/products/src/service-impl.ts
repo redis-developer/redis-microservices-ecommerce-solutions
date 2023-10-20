@@ -33,7 +33,7 @@ const getProductsByFilter = async (productFilter: Product) => {
       .and('stockQty')
       .gt(0);
 
-    if (productFilter && productFilter.productDisplayName) {
+    if (productFilter?.productDisplayName) {
       queryBuilder = queryBuilder
         .and('productDisplayName')
         .matches(productFilter.productDisplayName)
@@ -99,11 +99,12 @@ const getZipCodes = async () => {
 };
 
 
-const getStoreProductsByGeoFilter = async (_inventoryFilter: IInventoryBodyFilter) => {
+const searchStoreInventoryByGeoFilter = async (_inventoryFilter: IInventoryBodyFilter) => {
   const redisClient = getNodeRedisClient();
   const repository = StoreInventoryRepo.getRepository();
   let storeProducts: IStoreInventory[] = [];
-  const trimmedStoreProducts: IStoreInventory[] = [] // similar item in other stores are removed
+  const trimmedStoreProducts: IStoreInventory[] = [] // similar item of other stores are removed
+  const uniqueProductIds = {};
 
   if (repository
     && _inventoryFilter?.userLocation?.latitude
@@ -117,6 +118,8 @@ const getStoreProductsByGeoFilter = async (_inventoryFilter: IInventoryBodyFilte
       .search()
       .and('statusCode')
       .eq(DB_ROW_STATUS.ACTIVE)
+      .and('stockQty')
+      .gt(0)
       .and('storeLocation')
       .inRadius((circle) => {
         return circle
@@ -133,12 +136,9 @@ const getStoreProductsByGeoFilter = async (_inventoryFilter: IInventoryBodyFilte
     }
 
     console.log(queryBuilder.query);
-    /* Sample queryBuilder query 
-    "( ( (@statusCode:[1 1]) (@storeLocation:[-73.968285 40.785091 1000 km]) ) (@productDisplayName:'puma') )" 
-    */
 
-    /* Sample command to run query directly on CLI
-    FT.SEARCH "storeInventory:storeInventoryId:index" "( ( (@statusCode:[1 1]) (@storeLocation:[-73.968285 40.785091 1000 km]) ) (@productDisplayName:'puma') )" 
+    /* Sample queryBuilder.query to run on CLI 
+    FT.SEARCH "storeInventory:storeInventoryId:index" "( ( ( (@statusCode:[1 1]) (@stockQty:[(0 +inf]) ) (@storeLocation:[-73.968285 40.785091 1000 km]) ) (@productDisplayName:'puma') )" 
             */
 
     const indexName = `${StoreInventoryRepo.STORE_INVENTORY_KEY_PREFIX}:index`;
@@ -146,7 +146,7 @@ const getStoreProductsByGeoFilter = async (_inventoryFilter: IInventoryBodyFilte
       indexName,
       queryBuilder.query,
       {
-        LOAD: ["@storeId", "@storeLocation", "@productId", "@productDisplayName", "@quantity"],
+        LOAD: ["@storeId", "@storeLocation", "@productId", "@productDisplayName", "@stockQty"],
         STEPS: [{
           type: AggregateSteps.APPLY,
           expression: `geodistance(@storeLocation, ${long}, ${lat})/1000`,
@@ -161,13 +161,14 @@ const getStoreProductsByGeoFilter = async (_inventoryFilter: IInventoryBodyFilte
         }]
       });
 
-    /* Sample command to run query directly on CLI
+    /* Sample command to run on CLI 
         FT.AGGREGATE "storeInventory:storeInventoryId:index" 
-          "( ( (@statusCode:[1 1]) (@storeLocation:[-73.968285 40.785091 1000 km]) ) (@productDisplayName:'puma') )" 
-          LOAD 5 "@storeId" "@storeLocation" "@productId" "@productDisplayName" "@quantity" 
-          APPLY "geodistance(@storeLocation, -73.968285, 40.785091)/1000" "AS" "distInKm" 
-          SORTBY 1 "@distInKm"
-          LIMIT 0 100
+          "( ( ( (@statusCode:[1 1]) (@stockQty:[(0 +inf]) ) (@storeLocation:[-73.968285 40.785091 1000 km]) ) (@productDisplayName:'puma') )" 
+          "LOAD" "5" "@storeId" "@storeLocation" "@productId" "@productDisplayName" "@stockQty"
+          "APPLY" "geodistance(@storeLocation, -73.968285, 40.785091)/1000" 
+          "AS" "distInKm" 
+          "SORTBY" "1" "@distInKm" 
+          "LIMIT" "0" "100"
     */
 
     storeProducts = <IStoreInventory[]>aggregator.results;
@@ -176,11 +177,10 @@ const getStoreProductsByGeoFilter = async (_inventoryFilter: IInventoryBodyFilte
       // throw `Product not found with in ${radiusInKm}km range!`;
     }
     else {
-      const uniqueStoreProducts = {};
 
       storeProducts.forEach((storeProduct) => {
-        if (storeProduct?.productId && !uniqueStoreProducts[storeProduct.productId]) {
-          uniqueStoreProducts[storeProduct.productId] = true;
+        if (storeProduct?.productId && !uniqueProductIds[storeProduct.productId]) {
+          uniqueProductIds[storeProduct.productId] = true;
 
           if (typeof storeProduct.storeLocation == "string") {
             const location = storeProduct.storeLocation.split(",");
@@ -199,7 +199,28 @@ const getStoreProductsByGeoFilter = async (_inventoryFilter: IInventoryBodyFilte
     throw "Mandatory fields like userLocation latitude / longitude missing !"
   }
 
-  return trimmedStoreProducts;
+  return {
+    storeProducts: trimmedStoreProducts,
+    productIds: Object.keys(uniqueProductIds)
+  };
+};
+const getStoreProductsByGeoFilter = async (_inventoryFilter: IInventoryBodyFilter) => {
+  let products: IProduct[] = [];
+
+  const { storeProducts, productIds } = await searchStoreInventoryByGeoFilter(_inventoryFilter);
+
+  if (storeProducts?.length && productIds?.length) {
+    const repository = ProductRepo.getRepository();
+    //products with details
+    const generalProducts = <IProduct[]>await repository.fetch(...productIds);
+    //mergedProducts
+    products = generalProducts.map(generalProd => {
+      const matchingStoreProd = storeProducts.find(storeProd => storeProd.productId === generalProd.productId);
+      return { ...generalProd, ...matchingStoreProd };
+    });
+  }
+
+  return products;
 };
 
 export {

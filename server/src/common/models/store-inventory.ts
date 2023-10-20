@@ -8,7 +8,7 @@ interface IStore {
 interface IStoreInventory extends IStore {
   productId?: string;
   productDisplayName?: string;
-  quantity?: number;
+  stockQty?: number;
   statusCode?: number
 }
 

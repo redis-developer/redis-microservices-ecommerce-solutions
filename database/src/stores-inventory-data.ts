@@ -290,7 +290,7 @@ const addProductsToRandomStoresInRedis = async (_products: Prisma.ProductCreateI
                         storeLocation: store.storeLocation,
                         productId: product.productId,
                         productDisplayName: product.productDisplayName,
-                        quantity: CONFIG.MAX_PRODUCT_QTY_IN_STORE,
+                        stockQty: CONFIG.MAX_PRODUCT_QTY_IN_STORE,
                         statusCode: 1
                     }
                     const id = CONFIG.STORE_INVENTORY_KEY_PREFIX + ':' + store.storeId + "_" + product.productId;
