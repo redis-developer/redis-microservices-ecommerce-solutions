@@ -1,13 +1,17 @@
+import type { AutoCompleteTextProps } from '@/components/AutoCompleteText';
+
 import Link from 'next/link';
 import clsx from 'clsx';
 import Search from './Search';
+import AutoCompleteText from '@/components/AutoCompleteText';
 
 export interface NavbarProps {
   path?: string;
   refreshProducts?: (search: string) => void;
+  autoCompleteText?: AutoCompleteTextProps;
 }
 
-export default function Navbar({ path = '', refreshProducts }: NavbarProps) {
+export default function Navbar({ path = '', refreshProducts, autoCompleteText }: NavbarProps) {
   const isOrders = /orders/.test(path);
   const isAdmin = /admin/.test(path);
   const linkClass =
@@ -44,8 +48,18 @@ export default function Navbar({ path = '', refreshProducts }: NavbarProps) {
             Admin
           </Link>
         </div>
+        <div className='flex'>
+          {autoCompleteText?.listItems?.length &&
+            <div className='mr-2'>
+              <AutoCompleteText listItems={autoCompleteText.listItems}
+                placeHolder={autoCompleteText.placeHolder}
+                suggestionSelectedCallback={autoCompleteText.suggestionSelectedCallback}>
+              </AutoCompleteText>
+            </div>
+          }
+          <Search refreshProducts={refreshProducts} />
+        </div>
 
-        <Search refreshProducts={refreshProducts} />
       </div>
     </nav>
   );

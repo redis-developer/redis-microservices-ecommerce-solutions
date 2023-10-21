@@ -36,5 +36,26 @@ declare namespace models {
     styleImages_default_imageURL: string;
     productDescriptors_description_value: string;
     stockQty: number;
+
+    storeId?: string;
+    distInKm?: string;
+
   }
+
+  interface ZipCode {
+    zipCode?: number;
+    zipLocation?: {
+      latitude?: number;
+      longitude?: number;
+    },
+    statusCode?: number
+  }
+}
+
+//------
+
+interface ListItem {
+  id: string | number;
+  text: string;
+  value: any;
 }

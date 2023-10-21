@@ -36,6 +36,13 @@ export default function ProductCard({ product }: Props) {
 
             <span>Stock Qty: {Number(product.stockQty)} </span>
           </p>
+          {product?.storeId && product?.distInKm &&
+            <p className="mb-4 text-base font-bold text-neutral-600">
+              <span>
+                Store: {product.storeId} ( {parseFloat(product.distInKm).toFixed(2)}km )
+              </span>
+            </p>
+          }
           <button
             type="button"
             onClick={() => {

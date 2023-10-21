@@ -85,3 +85,37 @@ export async function getOrderStats(): Promise<api.OrderStatsResponse> {
 
   return result.data;
 }
+
+export async function getZipCodes(): Promise<models.ZipCode[]> {
+  const result = await request(
+    `${process.env.NEXT_PUBLIC_API_GATEWAY_URI}/products/getZipCodes`,
+    {
+      method: 'POST',
+    },
+  );
+
+  return result.data;
+}
+
+export async function getStoreProductsByGeoFilter(zipCodeInfo: models.ZipCode, search?: string,
+): Promise<models.Product[]> {
+
+  const result = await request(
+    `${process.env.NEXT_PUBLIC_API_GATEWAY_URI}/products/getStoreProductsByGeoFilter`,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        productDisplayName: search || "",
+        userLocation: {
+          latitude: zipCodeInfo?.zipLocation?.latitude,
+          longitude: zipCodeInfo?.zipLocation?.longitude,
+        },
+        other: {
+          zipCode: zipCodeInfo?.zipCode
+        }
+      }),
+    },
+  );
+
+  return result.data;
+}
