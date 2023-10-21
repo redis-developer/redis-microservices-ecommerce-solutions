@@ -320,7 +320,7 @@ export default function Home() {
                                 <Bar data={productPurchaseChart.chartData} options={productPurchaseChart.chartOptions} />
                             }
                         </div> */}
-                        <div className="pt-3 flex flex-wrap justify-between">
+                        <div className="pt-3 flex flex-wrap justify-start">
                             {orderStats?.products?.map((product) => (
                                 <div key={product.productId} className="block max-w-sm rounded bg-white shadow-lg border border-neutral-200 m-2">
                                     <Image
