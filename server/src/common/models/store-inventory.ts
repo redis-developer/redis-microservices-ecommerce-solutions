@@ -1,3 +1,5 @@
+import type { IProduct } from "./product";
+
 interface IStore {
   storeId?: string;
   storeLocation?: {
@@ -12,7 +14,12 @@ interface IStoreInventory extends IStore {
   statusCode?: number
 }
 
+interface IStoreProduct extends IProduct, IStore {
+
+}
+
 export type {
   IStore,
-  IStoreInventory
+  IStoreInventory,
+  IStoreProduct
 }

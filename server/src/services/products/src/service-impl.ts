@@ -1,7 +1,7 @@
 import type { Product } from '@prisma/client';
 import type { IProduct } from '../../../common/models/product';
 import type { IZipCode } from '../../../common/models/zip-code';
-import type { IStoreInventory } from '../../../common/models/store-inventory';
+import type { IStoreInventory, IStoreProduct } from '../../../common/models/store-inventory';
 
 import { Prisma } from '@prisma/client';
 
@@ -157,7 +157,7 @@ const searchStoreInventoryByGeoFilter = async (_inventoryFilter: IInventoryBodyF
         }, {
           type: AggregateSteps.LIMIT,
           from: 0,
-          size: 100,
+          size: 1000, //must be > storeInventory count
         }]
       });
 
@@ -205,7 +205,7 @@ const searchStoreInventoryByGeoFilter = async (_inventoryFilter: IInventoryBodyF
   };
 };
 const getStoreProductsByGeoFilter = async (_inventoryFilter: IInventoryBodyFilter) => {
-  let products: IProduct[] = [];
+  let products: IStoreProduct[] = [];
 
   const { storeProducts, productIds } = await searchStoreInventoryByGeoFilter(_inventoryFilter);
 
@@ -214,11 +214,14 @@ const getStoreProductsByGeoFilter = async (_inventoryFilter: IInventoryBodyFilte
     //products with details
     const generalProducts = <IProduct[]>await repository.fetch(...productIds);
     //mergedProducts
-    products = generalProducts.map(generalProd => {
-      const matchingStoreProd = storeProducts.find(storeProd => storeProd.productId === generalProd.productId);
-      return { ...generalProd, ...matchingStoreProd };
+    products = storeProducts.map(storeProd => {
+      const matchingGeneralProd = generalProducts.find(generalProd => generalProd.productId === storeProd.productId);
+      //@ts-ignore
+      const mergedProd: IStoreProduct = { ...matchingGeneralProd, ...storeProd };
+      return mergedProd;
     });
   }
+
 
   return products;
 };
