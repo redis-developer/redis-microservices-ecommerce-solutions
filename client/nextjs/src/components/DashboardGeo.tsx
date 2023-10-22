@@ -19,6 +19,7 @@ export default function Home() {
     const [selectedZipCodeInfo, setSelectedZipCodeInfo] = useState<models.ZipCode>();
     const [alertNotification, setAlertNotification] = useState({ title: '', message: '' });
     const [filterLabel, setFilterLabel] = useState<string>();
+    const [nearestStore, setNearestStore] = useState<string>();
 
     async function suggestionSelectedCallback(itm: ListItem) {
         setSelectedZipCodeInfo(itm.value);
@@ -35,9 +36,14 @@ export default function Home() {
             const products = await getStoreProductsByGeoFilter(_zipCodeInfo, searchText)
             setProducts(products);
 
+            setNearestStore("");
+            if (products?.length) {
+                setNearestStore(products[0].storeId);
+            }
+
             let label = "ZipCode : " + _zipCodeInfo?.zipCode;
             if (searchText) {
-                label += ", Product : " + searchText;
+                label += ", SearchText : " + searchText;
             }
             setFilterLabel(label);
         }
@@ -108,9 +114,13 @@ export default function Home() {
                         </button>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                        {products?.map((product) => (
-                            <ProductCard key={product.productId} product={product} />
-                        ))}
+                        {products?.map((product) => {
+                            const cardColorCss = (product.storeId != nearestStore) ? 'bg-orange-100' : '';
+                            return (
+                                <ProductCard key={product.productId} product={product} cardColorCss={cardColorCss} />
+                            )
+                        }
+                        )}
                     </div>
                 </div>
             </main>

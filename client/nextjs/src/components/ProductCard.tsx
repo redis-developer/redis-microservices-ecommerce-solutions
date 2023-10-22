@@ -7,14 +7,15 @@ import { getShortName } from '@/utils/convert';
 
 interface Props {
   product: models.Product;
+  cardColorCss?: string
 }
 
-export default function ProductCard({ product }: Props) {
+export default function ProductCard({ product, cardColorCss }: Props) {
   const cartDispatch = useContext(CartDispatchContext);
 
   return (
     <div className="flex justify-center">
-      <div className="block max-w-sm rounded bg-white shadow-lg border border-neutral-200">
+      <div className="max-w-sm rounded bg-white shadow-lg border border-neutral-200 flex flex-col">
         <Image
           className="rounded-t-lg w-auto mx-auto"
           style={{ height: '160px' }}
@@ -24,11 +25,11 @@ export default function ProductCard({ product }: Props) {
           height={640}
         />
         <hr />
-        <div className="p-6 bg-slate-100">
-          <h5 className="mb-2 h-20 text-xl font-medium leading-tight text-neutral-800">
+        <div className={`${cardColorCss ? cardColorCss : 'bg-slate-100'} p-6 flex-grow flex flex-col`}>
+          <h5 className="mb-2 h-16 text-xl font-medium leading-tight text-neutral-800">
             {product.productDisplayName}
           </h5>
-          <p className="mb-4 text-base text-neutral-600">
+          <p className="mb-4 text-base text-neutral-600 flex-grow">
             {getShortName(product.productDescriptors_description_value)}
           </p>
           <p className="mb-4 text-base font-bold text-neutral-600 flex justify-between">
