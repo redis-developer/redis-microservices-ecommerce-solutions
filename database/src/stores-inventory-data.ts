@@ -293,6 +293,7 @@ const addProductsToRandomStoresInRedis = async (_products: Prisma.ProductCreateI
                         stockQty: CONFIG.MAX_PRODUCT_QTY_IN_STORE,
                         statusCode: 1
                     }
+                    //id used in triggers too
                     const id = CONFIG.STORE_INVENTORY_KEY_PREFIX + ':' + store.storeId + "_" + product.productId;
                     //@ts-ignore
                     await redisClient.json.set(id, '.', storesInventory);

@@ -29,8 +29,9 @@ interface IZipCode {
 
 //#region config
 const DEFAULT_PRODUCT_QTY = 25; //also in triggers/manual-trigger.js
-const PRODUCT_IN_MAX_STORES = 5;
+const PRODUCT_IN_MAX_STORES = 5; //also in triggers/manual-trigger.js
 const MAX_PRODUCT_QTY_IN_STORE = Math.floor(DEFAULT_PRODUCT_QTY / PRODUCT_IN_MAX_STORES);
+
 const STORE_INVENTORY_KEY_PREFIX = 'storeInventory:storeInventoryId';
 const PRODUCT_KEY_PREFIX = 'products:productId';
 const ZIP_CODE_KEY_PREFIX = 'zipCodes:zipCode';

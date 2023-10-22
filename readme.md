@@ -56,6 +56,19 @@ docker-compose build --no-cache <service_name>
 docker-compose build --no-cache orders-service
 ```
 
+### To change dashboard
+
+Configure `NEXT_PUBLIC_LANDING_PAGE_CODE` in root `.env` file
+
+```sh
+# NORMAL DASHBOARD
+NEXT_PUBLIC_LANDING_PAGE_CODE=1
+
+# GEO SEARCH DASHBOARD
+NEXT_PUBLIC_LANDING_PAGE_CODE=2
+
+```
+
 ### To change Database
 
 1. Configure `DATABASE_URL` in root `.env` file

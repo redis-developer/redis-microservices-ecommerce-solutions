@@ -25,6 +25,7 @@ SAMPLE ORDER
         "productId": "11000",
         "productPrice": 3995,
         "qty": 1,
+        "storeId": "10_NY_POUGHKEEPSIE" //optional
 
         "productData": {
             "productId": "11000",

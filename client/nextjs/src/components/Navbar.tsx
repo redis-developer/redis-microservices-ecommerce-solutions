@@ -49,7 +49,7 @@ export default function Navbar({ path = '', refreshProducts, autoCompleteText }:
           </Link>
         </div>
         <div className='flex'>
-          {autoCompleteText?.listItems?.length &&
+          {autoCompleteText?.listItems && Number(autoCompleteText.listItems.length) > 0 &&
             <div className='mr-2'>
               <AutoCompleteText listItems={autoCompleteText.listItems}
                 placeHolder={autoCompleteText.placeHolder}

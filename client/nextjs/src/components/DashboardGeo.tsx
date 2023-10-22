@@ -23,8 +23,7 @@ export default function Home() {
 
     async function suggestionSelectedCallback(itm: ListItem) {
         setSelectedZipCodeInfo(itm.value);
-        const search = window?.location?.search ?? '';
-        await refreshProducts(search, itm.value);
+        await refreshProducts("", itm.value);
     }
 
     async function refreshProducts(_search: string, _zipCodeInfo?: models.ZipCode) {
@@ -32,6 +31,9 @@ export default function Home() {
 
         _zipCodeInfo = _zipCodeInfo || selectedZipCodeInfo;
         if (_zipCodeInfo) {
+            if (!_search) {
+                _search = window?.location?.search ?? '';
+            }
             const searchText = _search.replace(/\?search=/g, '');
             const products = await getStoreProductsByGeoFilter(_zipCodeInfo, searchText)
             setProducts(products);
@@ -41,10 +43,11 @@ export default function Home() {
                 setNearestStore(products[0].storeId);
             }
 
-            let label = "ZipCode : " + _zipCodeInfo?.zipCode;
+            let label = "For ZipCode : " + _zipCodeInfo?.zipCode;
             if (searchText) {
-                label += ", SearchText : " + searchText;
+                label += " and SearchText : " + searchText;
             }
+            label = "(" + label + ")";
             setFilterLabel(label);
         }
     }
@@ -86,8 +89,7 @@ export default function Home() {
                 setZipCodeList(zipCodes);
                 setSelectedZipCodeInfo(zipCodes[0].value);
 
-                const search = window?.location?.search ?? '';
-                await refreshProducts(search, zipCodes[0].value);
+                await refreshProducts("", zipCodes[0].value);
             }
 
         })();
@@ -105,7 +107,7 @@ export default function Home() {
             <main className="pt-12">
                 <div className="max-w-screen-xl mx-auto mt-6 px-6 pb-6">
                     <div className="mb-2 flex justify-between">
-                        <span>Showing {products?.length} products ({filterLabel})</span>
+                        <span>Showing {products?.length} products in nearest stores {filterLabel}</span>
                         <button
                             type="button"
                             onClick={resetStockQtyBtnClick}

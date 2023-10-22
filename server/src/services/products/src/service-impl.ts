@@ -92,7 +92,7 @@ const getZipCodes = async () => {
       .eq(DB_ROW_STATUS.ACTIVE);
 
     console.log(queryBuilder.query);
-    zipCodes = <IZipCode[]>await queryBuilder.return.all();
+    zipCodes = <IZipCode[]>await queryBuilder.sortAsc("zipCode").return.all();
   }
 
   return zipCodes;
@@ -153,7 +153,7 @@ const searchStoreInventoryByGeoFilter = async (_inventoryFilter: IInventoryBodyF
           AS: 'distInKm'
         }, {
           type: AggregateSteps.SORTBY,
-          BY: "@distInKm"
+          BY: ["@distInKm", "@productId"]
         }, {
           type: AggregateSteps.LIMIT,
           from: 0,

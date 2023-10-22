@@ -42,6 +42,7 @@ const validateOrder = async (_order) => {
           productId: yup.string().required(),
           qty: yup.number().required(),
           productPrice: yup.number().required(),
+          storeId: yup.string().required(),
         }),
       )
       .min(1),

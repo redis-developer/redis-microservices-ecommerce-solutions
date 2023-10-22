@@ -27,6 +27,11 @@ redis.registerFunction(
             let decreaseQtyBy = (-1 * product.qty).toString();
             client.call("JSON.NUMINCRBY", `products:productId:${product.productId}`, ".stockQty", decreaseQtyBy);
 
+            if (product.storeId) {
+              //For geo search - decrease storeInventory stockQty too
+              client.call("JSON.NUMINCRBY", `storeInventory:storeInventoryId:${product.storeId}_${product.productId}`, ".stockQty", decreaseQtyBy);
+            }
+
             //log
             client.call("XADD", "TRIGGER_LOGS_STREAM", "*", "message", `For productId ${product.productId}, stockQty ${decreaseQtyBy}`, "orderId", orderId, "function", "updateProductStockQty");
           }

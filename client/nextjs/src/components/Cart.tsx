@@ -46,6 +46,7 @@ export default function Cart({ refreshProducts, setAlertNotification }: CartProp
           productId: item.product.productId,
           qty: item.quantity,
           productPrice: item.product.price,
+          storeId: item.product.storeId || ""
         };
       }),
     );

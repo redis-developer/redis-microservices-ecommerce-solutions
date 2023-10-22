@@ -9,12 +9,14 @@ POST http://localhost:3000/orders/createOrder
     {
       "productId": "11002",
       "qty": 1,
-      "productPrice": 4950
+      "productPrice": 4950,
+      "storeId": "10_NY_POUGHKEEPSIE" //optional
     },
     {
       "productId": "11012",
       "qty": 2,
-      "productPrice": 1195
+      "productPrice": 1195,
+      "storeId": "09_NY_NEW_YORK_CITY"
     }
   ]
 }
