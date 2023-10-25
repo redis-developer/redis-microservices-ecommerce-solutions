@@ -99,7 +99,7 @@ export default function Home() {
         <>
             <Navbar refreshProducts={refreshProducts}
                 autoCompleteText={{
-                    placeHolder: "ZipCode..",
+                    placeHolder: "Zipcode...",
                     suggestionSelectedCallback: suggestionSelectedCallback,
                     listItems: zipCodeList ?? []
                 }} />
