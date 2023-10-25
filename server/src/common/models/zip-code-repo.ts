@@ -9,7 +9,7 @@ import {
 const ZIP_CODE_KEY_PREFIX = 'zipCodes:zipCode'; //also in database/src/config.ts
 
 const schema = new RedisSchema(ZIP_CODE_KEY_PREFIX, {
-  zipCode: { type: 'number', indexed: true },
+  zipCode: { type: 'number', indexed: true, sortable: true },
   zipLocation: { type: "point", indexed: true }, // long,lat
   statusCode: { type: 'number', indexed: true },
 });
@@ -26,7 +26,7 @@ const getRepository = () => {
 
 /*
 we need to create an index or we won't be able to search.
-Redis OM uses hash to see if index needs to be recreated or not 
+Redis OM uses hash to see if index needs to be recreated or not
 */
 
 const createRedisIndex = async () => {

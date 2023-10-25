@@ -37,10 +37,10 @@ export default function ProductCard({ product, cardColorCss }: Props) {
 
             <span>Stock Qty: {Number(product.stockQty)} </span>
           </p>
-          {product?.storeId && product?.distInKm &&
+          {product?.storeId && product?.distInMiles &&
             <p className="mb-4 text-base font-bold text-neutral-600">
               <span>
-                Store: {product.storeId} ( {parseFloat(product.distInKm).toFixed(2)}km )
+                Store: {product.storeId} ( {parseFloat(product.distInMiles).toFixed(2)}mi )
               </span>
             </p>
           }

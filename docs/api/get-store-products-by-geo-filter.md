@@ -6,7 +6,7 @@
 POST http://localhost:3000/products/getStoreProductsByGeoFilter
 {
     "productDisplayName":"", // "puma"
-    "searchRadiusInKm":1000, //optional (default 1000 km)
+    "searchRadiusInMiles":50, //optional (default 50mi)
     "userLocation": {
         "latitude": 40.785091,
         "longitude": -73.968285
@@ -39,7 +39,7 @@ POST http://localhost:3000/products/getStoreProductsByGeoFilter
         "longitude": -73.41512,
         "latitude": 40.79343
       },
-      "distInKm": "46.59194"
+      "distInMiles": "46.59194"
     }
     //...
   ],

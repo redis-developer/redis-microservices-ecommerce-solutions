@@ -15,7 +15,7 @@ import { getNodeRedisClient, AggregateSteps } from '../../../common/utils/redis/
 
 interface IInventoryBodyFilter {
   productDisplayName?: string;
-  searchRadiusInKm?: number;
+  searchRadiusInMiles?: number;
   userLocation?: {
     latitude?: number;
     longitude?: number;
@@ -112,7 +112,7 @@ const searchStoreInventoryByGeoFilter = async (_inventoryFilter: IInventoryBodyF
 
     const lat = _inventoryFilter.userLocation.latitude;
     const long = _inventoryFilter.userLocation.longitude;
-    const radiusInKm = _inventoryFilter.searchRadiusInKm || 1000;
+    const radiusInMiles = _inventoryFilter.searchRadiusInMiles || 50;
 
     let queryBuilder = repository
       .search()
@@ -125,8 +125,8 @@ const searchStoreInventoryByGeoFilter = async (_inventoryFilter: IInventoryBodyF
         return circle
           .latitude(lat)
           .longitude(long)
-          .radius(radiusInKm)
-          .kilometers
+          .radius(radiusInMiles)
+          .miles
       });;
 
     if (_inventoryFilter.productDisplayName) {
@@ -137,8 +137,8 @@ const searchStoreInventoryByGeoFilter = async (_inventoryFilter: IInventoryBodyF
 
     console.log(queryBuilder.query);
 
-    /* Sample queryBuilder.query to run on CLI 
-    FT.SEARCH "storeInventory:storeInventoryId:index" "( ( ( (@statusCode:[1 1]) (@stockQty:[(0 +inf]) ) (@storeLocation:[-73.968285 40.785091 1000 km]) ) (@productDisplayName:'puma') )" 
+    /* Sample queryBuilder.query to run on CLI
+    FT.SEARCH "storeInventory:storeInventoryId:index" "( ( ( (@statusCode:[1 1]) (@stockQty:[(0 +inf]) ) (@storeLocation:[-73.968285 40.785091 50 mi]) ) (@productDisplayName:'puma') )"
             */
 
     const indexName = `${StoreInventoryRepo.STORE_INVENTORY_KEY_PREFIX}:index`;
@@ -149,11 +149,11 @@ const searchStoreInventoryByGeoFilter = async (_inventoryFilter: IInventoryBodyF
         LOAD: ["@storeId", "@storeLocation", "@productId", "@productDisplayName", "@stockQty"],
         STEPS: [{
           type: AggregateSteps.APPLY,
-          expression: `geodistance(@storeLocation, ${long}, ${lat})/1000`,
-          AS: 'distInKm'
+          expression: `geodistance(@storeLocation, ${long}, ${lat})/${radiusInMiles}`,
+          AS: 'distInMiles'
         }, {
           type: AggregateSteps.SORTBY,
-          BY: ["@distInKm", "@productId"]
+          BY: ["@distInMiles", "@productId"]
         }, {
           type: AggregateSteps.LIMIT,
           from: 0,
@@ -161,13 +161,13 @@ const searchStoreInventoryByGeoFilter = async (_inventoryFilter: IInventoryBodyF
         }]
       });
 
-    /* Sample command to run on CLI 
-        FT.AGGREGATE "storeInventory:storeInventoryId:index" 
-          "( ( ( (@statusCode:[1 1]) (@stockQty:[(0 +inf]) ) (@storeLocation:[-73.968285 40.785091 1000 km]) ) (@productDisplayName:'puma') )" 
+    /* Sample command to run on CLI
+        FT.AGGREGATE "storeInventory:storeInventoryId:index"
+          "( ( ( (@statusCode:[1 1]) (@stockQty:[(0 +inf]) ) (@storeLocation:[-73.968285 40.785091 1000 km]) ) (@productDisplayName:'puma') )"
           "LOAD" "5" "@storeId" "@storeLocation" "@productId" "@productDisplayName" "@stockQty"
-          "APPLY" "geodistance(@storeLocation, -73.968285, 40.785091)/1000" 
-          "AS" "distInKm" 
-          "SORTBY" "1" "@distInKm" 
+          "APPLY" "geodistance(@storeLocation, -73.968285, 40.785091)/1000"
+          "AS" "distInMiles"
+          "SORTBY" "1" "@distInMiles"
           "LIMIT" "0" "100"
     */
 
