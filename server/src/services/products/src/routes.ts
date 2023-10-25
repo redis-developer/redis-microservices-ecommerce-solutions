@@ -110,7 +110,7 @@ router.post(
 );
 
 router.post(
-  API_NAMES.GET_STORE_PRODUCTS_BY_ZEO_FILTER,
+  API_NAMES.GET_STORE_PRODUCTS_BY_GEO_FILTER,
   async (req: Request, res: Response) => {
     const body = req.body;
     const result: IApiResponseBody = {
@@ -128,7 +128,7 @@ router.post(
       result.error = pureErr;
       res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR);
       LoggerCls.error(
-        `${API_NAMES.GET_STORE_PRODUCTS_BY_ZEO_FILTER} API failed !`,
+        `${API_NAMES.GET_STORE_PRODUCTS_BY_GEO_FILTER} API failed !`,
         pureErr,
       );
     }

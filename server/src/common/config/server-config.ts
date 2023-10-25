@@ -91,7 +91,7 @@ const SERVER_CONFIG = {
       GET_PRODUCTS_BY_FILTER: '/getProductsByFilter',
       TRIGGER_RESET_INVENTORY: '/triggerResetInventory',
       GET_ZIP_CODES: '/getZipCodes',
-      GET_STORE_PRODUCTS_BY_ZEO_FILTER: '/getStoreProductsByGeoFilter',
+      GET_STORE_PRODUCTS_BY_GEO_FILTER: '/getStoreProductsByGeoFilter',
     },
   },
   PAYMENTS_SERVICE: {
