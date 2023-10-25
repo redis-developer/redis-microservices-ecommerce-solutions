@@ -43,7 +43,7 @@ export default function Home() {
                 setNearestStore(products[0].storeId);
             }
 
-            let label = "For zipcode: " + _zipCodeInfo?.zipCode;
+            let label = "For zip code: " + _zipCodeInfo?.zipCode;
             if (searchText) {
                 label += " and search: " + searchText;
             }
@@ -99,7 +99,7 @@ export default function Home() {
         <>
             <Navbar refreshProducts={refreshProducts}
                 autoCompleteText={{
-                    placeHolder: "Zipcode...",
+                    placeHolder: "Zip code...",
                     suggestionSelectedCallback: suggestionSelectedCallback,
                     listItems: zipCodeList ?? []
                 }} />
