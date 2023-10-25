@@ -43,9 +43,9 @@ export default function Home() {
                 setNearestStore(products[0].storeId);
             }
 
-            let label = "For ZipCode : " + _zipCodeInfo?.zipCode;
+            let label = "For zipcode: " + _zipCodeInfo?.zipCode;
             if (searchText) {
-                label += " and SearchText : " + searchText;
+                label += " and search: " + searchText;
             }
             label = "(" + label + ")";
             setFilterLabel(label);
