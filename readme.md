@@ -4,12 +4,12 @@ Sample Ecommerce application built to demonstrate redis solutions to solve commo
 
 Following are the Microservice tutorials referring this application :
 
-- [Command and Query Responsibility Segregation](https://developer.redis.com/howtos/solutions/cqrs)
-- [Microservices Communication with Redis streams](https://developer.redis.com/howtos/solutions/interservice-communication)
+- [Command and Query Responsibility Segregation](https://developer.redis.com/howtos/solutions/microservices/cqrs)
+- [Microservices Communication with Redis streams](https://developer.redis.com/howtos/solutions/microservices/interservice-communication)
 
-- [Query Caching](https://developer.redis.com/howtos/solutions/caching)
+- [Query Caching](https://developer.redis.com/howtos/solutions/microservices/caching/)
 
-- [API Gateway Caching](https://developer.redis.com/howtos/solutions/api-gateway-caching)
+- [API Gateway Caching](https://developer.redis.com/howtos/solutions/microservices/api-gateway-caching)
 
 ## Tech stack
 
