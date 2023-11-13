@@ -3,10 +3,12 @@
   "version": "1.0.0",
   "description": "Database seeder",
   "scripts": {
-    "copy-js": "cp -r src/triggers dist/",
+    "copy-js": "cp-cli src/triggers dist/triggers",
     "schema": "npx prisma generate",
-    "build": "npm run schema && npx tsc && npm run copy-js",
-    "start": "npx prisma db push  && npm run build &&  concurrently -k \"npx tsc\" \"node  dist/server.js\""
+    "build": "npx tsc && npm run copy-js",
+    "update": "npx tsc && npm run copy-js && npm run server",
+    "server": "node dist/server.js",
+    "start": "npx prisma db push && npm run schema && npm run build && npm run server"
   },
   "dependencies": {
     "@prisma/client": "^4.16.2",
@@ -17,6 +19,7 @@
   "devDependencies": {
     "@types/node": "^20.3.3",
     "concurrently": "^8.2.0",
+    "cp-cli": "^2.0.0",
     "typescript": "^5.1.6"
   }
 }

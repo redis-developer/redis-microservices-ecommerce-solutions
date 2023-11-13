@@ -13,13 +13,23 @@ import {
   addProductsToRandomStoresInRedis,
   addZipCodeDetailsInRedis,
 } from './stores-inventory-data.js';
-
-//const __filename = fileURLToPath(import.meta.url);
-//const __dirname = path.dirname(__filename);
+import { loadTriggers } from './triggers.js';
 
 dotenv.config();
 
-const addProductsToRedisAndPrismaDB = async (prisma: PrismaClient, redisClient: NodeRedisClientType) => {
+const addProductsToRedisAndPrismaDB = async (
+  prisma: PrismaClient,
+  redisClient: NodeRedisClientType,
+) => {
+  console.log('-----PrismaDB: checking if products have been loaded-----');
+  const checkDB = await redisClient.exists('products_loaded');
+
+  if (checkDB === 1) {
+    console.log('-----PrismaDB: products have been loaded, not reloading-----');
+
+    return;
+  }
+
   const products: Prisma.ProductCreateInput[] = [];
   const productJSONFolder = __dirname + '/../fashion-dataset/001/products';
 
@@ -35,7 +45,6 @@ const addProductsToRedisAndPrismaDB = async (prisma: PrismaClient, redisClient: 
   );
 
   console.log('-----Products seeding started-----');
-
 
   for (let file of jsonFilesInDir) {
     const filePath = path.join(productJSONFolder, file);
@@ -74,11 +83,11 @@ const addProductsToRedisAndPrismaDB = async (prisma: PrismaClient, redisClient: 
 
       if (redisClient) {
         // insert product to Redis
-        const productKey = CONFIG.PRODUCT_KEY_PREFIX + ':' + insertedProduct.productId;
+        const productKey =
+          CONFIG.PRODUCT_KEY_PREFIX + ':' + insertedProduct.productId;
         await redisClient.json.set(productKey, '.', insertedProduct);
       }
       products.push(product);
-
     } catch (err) {
       console.log(`${filePath} insertion failed `, err);
     }
@@ -87,54 +96,57 @@ const addProductsToRedisAndPrismaDB = async (prisma: PrismaClient, redisClient: 
   return products;
 };
 
-const addTriggerToRedis = async (fileRelativePath: string, redisClient: NodeRedisClientType) => {
-
+const addTriggerToRedis = async (
+  fileRelativePath: string,
+  redisClient: NodeRedisClientType,
+) => {
   const filePath = path.join(__dirname, fileRelativePath);
   const fileData = await fs.readFile(filePath);
   let jsCode = fileData.toString();
   jsCode = jsCode.replace(/\r?\n/g, '\n');
 
   try {
-    const result = await redisClient.sendCommand(["TFUNCTION", "LOAD", "REPLACE", jsCode])
+    const result = await redisClient.sendCommand([
+      'TFUNCTION',
+      'LOAD',
+      'REPLACE',
+      jsCode,
+    ]);
     console.log(`addTriggersToRedis ${fileRelativePath}`, result);
-  }
-  catch (err) {
+  } catch (err) {
     console.log(err);
   }
-}
-
+};
 
 const init = async () => {
   try {
     let prisma = new PrismaClient();
     const redisClient = createClient({ url: process.env.REDIS_CONNECTION_URI });
 
-    // redisClient.on('error', (err) => {
-    //   console.error('Redis error:', err);
-    // });
-
     await prisma.$connect(); //connect db
     await redisClient.connect();
 
     const products = await addProductsToRedisAndPrismaDB(prisma, redisClient);
 
-    await addTriggerToRedis('triggers/key-space-trigger.js', redisClient);
-    await addTriggerToRedis('triggers/key-space-trigger-manual-test.js', redisClient);
-    await addTriggerToRedis('triggers/manual-trigger.js', redisClient);
-    await addTriggerToRedis('triggers/stream-trigger.js', redisClient);
+    await loadTriggers(redisClient);
 
-    await addProductsToRandomStoresInRedis(products, CONFIG.PRODUCT_IN_MAX_STORES, redisClient);
+    if (products) {
+      await addProductsToRandomStoresInRedis(
+        products,
+        CONFIG.PRODUCT_IN_MAX_STORES,
+        redisClient,
+      );
 
-    await addZipCodeDetailsInRedis(redisClient)
+      await addZipCodeDetailsInRedis(redisClient);
+
+      await redisClient.set('products_loaded', 'true');
+    }
 
     await redisClient.disconnect();
     await prisma.$disconnect();
-  }
-  catch (err) {
+  } catch (err) {
     console.log(err);
   }
-
 };
-
 
 init();
