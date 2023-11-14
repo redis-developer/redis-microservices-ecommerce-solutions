@@ -37,6 +37,10 @@ const currency = new Intl.NumberFormat('en-US', {
   //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
 });
 
-export function toCurrency(amount: number) {
-  return currency.format(amount / 100);
+export function toCurrency(amount?: string | number | null) {
+  if (!amount) {
+    return currency.format(0);
+  }
+
+  return currency.format(Number(amount) / 100);
 }
