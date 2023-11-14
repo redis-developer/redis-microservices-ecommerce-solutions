@@ -16,7 +16,7 @@ redis.registerKeySpaceTrigger(
         if (order?.products?.length && !order.triggerProcessed) {
 
           try {
-            //create a log stream for triggers 
+            //create a log stream for triggers
             client.call("XGROUP", "CREATE", "TRIGGER_LOGS_STREAM", "TRIGGER_LOGS_GROUP", "$", "MKSTREAM");
           }
           catch (streamConErr) {

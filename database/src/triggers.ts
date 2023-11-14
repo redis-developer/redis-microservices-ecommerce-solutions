@@ -24,12 +24,16 @@ const addTriggerToRedis = async (
   }
 };
 
+const triggers = [
+  'triggers/key-space-trigger.js',
+  'triggers/on-demand-trigger.js',
+  'triggers/stream-trigger.js',
+];
+
 export const loadTriggers = async (redisClient: NodeRedisClientType) => {
-  await addTriggerToRedis('triggers/key-space-trigger.js', redisClient);
-  await addTriggerToRedis(
-    'triggers/key-space-trigger-manual-test.js',
-    redisClient,
+  await Promise.all(
+    triggers.map((trigger) => {
+      return addTriggerToRedis(trigger, redisClient);
+    }),
   );
-  await addTriggerToRedis('triggers/manual-trigger.js', redisClient);
-  await addTriggerToRedis('triggers/stream-trigger.js', redisClient);
 };

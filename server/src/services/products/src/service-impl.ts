@@ -74,7 +74,7 @@ const triggerResetInventory = async () => {
   const redisClient = getNodeRedisClient();
 
   //@ts-ignore
-  const result = await redisClient.sendCommand(["TFCALLASYNC", "ManualTriggers.resetInventory", "0"], {
+  const result = await redisClient.sendCommand(["TFCALLASYNC", "OnDemandTriggers.resetInventory", "0"], {
     isolated: true
   });
   console.log(`triggerResetInventory :  `, result);
