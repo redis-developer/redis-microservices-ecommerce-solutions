@@ -2,10 +2,10 @@ import type { NodeRedisClientType } from './config.js';
 import * as path from 'path';
 import * as fs from 'fs/promises';
 
-const addTriggerToRedis = async (
+async function addTriggerToRedis(
   fileRelativePath: string,
   redisClient: NodeRedisClientType,
-) => {
+) {
   const filePath = path.join(__dirname, fileRelativePath);
   const fileData = await fs.readFile(filePath);
   let jsCode = fileData.toString();
@@ -22,7 +22,7 @@ const addTriggerToRedis = async (
   } catch (err) {
     console.log(err);
   }
-};
+}
 
 const triggers = [
   'triggers/key-space-trigger.js',
@@ -30,10 +30,10 @@ const triggers = [
   'triggers/stream-trigger.js',
 ];
 
-export const loadTriggers = async (redisClient: NodeRedisClientType) => {
+export async function loadTriggers(redisClient: NodeRedisClientType) {
   await Promise.all(
     triggers.map((trigger) => {
       return addTriggerToRedis(trigger, redisClient);
     }),
   );
-};
+}
