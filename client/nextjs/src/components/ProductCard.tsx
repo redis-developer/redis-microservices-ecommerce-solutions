@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { useContext } from 'react';
 import { CartDispatchContext } from '@/components/CartProvider';
-import { getShortName } from '@/utils/convert';
+import { getShortName, toCurrency } from '@/utils/convert';
 
 interface Props {
   product: models.Product;
@@ -33,14 +33,14 @@ export default function ProductCard({ product, cardColorCss }: Props) {
             {getShortName(product.productDescriptors_description_value)}
           </p>
           <p className="mb-4 text-base font-bold text-neutral-600 flex justify-between">
-            <span>Price : ${Number(product.price).toLocaleString('en')} </span>
+            <span>Price: {toCurrency(product.price)} </span>
 
             <span>Stock Qty: {Number(product.stockQty)} </span>
           </p>
-          {product?.storeId && product?.distInMiles &&
+          {product?.storeName && product?.distInMiles &&
             <p className="mb-4 text-base font-bold text-neutral-600">
               <span>
-                Store: {product.storeId} ( {parseFloat(product.distInMiles).toFixed(2)}mi )
+                Store: {product.storeName} ({Math.round(Number(product.distInMiles))}mi)
               </span>
             </p>
           }

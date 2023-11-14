@@ -146,7 +146,7 @@ const searchStoreInventoryByGeoFilter = async (_inventoryFilter: IInventoryBodyF
       indexName,
       queryBuilder.query,
       {
-        LOAD: ["@storeId", "@storeLocation", "@productId", "@productDisplayName", "@stockQty"],
+        LOAD: ["@storeId", "@storeName", "@storeLocation", "@productId", "@productDisplayName", "@stockQty"],
         STEPS: [{
           type: AggregateSteps.APPLY,
           expression: `geodistance(@storeLocation, ${long}, ${lat})/${radiusInMiles}`,
@@ -164,7 +164,7 @@ const searchStoreInventoryByGeoFilter = async (_inventoryFilter: IInventoryBodyF
     /* Sample command to run on CLI
         FT.AGGREGATE "storeInventory:storeInventoryId:index"
           "( ( ( (@statusCode:[1 1]) (@stockQty:[(0 +inf]) ) (@storeLocation:[-73.968285 40.785091 1000 km]) ) (@productDisplayName:'puma') )"
-          "LOAD" "5" "@storeId" "@storeLocation" "@productId" "@productDisplayName" "@stockQty"
+          "LOAD" "5" "@storeId" "@storeName" "@storeLocation" "@productId" "@productDisplayName" "@stockQty"
           "APPLY" "geodistance(@storeLocation, -73.968285, 40.785091)/1000"
           "AS" "distInMiles"
           "SORTBY" "1" "@distInMiles"

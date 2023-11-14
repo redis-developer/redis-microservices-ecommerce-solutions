@@ -2,6 +2,7 @@ import type { IProduct } from "./product";
 
 interface IStore {
   storeId?: string;
+  storeName?: string;
   storeLocation?: {
     latitude?: number;
     longitude?: number;

@@ -1,3 +1,4 @@
+import { toCurrency } from '@/utils/convert';
 import Image from 'next/image';
 
 interface Props {
@@ -26,10 +27,10 @@ export default function OrderLineItem({ item }: Props) {
         </div>
         <div className="flex space-x-8 justify-end items-start w-full">
           <p className="text-base xl:text-lg leading-6">
-            ${Number(product.price).toLocaleString('en')} x {item.qty}
+            {toCurrency(product.price)} x {item.qty}
           </p>
           <p className="text-base xl:text-lg leading-6 font-semibold">
-            ${Number(product.price * item.qty).toLocaleString('en')}
+            {toCurrency(product.price * item.qty)}
           </p>
         </div>
       </div>

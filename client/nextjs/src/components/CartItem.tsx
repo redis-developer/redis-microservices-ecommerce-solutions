@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { getShortName } from '@/utils/convert';
+import { getShortName, toCurrency } from '@/utils/convert';
 
 interface CartItemProps extends models.CartItem {
   handleChange: (value: number) => unknown;
@@ -32,7 +32,7 @@ export default function CartItem({
       </div>
       <div className="flex justify-between items-center px-2 py-1 text-sm bg-orange-300">
         <div className="font-bold">
-          ${Number(product.price).toLocaleString('en')}
+          {toCurrency(product.price)}
         </div>
         <div>
           <input

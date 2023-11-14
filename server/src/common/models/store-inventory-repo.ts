@@ -10,6 +10,7 @@ const STORE_INVENTORY_KEY_PREFIX = 'storeInventory:storeInventoryId'; //also in 
 
 const schema = new RedisSchema(STORE_INVENTORY_KEY_PREFIX, {
   storeId: { type: 'string', indexed: true },
+  storeName: { type: 'text', indexed: true },
   storeLocation: { type: "point", indexed: true }, // long,lat
 
   productId: { type: 'string', indexed: true },
@@ -30,7 +31,7 @@ const getRepository = () => {
 
 /*
 we need to create an index or we won't be able to search.
-Redis OM uses hash to see if index needs to be recreated or not 
+Redis OM uses hash to see if index needs to be recreated or not
 */
 
 const createRedisIndex = async () => {

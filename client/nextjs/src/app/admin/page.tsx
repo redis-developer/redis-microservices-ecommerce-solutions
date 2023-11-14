@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 
 import Navbar from '@/components/Navbar';
 import Image from 'next/image';
-import { getShortName } from '@/utils/convert';
+import { getShortName, toCurrency } from '@/utils/convert';
 
 import {
     Bar, Doughnut, PolarArea,
@@ -271,7 +271,7 @@ export default function Home() {
                         <h5 className="font-bold uppercase">
                             Total Purchase Amount :
                             <span className="text-sm pl-1">
-                                ${Number(orderStats?.totalPurchaseAmount).toLocaleString('en')}
+                                {toCurrency(orderStats?.totalPurchaseAmount)}
                             </span>
                         </h5>
 
@@ -350,4 +350,3 @@ export default function Home() {
 
     );
 }
-

@@ -38,6 +38,7 @@ declare namespace models {
     stockQty: number;
 
     storeId?: string;
+    storeName?: string;
     distInMiles?: string;
 
   }

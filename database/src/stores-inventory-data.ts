@@ -19,7 +19,6 @@ const addZipCodeDetailsInRedis = async (redisClient: NodeRedisClientType) => {
 
     await deleteExistingKeysInRedis(CONFIG.ZIP_CODE_KEY_PREFIX, redisClient);
 
-
     const zipCodeDetails: IZipCode[] = [
         {
             zipLocation: {
@@ -181,6 +180,7 @@ const getStoreDetails = (): IStore[] => {
 
     const stores: IStore[] = [{
         storeId: '01_NY_BUFFALO',
+        storeName: 'Buffalo',
         storeLocation: {
             latitude: 42.880230,
             longitude: -78.878738,
@@ -188,6 +188,7 @@ const getStoreDetails = (): IStore[] => {
     },
     {
         storeId: '02_NY_ROCHESTER',
+        storeName: 'Rochester',
         storeLocation: {
             latitude: 43.156578,
             longitude: -77.608849,
@@ -195,6 +196,7 @@ const getStoreDetails = (): IStore[] => {
     },
     {
         storeId: '03_NY_BINGHAMTON',
+        storeName: 'Binghamton',
         storeLocation: {
             latitude: 42.098701,
             longitude: -75.912537,
@@ -202,6 +204,7 @@ const getStoreDetails = (): IStore[] => {
     },
     {
         storeId: '04_NY_SYRACUSE',
+        storeName: 'Syracuse',
         storeLocation: {
             latitude: 43.088947,
             longitude: -76.154480,
@@ -209,6 +212,7 @@ const getStoreDetails = (): IStore[] => {
     },
     {
         storeId: '05_NY_WATERTOWN',
+        storeName: 'Watertown',
         storeLocation: {
             latitude: 43.974785,
             longitude: -75.910759,
@@ -216,6 +220,7 @@ const getStoreDetails = (): IStore[] => {
     },
     {
         storeId: '06_NY_UTICA',
+        storeName: 'Utica',
         storeLocation: {
             latitude: 43.107204,
             longitude: -75.252312,
@@ -223,6 +228,7 @@ const getStoreDetails = (): IStore[] => {
     },
     {
         storeId: '07_NY_ALBANY',
+        storeName: 'Albany',
         storeLocation: {
             latitude: 42.652580,
             longitude: -73.756233,
@@ -230,6 +236,7 @@ const getStoreDetails = (): IStore[] => {
     },
     {
         storeId: '08_NY_PLATTSBURGH',
+        storeName: 'Plattsburgh',
         storeLocation: {
             latitude: 44.699764,
             longitude: -73.471428,
@@ -237,6 +244,7 @@ const getStoreDetails = (): IStore[] => {
     },
     {
         storeId: '09_NY_NEW_YORK_CITY',
+        storeName: 'New York City',
         storeLocation: {
             latitude: 40.730610,
             longitude: -73.935242,
@@ -244,6 +252,7 @@ const getStoreDetails = (): IStore[] => {
     },
     {
         storeId: '10_NY_POUGHKEEPSIE',
+        storeName: 'Poughkeepsie',
         storeLocation: {
             latitude: 41.708290,
             longitude: -73.923912,
@@ -251,6 +260,7 @@ const getStoreDetails = (): IStore[] => {
     },
     {
         storeId: '11_NY_MELVILLE',
+        storeName: 'Melville',
         storeLocation: {
             latitude: 40.79343,
             longitude: -73.41512,
@@ -287,6 +297,7 @@ const addProductsToRandomStoresInRedis = async (_products: Prisma.ProductCreateI
                     }
                     const storesInventory: IStoreInventory = {
                         storeId: store.storeId,
+                        storeName: store.storeName,
                         storeLocation: store.storeLocation,
                         productId: product.productId,
                         productDisplayName: product.productDisplayName,

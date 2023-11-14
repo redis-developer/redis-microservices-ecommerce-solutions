@@ -3,7 +3,7 @@
 import OrderLineItem from '@/components/OrderLineItem';
 import Navbar from '@/components/Navbar';
 import { orderTotal } from '@/utils/calculate';
-import { stringDateToFormattedDate } from '@/utils/convert';
+import { stringDateToFormattedDate, toCurrency } from '@/utils/convert';
 import { getOrderHistory } from '@/utils/services';
 import { useEffect, useState } from 'react';
 
@@ -45,7 +45,7 @@ export default function Home() {
                   <div className="self-end">
                     <h5 className="text-md font-bold uppercase">Total</h5>
                     <p className="text-sm">
-                      ${Number(orderTotal(order)).toLocaleString('en')}
+                      {toCurrency(orderTotal(order))}
                     </p>
                   </div>
                 </div>

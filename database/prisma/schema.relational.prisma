@@ -82,6 +82,7 @@ model OrderProduct {
   productPrice Int
   qty          Int
   storeId      String?
+  storeName    String?
   productData  Json
 
   //relation

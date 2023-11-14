@@ -1,9 +1,10 @@
 import { createClient } from 'redis';
 
-//#region  types 
+//#region  types
 type NodeRedisClientType = ReturnType<typeof createClient>;
 interface IStore {
     storeId?: string;
+    storeName?: string;
     storeLocation?: {
         latitude?: number;
         longitude?: number;
