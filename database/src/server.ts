@@ -96,28 +96,6 @@ const addProductsToRedisAndPrismaDB = async (
   return products;
 };
 
-const addTriggerToRedis = async (
-  fileRelativePath: string,
-  redisClient: NodeRedisClientType,
-) => {
-  const filePath = path.join(__dirname, fileRelativePath);
-  const fileData = await fs.readFile(filePath);
-  let jsCode = fileData.toString();
-  jsCode = jsCode.replace(/\r?\n/g, '\n');
-
-  try {
-    const result = await redisClient.sendCommand([
-      'TFUNCTION',
-      'LOAD',
-      'REPLACE',
-      jsCode,
-    ]);
-    console.log(`addTriggersToRedis ${fileRelativePath}`, result);
-  } catch (err) {
-    console.log(err);
-  }
-};
-
 const init = async () => {
   try {
     let prisma = new PrismaClient();
