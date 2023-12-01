@@ -12,6 +12,7 @@ import * as ZipCodeRepo from '../../../common/models/zip-code-repo';
 import * as StoreInventoryRepo from '../../../common/models/store-inventory-repo';
 
 import { getNodeRedisClient, AggregateSteps } from '../../../common/utils/redis/redis-wrapper';
+import { chatBotMessage } from './open-ai-prompt';
 
 interface IInventoryBodyFilter {
   productDisplayName?: string;
@@ -226,10 +227,30 @@ const getStoreProductsByGeoFilter = async (_inventoryFilter: IInventoryBodyFilte
   return products;
 };
 
+const chatBot = async (_userMessage: string, _sessionId: string) => {
+  let answer = "";
+
+  if (_userMessage && _sessionId) {
+    const openAIApiKey = process.env.OPEN_AI_API_KEY;
+    if (openAIApiKey) {
+      answer = await chatBotMessage(_userMessage, _sessionId, openAIApiKey);
+    }
+    else {
+      answer = "Please provide openAI API key in .env file";
+    }
+  }
+  else {
+    throw new Error("No user message or session id provided");
+  }
+
+  return answer;
+}
+
 export {
   getProductsByFilter,
   getProductsByFilterFromDB,
   triggerResetInventory,
   getZipCodes,
-  getStoreProductsByGeoFilter
+  getStoreProductsByGeoFilter,
+  chatBot
 };

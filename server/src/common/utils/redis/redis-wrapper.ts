@@ -39,6 +39,21 @@ class RedisWrapperCls {
       await this.nodeRedisClient.disconnect();
     }
   }
+
+  async addItemToList(_listName: string, _item: string) {
+    await this.nodeRedisClient?.rPush(_listName, _item);
+  }
+
+  async getAllItemsFromList(_listName: string) {
+    const result = await this.nodeRedisClient?.lRange(_listName, 0, -1);
+    return result;
+  }
+
+  async getKeys(_pattern: string) {
+    //@ts-ignore
+    const result = await this.nodeRedisClient?.keys(_pattern);
+    return result;
+  }
 }
 
 let redisWrapperInst: RedisWrapperCls;

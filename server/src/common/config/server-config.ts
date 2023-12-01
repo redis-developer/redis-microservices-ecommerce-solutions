@@ -37,7 +37,13 @@ const REDIS_KEYS = {
     PRODUCT_PURCHASE_QTY_SET: "statsProductPurchaseQtySet",
     CATEGORY_PURCHASE_AMOUNT_SET: "statsCategoryPurchaseAmountSet",
     BRAND_PURCHASE_AMOUNT_SET: "statsBrandPurchaseAmountSet",
-  }
+  },
+
+  OPEN_AI: {
+    PRODUCT_KEY_PREFIX: 'openAIProducts:',
+    PRODUCT_INDEX_NAME: 'openAIProductsIdx',
+    CHAT_HISTORY_KEY_PREFIX: "chatHistory:",
+  },
 }
 
 const COLLECTIONS = {
@@ -86,12 +92,14 @@ const SERVER_CONFIG = {
     SERVER_ORIGIN:
       envVariables.PRODUCTS_SERVICE_CONTAINER_ORIGIN || 'http://localhost',
     PORT: envVariables.PRODUCTS_SERVICE_PORT || 3003,
+    VSS_KNN: 2, // number of (K) nearest neighbours to return
     API: {
       PREFIX: '/products',
       GET_PRODUCTS_BY_FILTER: '/getProductsByFilter',
       TRIGGER_RESET_INVENTORY: '/triggerResetInventory',
       GET_ZIP_CODES: '/getZipCodes',
       GET_STORE_PRODUCTS_BY_GEO_FILTER: '/getStoreProductsByGeoFilter',
+      CHAT_BOT: '/chatBot',
     },
   },
   PAYMENTS_SERVICE: {

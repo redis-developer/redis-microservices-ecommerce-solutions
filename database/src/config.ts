@@ -37,7 +37,7 @@ const STORE_INVENTORY_KEY_PREFIX = 'storeInventory:storeInventoryId';
 const PRODUCT_KEY_PREFIX = 'products:productId';
 const ZIP_CODE_KEY_PREFIX = 'zipCodes:zipCode';
 
-const OPEN_AI_PRODUCT_KEY_PREFIX = 'openAIProducts:';
+const OPEN_AI_PRODUCT_KEY_PREFIX = 'openAIProducts:'; //also in common ->server-config.ts
 const OPEN_AI_PRODUCT_INDEX_NAME = 'openAIProductsIdx';
 
 //#endregion

@@ -4,7 +4,8 @@ import express, { Request, Response } from 'express';
 
 import {
   getProductsByFilter, triggerResetInventory,
-  getZipCodes, getStoreProductsByGeoFilter
+  getZipCodes, getStoreProductsByGeoFilter,
+  chatBot
 } from './service-impl';
 import { HTTP_STATUS_CODES } from '../../../common/config/constants';
 import { SERVER_CONFIG } from '../../../common/config/server-config';
@@ -129,6 +130,32 @@ router.post(
       res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR);
       LoggerCls.error(
         `${API_NAMES.GET_STORE_PRODUCTS_BY_GEO_FILTER} API failed !`,
+        pureErr,
+      );
+    }
+
+    res.send(result);
+  },
+);
+
+router.post(
+  API_NAMES.CHAT_BOT,
+  async (req: Request, res: Response) => {
+    const sessionId = req.header('x-sessionid') || '';
+    const body = req.body;
+    const result: IApiResponseBody = {
+      data: null,
+      error: null,
+    };
+
+    try {
+      result.data = await chatBot(body.userMessage, sessionId);
+    } catch (err) {
+      const pureErr = LoggerCls.getPureError(err);
+      result.error = pureErr;
+      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR);
+      LoggerCls.error(
+        `${API_NAMES.CHAT_BOT} API failed !`,
         pureErr,
       );
     }

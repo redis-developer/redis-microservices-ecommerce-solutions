@@ -100,7 +100,7 @@ const addProductsToRedisAndPrismaDB = async (
 
 const init = async () => {
   try {
-    const MY_OPEN_AI_API_KEY = process.env.MY_OPEN_AI_API_KEY;
+    const openAIApiKey = process.env.OPEN_AI_API_KEY;
     let prisma = new PrismaClient();
     const redisClient = createClient({ url: process.env.REDIS_CONNECTION_URI });
 
@@ -122,8 +122,8 @@ const init = async () => {
 
       await redisClient.set('products_loaded', 'true');
     }
-    if (MY_OPEN_AI_API_KEY && products) {
-      await addOpenAIEmbeddingsToRedis(products, redisClient, MY_OPEN_AI_API_KEY);
+    if (openAIApiKey && products) {
+      await addOpenAIEmbeddingsToRedis(products, redisClient, openAIApiKey);
     }
 
     await redisClient.disconnect();
