@@ -23,6 +23,7 @@ model Product {
   styleImages_default_imageURL         String
   productDescriptors_description_value String
   stockQty                             Int
+  productColors                        String
 
   //common fields
   createdOn     DateTime? @default(now())

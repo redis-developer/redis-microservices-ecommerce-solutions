@@ -13,6 +13,7 @@
   "dependencies": {
     "@prisma/client": "^4.16.2",
     "dotenv": "^16.0.3",
+    "langchain": "^0.0.199",
     "prisma": "^4.16.2",
     "redis": "^4.6.10"
   },

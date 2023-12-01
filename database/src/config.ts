@@ -37,6 +37,9 @@ const STORE_INVENTORY_KEY_PREFIX = 'storeInventory:storeInventoryId';
 const PRODUCT_KEY_PREFIX = 'products:productId';
 const ZIP_CODE_KEY_PREFIX = 'zipCodes:zipCode';
 
+const OPEN_AI_PRODUCT_KEY_PREFIX = 'openAIProducts:';
+const OPEN_AI_PRODUCT_INDEX_NAME = 'openAIProductsIdx';
+
 //#endregion
 
 
@@ -47,6 +50,8 @@ export {
     STORE_INVENTORY_KEY_PREFIX,
     PRODUCT_KEY_PREFIX,
     ZIP_CODE_KEY_PREFIX,
+    OPEN_AI_PRODUCT_KEY_PREFIX,
+    OPEN_AI_PRODUCT_INDEX_NAME
 }
 
 export type {

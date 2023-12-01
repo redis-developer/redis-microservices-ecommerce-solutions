@@ -14,6 +14,7 @@ import {
   addZipCodeDetailsInRedis,
 } from './stores-inventory-data.js';
 import { loadTriggers } from './triggers.js';
+import { addOpenAIEmbeddingsToRedis } from './open-ai.js';
 
 dotenv.config();
 
@@ -74,6 +75,7 @@ const addProductsToRedisAndPrismaDB = async (
         subCategory_typeName: json.subCategory?.typeName,
         productDescriptors_description_value:
           json.productDescriptors?.description?.value,
+        productColors: json.baseColour + ',' + json.colour1
       };
 
       //insert product to database
@@ -98,6 +100,7 @@ const addProductsToRedisAndPrismaDB = async (
 
 const init = async () => {
   try {
+    const MY_OPEN_AI_API_KEY = process.env.MY_OPEN_AI_API_KEY;
     let prisma = new PrismaClient();
     const redisClient = createClient({ url: process.env.REDIS_CONNECTION_URI });
 
@@ -118,6 +121,9 @@ const init = async () => {
       await addZipCodeDetailsInRedis(redisClient);
 
       await redisClient.set('products_loaded', 'true');
+    }
+    if (MY_OPEN_AI_API_KEY && products) {
+      await addOpenAIEmbeddingsToRedis(products, redisClient, MY_OPEN_AI_API_KEY);
     }
 
     await redisClient.disconnect();
