@@ -119,3 +119,18 @@ export async function getStoreProductsByGeoFilter(zipCodeInfo: models.ZipCode, s
 
   return result.data;
 }
+
+export async function chatBot(userMessage: string): Promise<string> {
+
+  const result = await request(
+    `${process.env.NEXT_PUBLIC_API_GATEWAY_URI}/products/chatBot`,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        userMessage: userMessage,
+      }),
+    },
+  );
+
+  return result.data;
+}

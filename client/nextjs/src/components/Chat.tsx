@@ -1,6 +1,8 @@
 
 import { useState, ChangeEvent, Dispatch, SetStateAction, useEffect } from 'react';
 
+import { createMarkup } from '@/utils/convert';
+
 interface IChatMessage {
     sender: string;
     message: string;
@@ -17,17 +19,18 @@ interface IChatProps {
     chatMessageCallback?: (data: IChatMessageCallbackData) => Promise<void>;
 }
 
+const CHAT_CONSTANTS = {
+    SENDER_ASSISTANT: "Assistant",
+    SENDER_USER: "User"
+}
+
 const Chat = ({ placeHolder, chatMessageCallback }: IChatProps) => {
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [message, setMessage] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const CONSTANTS = {
-        SENDER_ASSISTANT: "Assistant",
-        SENDER_USER: "User"
-    }
 
     const [chatHistory, setChatHistory] = useState<IChatMessage[]>([{
-        sender: CONSTANTS.SENDER_ASSISTANT,
+        sender: CHAT_CONSTANTS.SENDER_ASSISTANT,
         message: 'Hello, how can I help you?'
     }]);
 
@@ -42,7 +45,7 @@ const Chat = ({ placeHolder, chatMessageCallback }: IChatProps) => {
     const handleSend = async () => {
         if (message.trim() !== '') {
             const newChatMessage: IChatMessage = {
-                sender: CONSTANTS.SENDER_USER,
+                sender: CHAT_CONSTANTS.SENDER_USER,
                 message: message.trim()
             };
             const chatHistoryArr = [...chatHistory, newChatMessage]
@@ -88,7 +91,7 @@ const Chat = ({ placeHolder, chatMessageCallback }: IChatProps) => {
                                         className="flex justify-start mb-2"
                                     >
                                         <div className="flex items-start">
-                                            {chat.sender === CONSTANTS.SENDER_USER ? (
+                                            {chat.sender === CHAT_CONSTANTS.SENDER_USER ? (
                                                 <div className="text-base text-white bg-gray-600 rounded-full p-2 mr-2">
                                                     <i className="fas fa-user"></i>
                                                 </div>
@@ -99,10 +102,11 @@ const Chat = ({ placeHolder, chatMessageCallback }: IChatProps) => {
                                             )}
                                             <div>
                                                 <h4 className="text-sm font-bold text-gray-700">
-                                                    {chat.sender === CONSTANTS.SENDER_USER ? 'You' : 'Assistant'}
+                                                    {chat.sender === CHAT_CONSTANTS.SENDER_USER ? 'You' : 'Assistant'}
                                                 </h4>
+
                                                 <div className="rounded-lg p-2 text-sm">
-                                                    {chat.message}
+                                                    <div dangerouslySetInnerHTML={createMarkup(chat.message)}></div>
                                                 </div>
                                             </div>
                                         </div>
@@ -147,7 +151,11 @@ const Chat = ({ placeHolder, chatMessageCallback }: IChatProps) => {
     );
 };
 
-export default Chat;
+
+export {
+    CHAT_CONSTANTS,
+    Chat as default
+}
 
 export type {
     IChatMessage,

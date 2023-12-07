@@ -1,3 +1,5 @@
+import DOMPurify from 'dompurify';
+
 // export function getShortName(str: string, len = 80) {
 //   const regex = new RegExp('^(.{' + len + '}[^\\s]*).*', 'mi');
 //   const noHtml = str.replace(/(<([^>]+)>)/gi, ' ').trim();
@@ -44,3 +46,9 @@ export function toCurrency(amount?: string | number | null) {
 
   return currency.format(Number(amount) / 100);
 }
+
+export function createMarkup(htmlContent: string) {
+  return {
+    __html: DOMPurify.sanitize(htmlContent)
+  };
+};

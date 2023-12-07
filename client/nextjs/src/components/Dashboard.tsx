@@ -1,12 +1,14 @@
 'use client';
+import type { IChatMessage, IChatMessageCallbackData } from '@/components/Chat';
 
 import ProductCard from '@/components/ProductCard';
 import Navbar from '@/components/Navbar';
 import Cart from '@/components/Cart';
 import Alert from '@/components/Alert';
-import { getProducts, triggerResetInventory } from '@/utils/services';
+import { getProducts, triggerResetInventory, chatBot } from '@/utils/services';
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { default as Chat, CHAT_CONSTANTS } from '@/components/Chat';
 
 export default function Home() {
     const [products, setProducts] = useState<models.Product[]>();
@@ -29,6 +31,28 @@ export default function Home() {
         });
     }
 
+    async function chatMessageCallback({ newChatMessage, chatHistory, setChatHistory }: IChatMessageCallbackData) {
+
+        if (newChatMessage.message) {
+            const question = newChatMessage.message;
+            let answer = await chatBot(question);
+
+            if (answer) {
+                answer = answer.replace(/\n/g, '<br/>');
+                answer = answer.replace(/<a/g, '<a class="text-blue-500 underline"');
+            }
+            else {
+                answer = 'Sorry, Server could not process your request. Please try again later.';
+            }
+
+            const responseChatMessage: IChatMessage = {
+                sender: CHAT_CONSTANTS.SENDER_ASSISTANT,
+                message: answer,
+            };
+            setChatHistory([...chatHistory, responseChatMessage]);
+        }
+    }
+
     useEffect(() => {
         (async () => {
             const search = window?.location?.search ?? '';
@@ -40,6 +64,7 @@ export default function Home() {
         <>
             <Navbar refreshProducts={refreshProducts} />
             <Cart refreshProducts={refreshProducts} setAlertNotification={setAlertNotification} />
+            <Chat chatMessageCallback={chatMessageCallback} />
             <main className="pt-12">
                 <div className="max-w-screen-xl mx-auto mt-6 px-6 pb-6">
                     <div className="mb-2 flex justify-between">
