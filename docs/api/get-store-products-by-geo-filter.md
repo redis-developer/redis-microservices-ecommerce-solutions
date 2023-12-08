@@ -6,6 +6,7 @@
 POST http://localhost:3000/products/getStoreProductsByGeoFilter
 {
     "productDisplayName":"", // "puma"
+    "productId": "", //either by productDisplayName or productId
     "searchRadiusInMiles":50, //optional (default 50mi)
     "userLocation": {
         "latitude": 40.785091,

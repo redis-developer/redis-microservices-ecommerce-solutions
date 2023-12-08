@@ -5,7 +5,8 @@
 ```json
 POST http://localhost:3000/products/getProductsByFilter
 {
-   "productDisplayName":"" // "puma"
+   "productDisplayName":"", // "puma"
+   "productId": "", //either by productDisplayName or productId
 }
 ```
 

@@ -16,6 +16,7 @@ import { chatBotMessage } from './open-ai-prompt';
 
 interface IInventoryBodyFilter {
   productDisplayName?: string;
+  productId?: string;
   searchRadiusInMiles?: number;
   userLocation?: {
     latitude?: number;
@@ -38,6 +39,11 @@ const getProductsByFilter = async (productFilter: Product) => {
       queryBuilder = queryBuilder
         .and('productDisplayName')
         .matches(productFilter.productDisplayName)
+    }
+    else if (productFilter?.productId) {
+      queryBuilder = queryBuilder
+        .and('productId')
+        .eq(productFilter.productId)
     }
 
     console.log(queryBuilder.query);
@@ -62,6 +68,9 @@ async function getProductsByFilterFromDB(productFilter: Product) {
       contains: productFilter.productDisplayName,
       mode: 'insensitive',
     };
+  }
+  else if (productFilter && productFilter.productId) {
+    whereQuery.productId = productFilter.productId;
   }
 
   const products: Product[] = await prisma.product.findMany({
@@ -134,6 +143,11 @@ const searchStoreInventoryByGeoFilter = async (_inventoryFilter: IInventoryBodyF
       queryBuilder = queryBuilder
         .and('productDisplayName')
         .matches(_inventoryFilter.productDisplayName)
+    }
+    else if (_inventoryFilter.productId) {
+      queryBuilder = queryBuilder
+        .and('productId')
+        .eq(_inventoryFilter.productId)
     }
 
     console.log(queryBuilder.query);
@@ -213,7 +227,11 @@ const getStoreProductsByGeoFilter = async (_inventoryFilter: IInventoryBodyFilte
   if (storeProducts?.length && productIds?.length) {
     const repository = ProductRepo.getRepository();
     //products with details
-    const generalProducts = <IProduct[]>await repository.fetch(...productIds);
+    let generalProducts = <IProduct | IProduct[]>await repository.fetch(...productIds);
+    if (!Array.isArray(generalProducts)) {
+      generalProducts = [generalProducts];
+    }
+
     //mergedProducts
     products = storeProducts.map(storeProd => {
       const matchingGeneralProd = generalProducts.find(generalProd => generalProd.productId === storeProd.productId);
