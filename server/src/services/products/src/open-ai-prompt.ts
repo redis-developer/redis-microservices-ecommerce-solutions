@@ -5,8 +5,9 @@ import { RedisVectorStore } from "langchain/vectorstores/redis";
 import { StringOutputParser } from 'langchain/schema/output_parser';
 import { Document } from "langchain/document";
 
-import { SERVER_CONFIG, REDIS_KEYS } from '../../../common/config/server-config';
+import { SERVER_CONFIG, REDIS_KEYS, REDIS_STREAMS } from '../../../common/config/server-config';
 import { getRedis, getNodeRedisClient } from '../../../common/utils/redis/redis-wrapper';
+import { addMessageToStream } from '../../../common/utils/redis/redis-streams';
 
 let llm: ChatOpenAI<ChatOpenAICallOptions>;
 
@@ -144,23 +145,26 @@ const chatBotMessage = async (_userMessage: string, _sessionId: string, _openAIA
     /**
        Refer docs/api/chat-bot.md for sample Logs
     */
-
+    const CHAT_BOT_LOG = REDIS_STREAMS.STREAMS.CHAT_BOT_LOG;
     const redisWrapperInst = getRedis();
 
     const chatHistoryName = REDIS_KEYS.OPEN_AI.CHAT_HISTORY_KEY_PREFIX + _sessionId;
     redisWrapperInst.addItemToList(chatHistoryName, "userMessage: " + _userMessage);
+    addMessageToStream({ name: "originalQuestion", comments: _userMessage }, CHAT_BOT_LOG); //async log
 
     const standaloneQuestion = await convertToStandAloneQuestion(_userMessage, _sessionId, _openAIApiKey);
-    console.log("standaloneQuestion:", standaloneQuestion);
+    addMessageToStream({ name: "standaloneQuestion", comments: standaloneQuestion }, CHAT_BOT_LOG);
 
     const similarProducts = await getSimilarProductsByVSS(standaloneQuestion, _openAIApiKey);
-    console.log("similarProducts", similarProducts);
+    if (similarProducts?.length) {
+        addMessageToStream({ name: "similarProducts", comments: JSON.stringify(similarProducts) }, CHAT_BOT_LOG);
+    }
 
     const productDetails = combineVectorDocuments(similarProducts);
     console.log("productDetails:", productDetails);
 
     const answer = await convertToAnswer(_userMessage, standaloneQuestion, productDetails, _sessionId, _openAIApiKey);
-    console.log("******* answer *********:", answer);
+    addMessageToStream({ name: "answer", comments: answer }, CHAT_BOT_LOG);
 
     redisWrapperInst.addItemToList(chatHistoryName, "openAIMessage(You): " + answer);
 
