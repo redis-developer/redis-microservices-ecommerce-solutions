@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 
 interface SearchProps {
-  refreshProducts?: (search: string) => void;
+  refreshProducts?: (searchData?: models.Product) => void;
 }
 
 export default function Search({ refreshProducts }: SearchProps) {
@@ -13,17 +13,19 @@ export default function Search({ refreshProducts }: SearchProps) {
     <form
       onSubmit={(ev) => {
         ev.preventDefault();
-        const data: { search: string } = Object.fromEntries(
-          new FormData(ev.currentTarget),
-        ) as { search: string };
-        if (!data.search) {
-          router.push(`/`);
-        } else {
-          router.push(`/?search=${data.search}`);
-        }
+
+        const searchData: models.Product = Object.fromEntries(
+          new FormData(ev.currentTarget)
+        ) as any;
+
+        // if (!searchData.productDisplayName) {
+        //   router.push(`/`);
+        // } else {
+        //   router.push(`/?productDisplayName=${searchData.productDisplayName}`);
+        // }
 
         if (refreshProducts) {
-          refreshProducts(data.search);
+          refreshProducts(searchData);
         }
       }}
       className="order-last mb-0 pr-8"
@@ -32,7 +34,7 @@ export default function Search({ refreshProducts }: SearchProps) {
         className="w-72 py-1 pl-3 pr-10 rounded-full focus:outline-0"
         type="text"
         placeholder="Search.."
-        name="search"
+        name="productDisplayName"
       />
       <button className="-ml-8 border-6 bg-trasparent" type="submit">
         <i className="fa fa-search text-gray-400"></i>

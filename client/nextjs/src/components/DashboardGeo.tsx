@@ -12,6 +12,11 @@ import {
     getZipCodes, getStoreProductsByGeoFilter
 } from '@/utils/services';
 
+import {
+    setObjectToWindowQueryParams,
+    getObjectFromWindowQueryParams,
+    convertObjectToLabel
+} from '@/utils/convert';
 
 export default function Home() {
     const [products, setProducts] = useState<models.Product[]>();
@@ -23,32 +28,33 @@ export default function Home() {
 
     async function suggestionSelectedCallback(itm: ListItem) {
         setSelectedZipCodeInfo(itm.value);
-        await refreshProducts("", itm.value);
+        await refreshProducts(null, itm.value);
     }
 
-    async function refreshProducts(_search: string, _zipCodeInfo?: models.ZipCode) {
+    async function refreshProducts(searchData?: models.Product | null, zipCodeInfo?: models.ZipCode) {
         //_zipCodeInfo not passed on search textbox submit
 
-        _zipCodeInfo = _zipCodeInfo || selectedZipCodeInfo;
-        if (_zipCodeInfo) {
-            if (!_search) {
-                _search = window?.location?.search ?? '';
+        zipCodeInfo = zipCodeInfo || selectedZipCodeInfo;
+        if (zipCodeInfo) {
+            if (!searchData) {
+                searchData = getObjectFromWindowQueryParams();
             }
-            const searchText = _search.replace(/\?search=/g, '');
-            const products = await getStoreProductsByGeoFilter(_zipCodeInfo, searchText)
+            const products = await getStoreProductsByGeoFilter(zipCodeInfo, searchData?.productDisplayName, searchData?.productId)
             setProducts(products);
+
+            setObjectToWindowQueryParams(searchData);
 
             setNearestStore("");
             if (products?.length) {
                 setNearestStore(products[0].storeId);
             }
 
-            let label = "For zip code: " + _zipCodeInfo?.zipCode;
-            if (searchText) {
-                label += " and search: " + searchText;
+            let labelObj = { zipCode: zipCodeInfo?.zipCode };
+            let searchFilter = convertObjectToLabel({ ...labelObj, ...searchData }) || "";
+            if (searchFilter) {
+                searchFilter = " with search : (" + searchFilter + ")";
             }
-            label = "(" + label + ")";
-            setFilterLabel(label);
+            setFilterLabel(searchFilter);
         }
     }
 
@@ -73,7 +79,7 @@ export default function Home() {
         setAlertNotification({ title: '', message: '' });
 
         await triggerResetInventory();
-        await refreshProducts("");
+        await refreshProducts();
 
         setAlertNotification({
             title: `RESET STOCK QTY`,
@@ -89,7 +95,7 @@ export default function Home() {
                 setZipCodeList(zipCodes);
                 setSelectedZipCodeInfo(zipCodes[0].value);
 
-                await refreshProducts("", zipCodes[0].value);
+                await refreshProducts(null, zipCodes[0].value);
             }
 
         })();

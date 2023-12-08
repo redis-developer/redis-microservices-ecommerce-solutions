@@ -12,7 +12,7 @@ import CartItem from './CartItem';
 import { createPortal } from 'react-dom';
 
 export interface CartProps {
-  refreshProducts?: (search: string) => void;
+  refreshProducts?: (searchData?: models.Product) => void;
   setAlertNotification?: Dispatch<SetStateAction<{
     title: string;
     message: string;
@@ -66,7 +66,7 @@ export default function Cart({ refreshProducts, setAlertNotification }: CartProp
     }
 
     if (refreshProducts) {
-      refreshProducts("");
+      refreshProducts();
     }
   }
 

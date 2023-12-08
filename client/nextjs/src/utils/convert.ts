@@ -52,3 +52,45 @@ export function createMarkup(htmlContent: string) {
     __html: DOMPurify.sanitize(htmlContent)
   };
 };
+
+export function setObjectToWindowQueryParams(obj: any) {
+  // const params = new URLSearchParams(window.location.search); //to persist existing query params
+  const params = new URLSearchParams();
+
+  Object.keys(obj).forEach((key) => {
+    params.set(key, obj[key]);
+  });
+
+  let url = window.location.pathname;
+  const paramsStr = params.toString();
+  if (paramsStr) {
+    url += '?' + paramsStr;
+  }
+
+  window.history.replaceState(
+    {},
+    '',
+    url,
+  );
+}
+
+export function getObjectFromWindowQueryParams() {
+  const params = new URLSearchParams(window.location.search);
+  const obj: any = {};
+
+  params.forEach((value, key) => {
+    obj[key] = value;
+  });
+
+  return obj;
+}
+
+export function convertObjectToLabel(obj: any) {
+  let label = "";
+  if (obj && Object.keys(obj).length) {
+    label = Object.keys(obj)
+      .map((key) => `${key}:${obj[key]}`)
+      .join(', ');
+  }
+  return label;
+}

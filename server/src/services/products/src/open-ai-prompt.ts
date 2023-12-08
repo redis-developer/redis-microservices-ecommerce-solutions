@@ -123,7 +123,7 @@ const convertToAnswer = async (_originalQuestion: string, _standAloneQuestion: s
 
     Let the answer include product display name, price and optional other details based on question asked.
 
-    Let the product display name be a link like <a href="/productId"> productDisplayName </a>
+    Let the product display name be a link like <a href="/?productId="> productDisplayName </a>
     so that user can click on it and go to the product page with help of productId.
     
     answer: `;

@@ -9,20 +9,38 @@ import { getProducts, triggerResetInventory, chatBot } from '@/utils/services';
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { default as Chat, CHAT_CONSTANTS } from '@/components/Chat';
+import {
+    setObjectToWindowQueryParams,
+    getObjectFromWindowQueryParams,
+    convertObjectToLabel
+} from '@/utils/convert';
 
 export default function Home() {
     const [products, setProducts] = useState<models.Product[]>();
     const [alertNotification, setAlertNotification] = useState({ title: '', message: '' });
+    const [filterLabel, setFilterLabel] = useState<string>();
 
-    async function refreshProducts(search: string) {
-        setProducts(await getProducts(search.replace(/\?search=/g, '')));
+    async function refreshProducts(searchData?: models.Product) {
+        if (!searchData) {
+            searchData = getObjectFromWindowQueryParams();
+        }
+        const products = await getProducts(searchData?.productDisplayName, searchData?.productId);
+        setProducts(products);
+
+        setObjectToWindowQueryParams(searchData);
+
+        let searchFilter = convertObjectToLabel(searchData) || "";
+        if (searchFilter) {
+            searchFilter = " with search : (" + searchFilter + ")";
+        }
+        setFilterLabel(searchFilter);
     }
 
     async function resetStockQtyBtnClick() {
         setAlertNotification({ title: '', message: '' });
 
         await triggerResetInventory();
-        await refreshProducts("");
+        await refreshProducts();
 
         setAlertNotification({
             title: `RESET STOCK QTY`,
@@ -55,8 +73,7 @@ export default function Home() {
 
     useEffect(() => {
         (async () => {
-            const search = window?.location?.search ?? '';
-            await refreshProducts(search);
+            await refreshProducts();
         })();
     }, []);
 
@@ -68,7 +85,7 @@ export default function Home() {
             <main className="pt-12">
                 <div className="max-w-screen-xl mx-auto mt-6 px-6 pb-6">
                     <div className="mb-2 flex justify-between">
-                        <span>Showing {products?.length} products</span>
+                        <span>Showing {products?.length} products {filterLabel}</span>
                         <button
                             type="button"
                             onClick={resetStockQtyBtnClick}

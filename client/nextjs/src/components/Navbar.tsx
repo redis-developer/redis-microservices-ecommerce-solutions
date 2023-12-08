@@ -7,7 +7,7 @@ import AutoCompleteText from '@/components/AutoCompleteText';
 
 export interface NavbarProps {
   path?: string;
-  refreshProducts?: (search: string) => void;
+  refreshProducts?: (searchData?: models.Product) => void;
   autoCompleteText?: AutoCompleteTextProps;
 }
 

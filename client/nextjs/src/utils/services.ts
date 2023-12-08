@@ -48,16 +48,15 @@ export async function createOrder(
   );
 }
 
-export async function getProducts(search?: string): Promise<models.Product[]> {
+export async function getProducts(_productDisplayName?: string, _productId?: string): Promise<models.Product[]> {
   const result: api.ProductResponse = await request(
     `${process.env.NEXT_PUBLIC_API_GATEWAY_URI}/products/getProductsByFilter`,
     {
       method: 'POST',
-      body: !search
-        ? undefined
-        : JSON.stringify({
-          productDisplayName: search,
-        }),
+      body: JSON.stringify({
+        productDisplayName: _productDisplayName || "",
+        productId: _productId || "",
+      }),
     },
   );
 
@@ -97,7 +96,8 @@ export async function getZipCodes(): Promise<models.ZipCode[]> {
   return result.data;
 }
 
-export async function getStoreProductsByGeoFilter(zipCodeInfo: models.ZipCode, search?: string,
+export async function getStoreProductsByGeoFilter(zipCodeInfo: models.ZipCode,
+  _productDisplayName?: string, _productId?: string
 ): Promise<models.Product[]> {
 
   const result = await request(
@@ -105,7 +105,8 @@ export async function getStoreProductsByGeoFilter(zipCodeInfo: models.ZipCode, s
     {
       method: 'POST',
       body: JSON.stringify({
-        productDisplayName: search || "",
+        productDisplayName: _productDisplayName || "",
+        productId: _productId || "",
         userLocation: {
           latitude: zipCodeInfo?.zipLocation?.latitude,
           longitude: zipCodeInfo?.zipLocation?.longitude,
