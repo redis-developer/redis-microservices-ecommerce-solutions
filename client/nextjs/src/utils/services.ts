@@ -9,7 +9,11 @@ async function request(input: RequestInfo | URL, init: RequestInit = {}) {
     'Content-Type': 'application/json',
   };
 
-  if (!!authorization) {
+  if (!authorization) {
+    authorization = window.sessionStorage.getItem('myAuthToken') ?? '';
+  }
+
+  if (authorization) {
     (init.headers as any).Authorization = `Bearer ${authorization}`;
   }
 
@@ -21,6 +25,7 @@ async function request(input: RequestInfo | URL, init: RequestInit = {}) {
 
   if (!!result.auth && clientSide) {
     authorization = result.auth;
+    window.sessionStorage.setItem('myAuthToken', authorization);
   }
 
   return result;
