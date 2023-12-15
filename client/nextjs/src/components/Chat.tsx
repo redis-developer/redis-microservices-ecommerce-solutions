@@ -3,11 +3,6 @@ import { useState, ChangeEvent, Dispatch, SetStateAction, useEffect } from 'reac
 
 import { createMarkup } from '@/utils/convert';
 
-interface IChatMessage {
-    sender: string;
-    message: string;
-}
-
 interface IChatMessageCallbackData {
     newChatMessage: IChatMessage;
     chatHistory: IChatMessage[];
@@ -17,14 +12,15 @@ interface IChatMessageCallbackData {
 interface IChatProps {
     placeHolder?: string;
     chatMessageCallback?: (data: IChatMessageCallbackData) => Promise<void>;
+    oldChatHistory?: IChatMessage[];
 }
 
-const CHAT_CONSTANTS = {
+const CHAT_CONSTANTS = { //also in backend
     SENDER_ASSISTANT: "Assistant",
     SENDER_USER: "User"
 }
 
-const Chat = ({ placeHolder, chatMessageCallback }: IChatProps) => {
+const Chat = ({ placeHolder, chatMessageCallback, oldChatHistory }: IChatProps) => {
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [message, setMessage] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -34,8 +30,20 @@ const Chat = ({ placeHolder, chatMessageCallback }: IChatProps) => {
         message: 'Hello, how can I help you?'
     }]);
 
+    const scrollToBottom = () => {
+        const chatContainer = document.querySelector('.chat-history-ctr');
+        if (chatContainer) {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+    }
+
     const toggleChat = () => {
         setIsOpen(!isOpen);
+        if (isOpen) {
+            setTimeout(() => {
+                scrollToBottom();
+            }, 100);
+        }
     };
 
     const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -66,11 +74,14 @@ const Chat = ({ placeHolder, chatMessageCallback }: IChatProps) => {
 
     useEffect(() => {
         //scroll to bottom after new message
-        const chatContainer = document.querySelector('.chat-history-ctr');
-        if (chatContainer) {
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
+        scrollToBottom();
     }, [chatHistory]);
+
+    useEffect(() => {
+        if (oldChatHistory?.length) {
+            setChatHistory(c => [...c, ...oldChatHistory]);
+        }
+    }, [oldChatHistory]);
 
     return (
         <div className="fixed bottom-20 right-4">
@@ -158,7 +169,6 @@ export {
 }
 
 export type {
-    IChatMessage,
     IChatProps,
     IChatMessageCallbackData
 }

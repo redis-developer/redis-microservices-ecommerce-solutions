@@ -94,3 +94,11 @@ export function convertObjectToLabel(obj: any) {
   }
   return label;
 }
+
+export function formatChatBotAnswer(answer: string) {
+  if (answer) {
+    answer = answer.replace(/\n/g, '<br/>');
+    answer = answer.replace(/<a/g, '<a class="text-blue-500 underline"');
+  }
+  return answer;
+}

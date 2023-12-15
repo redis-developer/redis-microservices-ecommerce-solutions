@@ -1,5 +1,5 @@
 'use client';
-import type { IChatMessage, IChatMessageCallbackData } from '@/components/Chat';
+import type { IChatMessageCallbackData } from '@/components/Chat';
 
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
@@ -13,13 +13,14 @@ import { default as Chat, CHAT_CONSTANTS } from '@/components/Chat';
 import {
     triggerResetInventory,
     getZipCodes, getStoreProductsByGeoFilter,
-    chatBot
+    chatBot, getChatHistory
 } from '@/utils/services';
 
 import {
     setObjectToWindowQueryParams,
     getObjectFromWindowQueryParams,
-    convertObjectToLabel
+    convertObjectToLabel,
+    formatChatBotAnswer
 } from '@/utils/convert';
 
 
@@ -30,6 +31,7 @@ export default function Home() {
     const [alertNotification, setAlertNotification] = useState({ title: '', message: '' });
     const [filterLabel, setFilterLabel] = useState<string>();
     const [nearestStore, setNearestStore] = useState<string>();
+    const [oldChatHistory, setOldChatHistory] = useState<IChatMessage[]>([]);
 
     async function suggestionSelectedCallback(itm: ListItem) {
         setSelectedZipCodeInfo(itm.value);
@@ -125,6 +127,14 @@ export default function Home() {
                 await refreshProducts(null, zipCodes[0].value);
             }
 
+            const historyArr = await getChatHistory();
+            if (historyArr?.length) {
+                for (let item of historyArr) {
+                    item.message = formatChatBotAnswer(item.message);
+                }
+                setOldChatHistory(historyArr);
+            }
+
         })();
     }, []);
 
@@ -137,7 +147,7 @@ export default function Home() {
                     listItems: zipCodeList ?? []
                 }} />
             <Cart refreshProducts={refreshProducts} setAlertNotification={setAlertNotification} />
-            <Chat chatMessageCallback={chatMessageCallback} />
+            <Chat chatMessageCallback={chatMessageCallback} oldChatHistory={oldChatHistory} />
             <main className="pt-12">
                 <div className="max-w-screen-xl mx-auto mt-6 px-6 pb-6">
                     <div className="mb-2 flex justify-between">

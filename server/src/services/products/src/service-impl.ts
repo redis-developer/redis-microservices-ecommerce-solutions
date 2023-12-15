@@ -12,7 +12,7 @@ import * as ZipCodeRepo from '../../../common/models/zip-code-repo';
 import * as StoreInventoryRepo from '../../../common/models/store-inventory-repo';
 
 import { getNodeRedisClient, AggregateSteps } from '../../../common/utils/redis/redis-wrapper';
-import { chatBotMessage } from './open-ai-prompt';
+import { chatBotMessage, getChatBotHistory, CHAT_CONSTANTS } from './open-ai-prompt';
 
 interface IInventoryBodyFilter {
   productDisplayName?: string;
@@ -22,6 +22,10 @@ interface IInventoryBodyFilter {
     latitude?: number;
     longitude?: number;
   }
+}
+interface IChatMessage {
+  sender: string;
+  message: string;
 }
 
 const getProductsByFilter = async (productFilter: Product) => {
@@ -122,7 +126,7 @@ const searchStoreInventoryByGeoFilter = async (_inventoryFilter: IInventoryBodyF
 
     const lat = _inventoryFilter.userLocation.latitude;
     const long = _inventoryFilter.userLocation.longitude;
-    const radiusInMiles = _inventoryFilter.searchRadiusInMiles || 50;
+    const radiusInMiles = _inventoryFilter.searchRadiusInMiles || 500;
 
     let queryBuilder = repository
       .search()
@@ -263,6 +267,38 @@ const chatBot = async (_userMessage: string, _sessionId: string) => {
 
   return answer;
 }
+const getChatHistory = async (_sessionId: string) => {
+  let chatMessages: IChatMessage[] = [];
+
+  if (_sessionId) {
+    const historyArr = await getChatBotHistory(_sessionId);
+
+    if (historyArr?.length) {
+      historyArr.forEach((item) => {
+        let sender = "";
+        let message = "";
+        if (item.startsWith(CHAT_CONSTANTS.userMessagePrefix)) {
+          sender = CHAT_CONSTANTS.senderUser;
+          message = item.replace(CHAT_CONSTANTS.userMessagePrefix, "");
+        }
+        else if (item.startsWith(CHAT_CONSTANTS.openAIMessagePrefix)) {
+          sender = CHAT_CONSTANTS.senderAssistant;
+          message = item.replace(CHAT_CONSTANTS.openAIMessagePrefix, "");
+        }
+
+        chatMessages.push({
+          sender: sender,
+          message: message
+        })
+      });
+    }
+  }
+  else {
+    throw new Error("No session id provided");
+  }
+
+  return chatMessages;
+}
 
 export {
   getProductsByFilter,
@@ -270,5 +306,6 @@ export {
   triggerResetInventory,
   getZipCodes,
   getStoreProductsByGeoFilter,
-  chatBot
+  chatBot,
+  getChatHistory
 };

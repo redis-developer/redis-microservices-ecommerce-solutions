@@ -101,7 +101,8 @@ const SERVER_CONFIG = {
       GET_ZIP_CODES: '/getZipCodes',
       GET_STORE_PRODUCTS_BY_GEO_FILTER: '/getStoreProductsByGeoFilter',
       CHAT_BOT: '/chatBot',
-    },
+      GET_CHAT_HISTORY: '/getChatHistory',
+    }
   },
   PAYMENTS_SERVICE: {
     SERVER_ORIGIN:

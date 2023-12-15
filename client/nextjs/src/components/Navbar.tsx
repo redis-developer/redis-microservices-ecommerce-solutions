@@ -57,7 +57,9 @@ export default function Navbar({ path = '', refreshProducts, autoCompleteText }:
               </AutoCompleteText>
             </div>
           }
-          <Search refreshProducts={refreshProducts} />
+          {!isOrders && !isAdmin &&
+            <Search refreshProducts={refreshProducts} />
+          }
         </div>
 
       </div>

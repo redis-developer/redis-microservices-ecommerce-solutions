@@ -60,3 +60,8 @@ interface ListItem {
   text: string;
   value: any;
 }
+
+interface IChatMessage {
+  sender: string;
+  message: string;
+}

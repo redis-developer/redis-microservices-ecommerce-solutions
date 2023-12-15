@@ -1,24 +1,26 @@
 'use client';
-import type { IChatMessage, IChatMessageCallbackData } from '@/components/Chat';
+import type { IChatMessageCallbackData } from '@/components/Chat';
 
 import ProductCard from '@/components/ProductCard';
 import Navbar from '@/components/Navbar';
 import Cart from '@/components/Cart';
 import Alert from '@/components/Alert';
-import { getProducts, triggerResetInventory, chatBot } from '@/utils/services';
+import { getProducts, triggerResetInventory, chatBot, getChatHistory } from '@/utils/services';
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { default as Chat, CHAT_CONSTANTS } from '@/components/Chat';
 import {
     setObjectToWindowQueryParams,
     getObjectFromWindowQueryParams,
-    convertObjectToLabel
+    convertObjectToLabel,
+    formatChatBotAnswer
 } from '@/utils/convert';
 
 export default function Home() {
     const [products, setProducts] = useState<models.Product[]>();
     const [alertNotification, setAlertNotification] = useState({ title: '', message: '' });
     const [filterLabel, setFilterLabel] = useState<string>();
+    const [oldChatHistory, setOldChatHistory] = useState<IChatMessage[]>([]);
 
     async function refreshProducts(searchData?: models.Product) {
         if (!searchData) {
@@ -56,8 +58,7 @@ export default function Home() {
             let answer = await chatBot(question);
 
             if (answer) {
-                answer = answer.replace(/\n/g, '<br/>');
-                answer = answer.replace(/<a/g, '<a class="text-blue-500 underline"');
+                answer = formatChatBotAnswer(answer);
             }
             else {
                 answer = 'Sorry, Server could not process your request. Please try again later.';
@@ -74,6 +75,14 @@ export default function Home() {
     useEffect(() => {
         (async () => {
             await refreshProducts();
+
+            const historyArr = await getChatHistory();
+            if (historyArr?.length) {
+                for (let item of historyArr) {
+                    item.message = formatChatBotAnswer(item.message);
+                }
+                setOldChatHistory(historyArr);
+            }
         })();
     }, []);
 
@@ -81,7 +90,7 @@ export default function Home() {
         <>
             <Navbar refreshProducts={refreshProducts} />
             <Cart refreshProducts={refreshProducts} setAlertNotification={setAlertNotification} />
-            <Chat chatMessageCallback={chatMessageCallback} />
+            <Chat chatMessageCallback={chatMessageCallback} oldChatHistory={oldChatHistory} />
             <main className="pt-12">
                 <div className="max-w-screen-xl mx-auto mt-6 px-6 pb-6">
                     <div className="mb-2 flex justify-between">

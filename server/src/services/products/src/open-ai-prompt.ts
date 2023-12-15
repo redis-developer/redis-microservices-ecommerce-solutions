@@ -9,6 +9,13 @@ import { SERVER_CONFIG, REDIS_KEYS, REDIS_STREAMS } from '../../../common/config
 import { getRedis, getNodeRedisClient } from '../../../common/utils/redis/redis-wrapper';
 import { addMessageToStream } from '../../../common/utils/redis/redis-streams';
 
+const CHAT_CONSTANTS = {
+    userMessagePrefix: "userMessage: ",
+    openAIMessagePrefix: "openAIMessage(You): ",
+    senderAssistant: "Assistant",
+    senderUser: "User"
+};
+
 let llm: ChatOpenAI<ChatOpenAICallOptions>;
 
 //#region helpers
@@ -28,21 +35,32 @@ const getOpenAIInstance = (_openAIApiKey: string) => {
     return llm;
 }
 
-const getChatHistory = async (_sessionId: string, _separator?: string) => {
-    let chatHistory = "";
-    if (!_separator) {
-        _separator = '\n\n';
-    }
+const getChatBotHistory = async (_sessionId: string) => {
+    let chatHistory: string[] = [];
+
     if (_sessionId) {
         const redisWrapperInst = getRedis();
         const chatHistoryName = REDIS_KEYS.OPEN_AI.CHAT_HISTORY_KEY_PREFIX + _sessionId;
         const items = await redisWrapperInst.getAllItemsFromList(chatHistoryName);
 
         if (items?.length) {
-            chatHistory = items.join(_separator);
+            chatHistory = items;
         }
     }
     return chatHistory;
+}
+
+const getChatBotHistoryStr = async (_sessionId: string, _separator?: string) => {
+    let chatHistoryStr = "";
+    if (!_separator) {
+        _separator = '\n\n';
+    }
+    const chatHistoryArr = await getChatBotHistory(_sessionId);
+    if (chatHistoryArr?.length) {
+        chatHistoryStr = chatHistoryArr.join(_separator);
+    }
+
+    return chatHistoryStr;
 }
 
 //#endregion
@@ -51,7 +69,7 @@ const convertToStandAloneQuestion = async (_userQuestion: string, _sessionId: st
 
     const llm = getOpenAIInstance(_openAIApiKey);
 
-    const chatHistory = await getChatHistory(_sessionId);
+    const chatHistory = await getChatBotHistoryStr(_sessionId);
 
     const standaloneQuestionTemplate = `Given some conversation history (if any) and a question, convert it to a standalone question. 
     ***********************************************************
@@ -98,7 +116,7 @@ const convertToAnswer = async (_originalQuestion: string, _standAloneQuestion: s
 
     const llm = getOpenAIInstance(_openAIApiKey);
 
-    const chatHistory = await getChatHistory(_sessionId);
+    const chatHistory = await getChatBotHistoryStr(_sessionId);
 
     const answerTemplate = `
     Please assume the persona of a retail shopping assistant for this conversation.
@@ -149,7 +167,7 @@ const chatBotMessage = async (_userMessage: string, _sessionId: string, _openAIA
     const redisWrapperInst = getRedis();
 
     const chatHistoryName = REDIS_KEYS.OPEN_AI.CHAT_HISTORY_KEY_PREFIX + _sessionId;
-    redisWrapperInst.addItemToList(chatHistoryName, "userMessage: " + _userMessage);
+    redisWrapperInst.addItemToList(chatHistoryName, CHAT_CONSTANTS.userMessagePrefix + _userMessage);
     addMessageToStream({ name: "originalQuestion", comments: _userMessage }, CHAT_BOT_LOG); //async log
 
     const standaloneQuestion = await convertToStandAloneQuestion(_userMessage, _sessionId, _openAIApiKey);
@@ -166,11 +184,13 @@ const chatBotMessage = async (_userMessage: string, _sessionId: string, _openAIA
     const answer = await convertToAnswer(_userMessage, standaloneQuestion, productDetails, _sessionId, _openAIApiKey);
     addMessageToStream({ name: "answer", comments: answer }, CHAT_BOT_LOG);
 
-    redisWrapperInst.addItemToList(chatHistoryName, "openAIMessage(You): " + answer);
+    redisWrapperInst.addItemToList(chatHistoryName, CHAT_CONSTANTS.openAIMessagePrefix + answer);
 
     return answer;
 }
 
 export {
-    chatBotMessage
+    chatBotMessage,
+    getChatBotHistory,
+    CHAT_CONSTANTS
 }

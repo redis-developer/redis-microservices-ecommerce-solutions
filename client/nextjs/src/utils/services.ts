@@ -140,3 +140,15 @@ export async function chatBot(userMessage: string): Promise<string> {
 
   return result.data;
 }
+
+export async function getChatHistory(): Promise<IChatMessage[]> {
+
+  const result = await request(
+    `${process.env.NEXT_PUBLIC_API_GATEWAY_URI}/products/getChatHistory`,
+    {
+      method: 'POST'
+    },
+  );
+
+  return result.data;
+}
