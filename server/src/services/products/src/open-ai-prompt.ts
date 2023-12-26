@@ -90,7 +90,7 @@ const convertToStandAloneQuestion = async (_userQuestion: string, _sessionId: st
     return response;
 }
 
-const getSimilarProductsByVSS = async (_standAloneQuestion: string, _openAIApiKey: string) => {
+const getSimilarProductsByVSS = async (_standAloneQuestion: string, _openAIApiKey: string, _KNN: number, isWithScore?: boolean, scoreLimit?: number) => {
     const client = getNodeRedisClient();
 
     const embeddings = new OpenAIEmbeddings({
@@ -105,9 +105,26 @@ const getSimilarProductsByVSS = async (_standAloneQuestion: string, _openAIApiKe
         }
     );
 
-    const KNN = SERVER_CONFIG.PRODUCTS_SERVICE.VSS_KNN;
-    /* Simple standalone search in the vector DB */
-    const vectorDocs = await vectorStore.similaritySearch(_standAloneQuestion, KNN);
+    let vectorDocs: Document[] = [];
+
+    if (isWithScore) {
+        if (!scoreLimit) {
+            scoreLimit = 0;
+        }
+        const vectorDocsWithScore = await vectorStore.similaritySearchWithScore(_standAloneQuestion, _KNN);
+
+        for (let [doc, score] of vectorDocsWithScore) {
+            if (score >= scoreLimit) {
+                doc["similarityScore"] = score;
+                vectorDocs.push(doc);
+            }
+        }
+        //sort by similarityScore in descending order
+        vectorDocs = vectorDocs.sort((a, b) => b["similarityScore"] - a["similarityScore"]);
+    }
+    else {
+        vectorDocs = await vectorStore.similaritySearch(_standAloneQuestion, _KNN);
+    }
 
     return vectorDocs;
 }
@@ -173,7 +190,8 @@ const chatBotMessage = async (_userMessage: string, _sessionId: string, _openAIA
     const standaloneQuestion = await convertToStandAloneQuestion(_userMessage, _sessionId, _openAIApiKey);
     addMessageToStream({ name: "standaloneQuestion", comments: standaloneQuestion }, CHAT_BOT_LOG);
 
-    const similarProducts = await getSimilarProductsByVSS(standaloneQuestion, _openAIApiKey);
+    const KNN = SERVER_CONFIG.PRODUCTS_SERVICE.VSS_KNN;
+    const similarProducts = await getSimilarProductsByVSS(standaloneQuestion, _openAIApiKey, KNN);
     if (similarProducts?.length) {
         addMessageToStream({ name: "similarProducts", comments: JSON.stringify(similarProducts) }, CHAT_BOT_LOG);
     }
@@ -192,5 +210,6 @@ const chatBotMessage = async (_userMessage: string, _sessionId: string, _openAIA
 export {
     chatBotMessage,
     getChatBotHistory,
+    getSimilarProductsByVSS,
     CHAT_CONSTANTS
 }

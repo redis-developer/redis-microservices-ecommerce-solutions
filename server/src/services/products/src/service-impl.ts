@@ -10,9 +10,13 @@ import { getPrismaClient } from '../../../common/utils/prisma/prisma-wrapper';
 import * as ProductRepo from '../../../common/models/product-repo';
 import * as ZipCodeRepo from '../../../common/models/zip-code-repo';
 import * as StoreInventoryRepo from '../../../common/models/store-inventory-repo';
+import { SERVER_CONFIG } from '../../../common/config/server-config';
 
 import { getNodeRedisClient, AggregateSteps } from '../../../common/utils/redis/redis-wrapper';
-import { chatBotMessage, getChatBotHistory, CHAT_CONSTANTS } from './open-ai-prompt';
+import {
+  chatBotMessage, getChatBotHistory, CHAT_CONSTANTS,
+  getSimilarProductsByVSS
+} from './open-ai-prompt';
 
 interface IInventoryBodyFilter {
   productDisplayName?: string;
@@ -67,15 +71,16 @@ async function getProductsByFilterFromDB(productFilter: Product) {
     }
   };
 
-  if (productFilter && productFilter.productDisplayName) {
+  if (productFilter?.productDisplayName) {
     whereQuery.productDisplayName = {
       contains: productFilter.productDisplayName,
       mode: 'insensitive',
     };
   }
-  else if (productFilter && productFilter.productId) {
+  else if (productFilter?.productId) {
     whereQuery.productId = productFilter.productId;
   }
+
 
   const products: Product[] = await prisma.product.findMany({
     where: whereQuery,
@@ -300,6 +305,69 @@ const getChatHistory = async (_sessionId: string) => {
   return chatMessages;
 }
 
+const getProductByIds = async (productIds: string[], isActiveQty: boolean) => {
+  let products: IProduct | IProduct[] = [];
+
+  if (productIds?.length) {
+    const repository = ProductRepo.getRepository();
+    products = <IProduct | IProduct[]>await repository.fetch(...productIds);
+    if (!Array.isArray(products)) {
+      products = [products];
+    }
+    if (isActiveQty) {
+      products = products.filter(prod => prod?.statusCode === DB_ROW_STATUS.ACTIVE && prod?.stockQty > 0);
+    }
+
+    //return products in  order of productIds
+    products.sort((prod1, prod2) => {
+      return productIds.indexOf(prod1.productId) - productIds.indexOf(prod2.productId);
+    });
+
+  }
+  return products;
+}
+
+const getProductsByVSSText = async (searchText: string, maxProductCount: number, similarityScoreLimit: number) => {
+  const openAIApiKey = process.env.OPEN_AI_API_KEY;
+  let products: IProduct[] = [];
+
+  if (!openAIApiKey) {
+    throw new Error("Please provide openAI API key in .env file");
+  }
+  if (!searchText) {
+    throw new Error("Please provide search text");
+  }
+  if (!maxProductCount) {
+    maxProductCount = SERVER_CONFIG.PRODUCTS_SERVICE.VSS_KNN;
+  }
+  if (!similarityScoreLimit) {
+    similarityScoreLimit = SERVER_CONFIG.PRODUCTS_SERVICE.VSS_THRESHOLD;
+  }
+  const isWithScore = true;
+
+  //VSS search
+  const vectorDocs = await getSimilarProductsByVSS(searchText, openAIApiKey, maxProductCount, isWithScore, similarityScoreLimit);
+
+  if (vectorDocs?.length) {
+    const productIds = vectorDocs.map(doc => doc?.metadata?.productId);
+
+    //get product with details
+    products = await getProductByIds(productIds, true);
+  }
+
+  if (products?.length) {
+    products = products.map(prod => {
+      const matchingDoc = vectorDocs.find(doc => doc?.metadata?.productId === prod.productId);
+      if (matchingDoc) {
+        prod["similarityScore"] = matchingDoc["similarityScore"];
+      }
+      return prod;
+    });
+  }
+
+  return products;
+}
+
 export {
   getProductsByFilter,
   getProductsByFilterFromDB,
@@ -307,5 +375,6 @@ export {
   getZipCodes,
   getStoreProductsByGeoFilter,
   chatBot,
-  getChatHistory
+  getChatHistory,
+  getProductsByVSSText
 };

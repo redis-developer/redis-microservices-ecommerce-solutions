@@ -94,6 +94,7 @@ const SERVER_CONFIG = {
       envVariables.PRODUCTS_SERVICE_CONTAINER_ORIGIN || 'http://localhost',
     PORT: envVariables.PRODUCTS_SERVICE_PORT || 3003,
     VSS_KNN: 2, // number of (K) nearest neighbours to return
+    VSS_THRESHOLD: 0.1, // threshold for similarity
     API: {
       PREFIX: '/products',
       GET_PRODUCTS_BY_FILTER: '/getProductsByFilter',
@@ -102,6 +103,7 @@ const SERVER_CONFIG = {
       GET_STORE_PRODUCTS_BY_GEO_FILTER: '/getStoreProductsByGeoFilter',
       CHAT_BOT: '/chatBot',
       GET_CHAT_HISTORY: '/getChatHistory',
+      GET_PRODUCTS_BY_VSS_TEXT: '/getProductsByVSSText',
     }
   },
   PAYMENTS_SERVICE: {
