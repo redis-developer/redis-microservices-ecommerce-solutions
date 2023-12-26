@@ -8,6 +8,7 @@
     "start": "npm run build && concurrently -k \"npx tsc --watch\" \"nodemon  dist/services/products/src/index.js\""
   },
   "dependencies": {
+    "@huggingface/inference": "^2.6.4",
     "@prisma/client": "^4.16.2",
     "crypto": "^1.0.1",
     "dotenv": "^16.0.1",

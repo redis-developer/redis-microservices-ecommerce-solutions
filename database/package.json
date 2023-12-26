@@ -11,6 +11,7 @@
     "start": "npx prisma db push && npm run schema && npm run build && npm run server"
   },
   "dependencies": {
+    "@huggingface/inference": "^2.6.4",
     "@prisma/client": "^4.16.2",
     "dotenv": "^16.0.3",
     "langchain": "^0.0.199",

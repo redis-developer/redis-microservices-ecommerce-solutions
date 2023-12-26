@@ -15,7 +15,7 @@ import { SERVER_CONFIG } from '../../../common/config/server-config';
 import { getNodeRedisClient, AggregateSteps } from '../../../common/utils/redis/redis-wrapper';
 import {
   chatBotMessage, getChatBotHistory, CHAT_CONSTANTS,
-  getSimilarProductsByVSS
+  getSimilarProductsByVSS, getSimilarProductsByVSSLangChain
 } from './open-ai-prompt';
 
 interface IInventoryBodyFilter {
@@ -30,6 +30,13 @@ interface IInventoryBodyFilter {
 interface IChatMessage {
   sender: string;
   message: string;
+}
+
+interface IProductsVSSBodyFilter {
+  searchText?: string;
+  maxProductCount?: number;
+  similarityScoreLimit?: number;
+  embeddingsType?: string;
 }
 
 const getProductsByFilter = async (productFilter: Product) => {
@@ -327,26 +334,37 @@ const getProductByIds = async (productIds: string[], isActiveQty: boolean) => {
   return products;
 }
 
-const getProductsByVSSText = async (searchText: string, maxProductCount: number, similarityScoreLimit: number) => {
-  const openAIApiKey = process.env.OPEN_AI_API_KEY;
+const getProductsByVSSText = async (productsVSSFilter: IProductsVSSBodyFilter) => {
+  let { searchText, maxProductCount, similarityScoreLimit, embeddingsType } = productsVSSFilter;
   let products: IProduct[] = [];
 
-  if (!openAIApiKey) {
+  const openAIApiKey = process.env.OPEN_AI_API_KEY || "";
+  const huggingFaceApiKey = process.env.HUGGING_FACE_API_KEY || "";
+  const VSS_EMBEDDINGS_TYPE = SERVER_CONFIG.PRODUCTS_SERVICE.VSS_EMBEDDINGS_TYPE;
+  maxProductCount = maxProductCount || SERVER_CONFIG.PRODUCTS_SERVICE.VSS_KNN;
+  similarityScoreLimit = similarityScoreLimit || SERVER_CONFIG.PRODUCTS_SERVICE.VSS_SCORE_LIMIT;
+  embeddingsType = embeddingsType || VSS_EMBEDDINGS_TYPE.OPEN_AI;
+
+  if (embeddingsType === VSS_EMBEDDINGS_TYPE.OPEN_AI && !openAIApiKey) {
     throw new Error("Please provide openAI API key in .env file");
   }
+  else if (embeddingsType === VSS_EMBEDDINGS_TYPE.HUGGING_FACE && !huggingFaceApiKey) {
+    throw new Error("Please provide huggingFace API key in .env file");
+  }
+
   if (!searchText) {
     throw new Error("Please provide search text");
   }
-  if (!maxProductCount) {
-    maxProductCount = SERVER_CONFIG.PRODUCTS_SERVICE.VSS_KNN;
-  }
-  if (!similarityScoreLimit) {
-    similarityScoreLimit = SERVER_CONFIG.PRODUCTS_SERVICE.VSS_THRESHOLD;
-  }
-  const isWithScore = true;
 
   //VSS search
-  const vectorDocs = await getSimilarProductsByVSS(searchText, openAIApiKey, maxProductCount, isWithScore, similarityScoreLimit);
+  const vectorDocs = await getSimilarProductsByVSSLangChain({
+    standAloneQuestion: searchText,
+    openAIApiKey: openAIApiKey,
+    huggingFaceApiKey: huggingFaceApiKey,
+    KNN: maxProductCount,
+    scoreLimit: similarityScoreLimit,
+    embeddingsType: embeddingsType
+  });
 
   if (vectorDocs?.length) {
     const productIds = vectorDocs.map(doc => doc?.metadata?.productId);
@@ -355,6 +373,7 @@ const getProductsByVSSText = async (searchText: string, maxProductCount: number,
     products = await getProductByIds(productIds, true);
   }
 
+  //add similarityScore to products
   if (products?.length) {
     products = products.map(prod => {
       const matchingDoc = vectorDocs.find(doc => doc?.metadata?.productId === prod.productId);

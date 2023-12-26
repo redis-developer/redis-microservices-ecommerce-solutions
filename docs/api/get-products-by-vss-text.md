@@ -6,12 +6,13 @@
 POST http://localhost:3000/products/getProductsByVSSText
 {
    "searchText":"pure cotton blue shirts",
-   "maxProductCount": 2, //optional
-   "similarityScoreLimit":0.1 //optional
+
+   //optional
+   "maxProductCount": 4, // 2 (default)
+   "similarityScoreLimit":0.1, // 0.1 (default)
+   "embeddingsType":"OpenAI" // OpenAI (default), HuggingFace
 }
 ```
-
-Note : default maxProductCount (KNN value) set to 10
 
 ## Response
 

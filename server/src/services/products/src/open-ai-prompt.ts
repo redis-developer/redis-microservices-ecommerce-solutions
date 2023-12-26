@@ -1,6 +1,9 @@
+import type { Embeddings } from "langchain/embeddings/base";
+
 import { ChatOpenAI, ChatOpenAICallOptions } from "langchain/chat_models/openai";
 import { PromptTemplate } from "langchain/prompts";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
+import { HuggingFaceInferenceEmbeddings } from "langchain/embeddings/hf";
 import { RedisVectorStore } from "langchain/vectorstores/redis";
 import { StringOutputParser } from 'langchain/schema/output_parser';
 import { Document } from "langchain/document";
@@ -8,6 +11,15 @@ import { Document } from "langchain/document";
 import { SERVER_CONFIG, REDIS_KEYS, REDIS_STREAMS } from '../../../common/config/server-config';
 import { getRedis, getNodeRedisClient } from '../../../common/utils/redis/redis-wrapper';
 import { addMessageToStream } from '../../../common/utils/redis/redis-streams';
+
+interface IParamsGetProductsByVSS {
+    standAloneQuestion: string;
+    openAIApiKey?: string;
+    huggingFaceApiKey?: string
+    KNN?: number;
+    scoreLimit?: number;
+    embeddingsType?: string;
+}
 
 const CHAT_CONSTANTS = {
     userMessagePrefix: "userMessage: ",
@@ -90,42 +102,28 @@ const convertToStandAloneQuestion = async (_userQuestion: string, _sessionId: st
     return response;
 }
 
-const getSimilarProductsByVSS = async (_standAloneQuestion: string, _openAIApiKey: string, _KNN: number, isWithScore?: boolean, scoreLimit?: number) => {
+const getSimilarProductsByVSS = async (_params: IParamsGetProductsByVSS) => {
+    let { standAloneQuestion, openAIApiKey, KNN } = _params;
     const client = getNodeRedisClient();
+    let indexName = REDIS_KEYS.OPEN_AI.PRODUCT_INDEX_NAME;
+    let keyPrefix = REDIS_KEYS.OPEN_AI.PRODUCT_KEY_PREFIX;
+    KNN = KNN || SERVER_CONFIG.PRODUCTS_SERVICE.VSS_KNN;
 
-    const embeddings = new OpenAIEmbeddings({
-        openAIApiKey: _openAIApiKey
+    let embeddings = new OpenAIEmbeddings({
+        openAIApiKey: openAIApiKey
     });
+
     const vectorStore = new RedisVectorStore(
         embeddings,
         {
             redisClient: client,
-            indexName: REDIS_KEYS.OPEN_AI.PRODUCT_INDEX_NAME,
-            keyPrefix: REDIS_KEYS.OPEN_AI.PRODUCT_KEY_PREFIX,
+            indexName: indexName,
+            keyPrefix: keyPrefix,
         }
     );
 
-    let vectorDocs: Document[] = [];
-
-    if (isWithScore) {
-        if (!scoreLimit) {
-            scoreLimit = 0;
-        }
-        const vectorDocsWithScore = await vectorStore.similaritySearchWithScore(_standAloneQuestion, _KNN);
-
-        for (let [doc, score] of vectorDocsWithScore) {
-            if (score >= scoreLimit) {
-                doc["similarityScore"] = score;
-                vectorDocs.push(doc);
-            }
-        }
-        //sort by similarityScore in descending order
-        vectorDocs = vectorDocs.sort((a, b) => b["similarityScore"] - a["similarityScore"]);
-    }
-    else {
-        vectorDocs = await vectorStore.similaritySearch(_standAloneQuestion, _KNN);
-    }
-
+    /* Simple standalone search in the vector DB */
+    let vectorDocs = await vectorStore.similaritySearch(standAloneQuestion, KNN);
     return vectorDocs;
 }
 
@@ -187,11 +185,15 @@ const chatBotMessage = async (_userMessage: string, _sessionId: string, _openAIA
     redisWrapperInst.addItemToList(chatHistoryName, CHAT_CONSTANTS.userMessagePrefix + _userMessage);
     addMessageToStream({ name: "originalQuestion", comments: _userMessage }, CHAT_BOT_LOG); //async log
 
-    const standaloneQuestion = await convertToStandAloneQuestion(_userMessage, _sessionId, _openAIApiKey);
-    addMessageToStream({ name: "standaloneQuestion", comments: standaloneQuestion }, CHAT_BOT_LOG);
+    const standAloneQuestion = await convertToStandAloneQuestion(_userMessage, _sessionId, _openAIApiKey);
+    addMessageToStream({ name: "standaloneQuestion", comments: standAloneQuestion }, CHAT_BOT_LOG);
 
     const KNN = SERVER_CONFIG.PRODUCTS_SERVICE.VSS_KNN;
-    const similarProducts = await getSimilarProductsByVSS(standaloneQuestion, _openAIApiKey, KNN);
+    const similarProducts = await getSimilarProductsByVSS({
+        standAloneQuestion,
+        openAIApiKey: _openAIApiKey,
+        KNN,
+    });
     if (similarProducts?.length) {
         addMessageToStream({ name: "similarProducts", comments: JSON.stringify(similarProducts) }, CHAT_BOT_LOG);
     }
@@ -199,7 +201,7 @@ const chatBotMessage = async (_userMessage: string, _sessionId: string, _openAIA
     const productDetails = combineVectorDocuments(similarProducts);
     console.log("productDetails:", productDetails);
 
-    const answer = await convertToAnswer(_userMessage, standaloneQuestion, productDetails, _sessionId, _openAIApiKey);
+    const answer = await convertToAnswer(_userMessage, standAloneQuestion, productDetails, _sessionId, _openAIApiKey);
     addMessageToStream({ name: "answer", comments: answer }, CHAT_BOT_LOG);
 
     redisWrapperInst.addItemToList(chatHistoryName, CHAT_CONSTANTS.openAIMessagePrefix + answer);
@@ -207,9 +209,78 @@ const chatBotMessage = async (_userMessage: string, _sessionId: string, _openAIA
     return answer;
 }
 
+const getSimilarProductsByVSSLangChain = async (_params: IParamsGetProductsByVSS) => {
+    let {
+        standAloneQuestion,
+        openAIApiKey,
+
+        //optional
+        huggingFaceApiKey,
+        KNN,
+        scoreLimit,
+        embeddingsType } = _params;
+
+    let vectorDocs: Document[] = [];
+    const client = getNodeRedisClient();
+
+    const VSS_EMBEDDINGS_TYPE = SERVER_CONFIG.PRODUCTS_SERVICE.VSS_EMBEDDINGS_TYPE;
+    KNN = KNN || SERVER_CONFIG.PRODUCTS_SERVICE.VSS_KNN;
+    scoreLimit = scoreLimit || 0;
+    embeddingsType = embeddingsType || VSS_EMBEDDINGS_TYPE.OPEN_AI;
+
+    let indexName = "";
+    let keyPrefix = "";
+    let embeddings: Embeddings | null = null;
+
+    // create embeddings
+    if (huggingFaceApiKey &&
+        embeddingsType.toLowerCase() === VSS_EMBEDDINGS_TYPE.HUGGING_FACE.toLowerCase()) {
+        embeddings = new HuggingFaceInferenceEmbeddings({
+            apiKey: huggingFaceApiKey
+        });
+        indexName = REDIS_KEYS.HUGGING_FACE.PRODUCT_INDEX_NAME;
+        keyPrefix = REDIS_KEYS.HUGGING_FACE.PRODUCT_KEY_PREFIX;
+    }
+    else if (openAIApiKey) {
+        embeddings = new OpenAIEmbeddings({
+            openAIApiKey: openAIApiKey
+        });
+        indexName = REDIS_KEYS.OPEN_AI.PRODUCT_INDEX_NAME;
+        keyPrefix = REDIS_KEYS.OPEN_AI.PRODUCT_KEY_PREFIX;
+    }
+
+    if (embeddings) {
+        // create vector store
+        const vectorStore = new RedisVectorStore(
+            embeddings,
+            {
+                redisClient: client,
+                indexName: indexName,
+                keyPrefix: keyPrefix,
+            }
+        );
+
+        // search for similar products
+        const vectorDocsWithScore = await vectorStore.similaritySearchWithScore(standAloneQuestion, KNN);
+
+        // filter by scoreLimit
+        for (let [doc, score] of vectorDocsWithScore) {
+            if (score >= scoreLimit) {
+                doc["similarityScore"] = score;
+                vectorDocs.push(doc);
+            }
+        }
+        //sort by similarityScore in descending order
+        vectorDocs = vectorDocs.sort((a, b) => b["similarityScore"] - a["similarityScore"]);
+    }
+
+    return vectorDocs;
+}
+
 export {
     chatBotMessage,
     getChatBotHistory,
     getSimilarProductsByVSS,
+    getSimilarProductsByVSSLangChain,
     CHAT_CONSTANTS
 }

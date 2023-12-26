@@ -37,8 +37,10 @@ const STORE_INVENTORY_KEY_PREFIX = 'storeInventory:storeInventoryId';
 const PRODUCT_KEY_PREFIX = 'products:productId';
 const ZIP_CODE_KEY_PREFIX = 'zipCodes:zipCode';
 
-const OPEN_AI_PRODUCT_KEY_PREFIX = 'openAIProducts:'; //also in common ->server-config.ts
+const OPEN_AI_PRODUCT_KEY_PREFIX = 'openAIProducts:'; //also in common ->server-config.ts -> REDIS_KEYS
 const OPEN_AI_PRODUCT_INDEX_NAME = 'openAIProductsIdx';
+const HUGGING_FACE_PRODUCT_KEY_PREFIX = 'huggingFaceProducts:';
+const HUGGING_FACE_PRODUCT_INDEX_NAME = 'huggingFaceProductsIdx';
 
 //#endregion
 
@@ -51,7 +53,9 @@ export {
     PRODUCT_KEY_PREFIX,
     ZIP_CODE_KEY_PREFIX,
     OPEN_AI_PRODUCT_KEY_PREFIX,
-    OPEN_AI_PRODUCT_INDEX_NAME
+    OPEN_AI_PRODUCT_INDEX_NAME,
+    HUGGING_FACE_PRODUCT_KEY_PREFIX,
+    HUGGING_FACE_PRODUCT_INDEX_NAME
 }
 
 export type {

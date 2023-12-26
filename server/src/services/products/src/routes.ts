@@ -202,7 +202,7 @@ router.post(
 
     try {
 
-      const products = await getProductsByVSSText(body?.searchText, body?.maxProductCount, body?.similarityScoreLimit);
+      const products = await getProductsByVSSText(body);
       result.data = products;
 
     } catch (err) {
