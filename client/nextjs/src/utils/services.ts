@@ -152,3 +152,20 @@ export async function getChatHistory(): Promise<IChatMessage[]> {
 
   return result.data;
 }
+
+export async function getProductsByVSSText(_searchText?: string, _embeddingsType?: string): Promise<models.Product[]> {
+  const result: api.ProductResponse = await request(
+    `${process.env.NEXT_PUBLIC_API_GATEWAY_URI}/products/getProductsByVSSText`,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        searchText: _searchText || "",
+        maxProductCount: 10,
+        similarityScoreLimit: 0.1, // 0 to 1
+        embeddingsType: _embeddingsType, //OpenAI (default), HuggingFace
+      }),
+    },
+  );
+
+  return result.data?.map((product) => product) ?? [];
+}

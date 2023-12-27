@@ -2,21 +2,16 @@
 
 import Dashboard from '@/components/Dashboard';
 import DashboardGeo from '@/components/DashboardGeo';
-
-const LANDING_PAGE = {
-  DASHBOARD: "1",
-  DASHBOARD_GEO: "2"
-}
+import { CLIENT_CONFIG, SEARCH_TYPES } from '@/config/client-config';
 
 export default function Home() {
-  let LANDING_PAGE_CODE = process.env.NEXT_PUBLIC_LANDING_PAGE_CODE || LANDING_PAGE.DASHBOARD;
 
   return (
     <>
-      {LANDING_PAGE_CODE == LANDING_PAGE.DASHBOARD &&
+      {CLIENT_CONFIG.SEARCH_TYPE.VALUE != SEARCH_TYPES.GEO_LOCATION.VALUE &&
         <Dashboard></Dashboard>
       }
-      {LANDING_PAGE_CODE == LANDING_PAGE.DASHBOARD_GEO &&
+      {CLIENT_CONFIG.SEARCH_TYPE.VALUE == SEARCH_TYPES.GEO_LOCATION.VALUE &&
         <DashboardGeo></DashboardGeo>
       }
     </>

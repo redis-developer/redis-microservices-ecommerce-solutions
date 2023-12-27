@@ -41,6 +41,7 @@ declare namespace models {
     storeName?: string;
     distInMiles?: string;
 
+    similarityScore?: number
   }
 
   interface ZipCode {

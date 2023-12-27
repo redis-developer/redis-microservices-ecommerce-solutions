@@ -55,6 +55,14 @@ export default function ProductCard({ product, cardColorCss }: Props) {
             className="inline-block rounded bg-orange-300 hover:bg-orange-400 px-6 pt-2.5 pb-2 text-xs font-semibold uppercase leading-normal text-black">
             Add to cart
           </button>
+
+          {product?.similarityScore &&
+
+            <div className="flex-grow flex p-2 justify-center">
+              <div className='text-base font-bold text-neutral-600'>Match: {(product?.similarityScore * 100).toFixed(2)}%
+              </div>
+            </div>
+          }
         </div>
       </div>
     </div>

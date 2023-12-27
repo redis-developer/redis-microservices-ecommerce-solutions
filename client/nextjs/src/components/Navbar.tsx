@@ -4,14 +4,16 @@ import Link from 'next/link';
 import clsx from 'clsx';
 import Search from './Search';
 import AutoCompleteText from '@/components/AutoCompleteText';
+import { CLIENT_CONFIG } from '@/config/client-config';
 
 export interface NavbarProps {
   path?: string;
   refreshProducts?: (searchData?: models.Product) => void;
   autoCompleteText?: AutoCompleteTextProps;
+  searchPlaceHolder?: string;
 }
 
-export default function Navbar({ path = '', refreshProducts, autoCompleteText }: NavbarProps) {
+export default function Navbar({ path = '', refreshProducts, autoCompleteText, searchPlaceHolder }: NavbarProps) {
   const isOrders = /orders/.test(path);
   const isAdmin = /admin/.test(path);
   const linkClass =
@@ -44,9 +46,13 @@ export default function Navbar({ path = '', refreshProducts, autoCompleteText }:
             Orders
           </Link>
 
-          <Link prefetch={false} className={adminClass} href="/admin">
-            Admin
-          </Link>
+          {
+            CLIENT_CONFIG.ADMIN_SCREEN.VALUE &&
+            <Link prefetch={false} className={adminClass} href="/admin">
+              Admin
+            </Link>
+          }
+
         </div>
         <div className='flex'>
           {autoCompleteText?.listItems && Number(autoCompleteText.listItems.length) > 0 &&
@@ -58,7 +64,7 @@ export default function Navbar({ path = '', refreshProducts, autoCompleteText }:
             </div>
           }
           {!isOrders && !isAdmin &&
-            <Search refreshProducts={refreshProducts} />
+            <Search refreshProducts={refreshProducts} searchPlaceHolder={searchPlaceHolder} />
           }
         </div>
 

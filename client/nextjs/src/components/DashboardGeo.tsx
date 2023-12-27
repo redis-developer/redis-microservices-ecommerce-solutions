@@ -22,6 +22,7 @@ import {
     convertObjectToLabel,
     formatChatBotAnswer
 } from '@/utils/convert';
+import { CLIENT_CONFIG } from '@/config/client-config';
 
 
 export default function Home() {
@@ -147,17 +148,25 @@ export default function Home() {
                     listItems: zipCodeList ?? []
                 }} />
             <Cart refreshProducts={refreshProducts} setAlertNotification={setAlertNotification} />
-            <Chat chatMessageCallback={chatMessageCallback} oldChatHistory={oldChatHistory} />
+
+            {CLIENT_CONFIG.AI_CHAT_BOT.VALUE &&
+                <Chat chatMessageCallback={chatMessageCallback} oldChatHistory={oldChatHistory} />
+            }
+
             <main className="pt-12">
                 <div className="max-w-screen-xl mx-auto mt-6 px-6 pb-6">
                     <div className="mb-2 flex justify-between">
                         <span>Showing {products?.length} products in nearest stores {filterLabel}</span>
-                        <button
-                            type="button"
-                            onClick={resetStockQtyBtnClick}
-                            className="inline-block rounded bg-slate-300 hover:bg-slate-400 px-4 pt-2 pb-2 text-xs font-semibold uppercase leading-normal text-black">
-                            Reset Stock QTY
-                        </button>
+
+                        {CLIENT_CONFIG.TRIGGERS_FUNCTIONS.VALUE &&
+
+                            <button
+                                type="button"
+                                onClick={resetStockQtyBtnClick}
+                                className="inline-block rounded bg-slate-300 hover:bg-slate-400 px-4 pt-2 pb-2 text-xs font-semibold uppercase leading-normal text-black">
+                                Reset Stock QTY
+                            </button>
+                        }
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                         {products?.map((product) => {
