@@ -4,7 +4,7 @@ import Link from 'next/link';
 import clsx from 'clsx';
 import Search from './Search';
 import AutoCompleteText from '@/components/AutoCompleteText';
-import { CLIENT_CONFIG } from '@/config/client-config';
+import { getClientConfig } from '@/config/client-config';
 
 export interface NavbarProps {
   path?: string;
@@ -14,6 +14,8 @@ export interface NavbarProps {
 }
 
 export default function Navbar({ path = '', refreshProducts, autoCompleteText, searchPlaceHolder }: NavbarProps) {
+  const CLIENT_CONFIG = getClientConfig();
+
   const isOrders = /orders/.test(path);
   const isAdmin = /admin/.test(path);
   const linkClass =
@@ -40,7 +42,8 @@ export default function Navbar({ path = '', refreshProducts, autoCompleteText, s
 
       <div
         id="main-nav"
-        className="bg-gray-700 flex space-y-0 relative top-0 right-0 p-0 flex-row h-full flex-grow justify-between items-center ml-10 bg-inherit">
+        className="bg-gray-700 flex space-y-0 relative top-0 right-0 p-0 flex-row h-full flex-grow items-center ml-10 bg-inherit">
+
         <div className="order-first flex flex-row items-center h-full text-white space-y-0 space-x-3">
           <Link prefetch={false} className={ordersClass} href="/orders">
             Orders
@@ -54,7 +57,8 @@ export default function Navbar({ path = '', refreshProducts, autoCompleteText, s
           }
 
         </div>
-        <div className='flex'>
+
+        <div className='flex flex-grow justify-end'>
           {autoCompleteText?.listItems && Number(autoCompleteText.listItems.length) > 0 &&
             <div className='mr-2'>
               <AutoCompleteText listItems={autoCompleteText.listItems}
@@ -67,7 +71,11 @@ export default function Navbar({ path = '', refreshProducts, autoCompleteText, s
             <Search refreshProducts={refreshProducts} searchPlaceHolder={searchPlaceHolder} />
           }
         </div>
-
+        <div className='flex'>
+          <Link prefetch={false} href="/settings">
+            <i className="fa fa-cog text-white text-2xl"></i>
+          </Link>
+        </div>
       </div>
     </nav>
   );

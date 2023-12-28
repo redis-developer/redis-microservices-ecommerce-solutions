@@ -22,10 +22,12 @@ import {
     convertObjectToLabel,
     formatChatBotAnswer
 } from '@/utils/convert';
-import { CLIENT_CONFIG } from '@/config/client-config';
+import { getClientConfig } from '@/config/client-config';
 
 
 export default function Home() {
+    const CLIENT_CONFIG = getClientConfig();
+
     const [products, setProducts] = useState<models.Product[]>();
     const [zipCodeList, setZipCodeList] = useState<ListItem[]>();
     const [selectedZipCodeInfo, setSelectedZipCodeInfo] = useState<models.ZipCode>();

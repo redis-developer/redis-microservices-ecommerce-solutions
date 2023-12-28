@@ -1,15 +1,15 @@
 const SEARCH_TYPES = {
     NORMAL: {
-        VALUE: 1,
-        LABEL: 'Normal product title search'
+        VALUE: "normal",
+        LABEL: 'Normal title search'
     },
     GEO_LOCATION: {
-        VALUE: 2,
-        LABEL: 'Nearest Location based search'
+        VALUE: "geo",
+        LABEL: 'Geo location search'
     },
     VSS_TEXT: {
-        VALUE: 3,
-        LABEL: 'Semantic text search using LangChain with OpenAI / HuggingFace embeddings'
+        VALUE: "vssText",
+        LABEL: 'Semantic text search'
     },
 }
 
@@ -21,29 +21,46 @@ const VSS_EMBEDDINGS = {
 //TODO: merge both dashboards later
 const CLIENT_CONFIG = {
     SEARCH_TYPE: {
-        VALUE: SEARCH_TYPES.VSS_TEXT.VALUE,
-        LABEL: SEARCH_TYPES.NORMAL.LABEL,
+        VALUE: SEARCH_TYPES.NORMAL.VALUE,
         OTHER: {
             VSS_EMBEDDINGS: VSS_EMBEDDINGS.OPEN_AI
         }
     },
     AI_CHAT_BOT: {
         VALUE: true,
-        LABEL: 'AI Chat Bot using LangChain + OpenAI',
+        LABEL: 'AI Chat Bot using LangChain and OpenAI',
         TUTORIAL: 'https://developer.redis.com/howtos/solutions/vector/gen-ai-chatbot'
     },
     ADMIN_SCREEN: {
         VALUE: true,
-        LABEL: 'Admin Screen to show trending products and other purchase stats'
+        LABEL: 'Admin Screen'
     },
     TRIGGERS_FUNCTIONS: {
         VALUE: true,
-        LABEL: 'Triggers and Functions - Manual/ OnDemand, KeySpace and stream triggers'
+        LABEL: 'Triggers and Functions'
     },
 }
 
+const setClientConfig = (config: any) => {
+    if (config && typeof window !== 'undefined') {
+        window.localStorage.setItem('clientConfig', JSON.stringify(config));
+    }
+}
+
+const getClientConfig = () => {
+    let config: any = CLIENT_CONFIG;
+    if (typeof window !== 'undefined') {
+        const clientConfig = window.localStorage.getItem('clientConfig');
+        if (clientConfig) {
+            config = JSON.parse(clientConfig);
+        }
+    }
+    return config;
+}
+
 export {
-    CLIENT_CONFIG,
     SEARCH_TYPES,
-    VSS_EMBEDDINGS
+    VSS_EMBEDDINGS,
+    setClientConfig,
+    getClientConfig
 }

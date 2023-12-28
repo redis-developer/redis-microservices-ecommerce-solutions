@@ -2,9 +2,10 @@
 
 import Dashboard from '@/components/Dashboard';
 import DashboardGeo from '@/components/DashboardGeo';
-import { CLIENT_CONFIG, SEARCH_TYPES } from '@/config/client-config';
+import { getClientConfig, SEARCH_TYPES } from '@/config/client-config';
 
 export default function Home() {
+  const CLIENT_CONFIG = getClientConfig();
 
   return (
     <>

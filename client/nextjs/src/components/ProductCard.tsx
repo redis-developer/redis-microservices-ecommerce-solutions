@@ -59,7 +59,7 @@ export default function ProductCard({ product, cardColorCss }: Props) {
           {product?.similarityScore &&
 
             <div className="flex-grow flex p-2 justify-center">
-              <div className='text-base font-bold text-neutral-600'>Match: {(product?.similarityScore * 100).toFixed(2)}%
+              <div className='text-base font-bold text-neutral-600'>Match: {(product?.similarityScore).toFixed(4)}
               </div>
             </div>
           }

@@ -19,9 +19,11 @@ import {
     convertObjectToLabel,
     formatChatBotAnswer
 } from '@/utils/convert';
-import { CLIENT_CONFIG, SEARCH_TYPES } from '@/config/client-config';
+import { getClientConfig, SEARCH_TYPES } from '@/config/client-config';
 
 export default function Home() {
+    const CLIENT_CONFIG = getClientConfig();
+
     const [products, setProducts] = useState<models.Product[]>();
     const [alertNotification, setAlertNotification] = useState({ title: '', message: '' });
     const [filterLabel, setFilterLabel] = useState<string>();
