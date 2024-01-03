@@ -86,6 +86,14 @@ export default function SettingsPage() {
 
                                 <label htmlFor="vssText" className="ml-1">{SEARCH_TYPES.VSS_TEXT.LABEL}</label>
                             </div>
+                            <div className="flex flex-row ml-4">
+                                <input type="radio" id="vssImageSummary" name="searchType"
+                                    value={SEARCH_TYPES.VSS_IMAGE_SUMMARY.VALUE}
+                                    checked={searchType == SEARCH_TYPES.VSS_IMAGE_SUMMARY.VALUE}
+                                    onChange={handleSearchTypeChange} />
+
+                                <label htmlFor="vssImageSummary" className="ml-1">{SEARCH_TYPES.VSS_IMAGE_SUMMARY.LABEL}</label>
+                            </div>
                         </div>
                     </div>
                     {searchType === SEARCH_TYPES.VSS_TEXT.VALUE &&

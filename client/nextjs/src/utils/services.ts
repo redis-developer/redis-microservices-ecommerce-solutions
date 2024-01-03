@@ -167,5 +167,21 @@ export async function getProductsByVSSText(_searchText?: string, _embeddingsType
     },
   );
 
-  return result.data?.map((product) => product) ?? [];
+  return result.data || [];
+}
+
+export async function getProductsByVSSImageSummary(_searchText?: string): Promise<models.Product[]> {
+  const result: api.ProductResponse = await request(
+    `${process.env.NEXT_PUBLIC_API_GATEWAY_URI}/products/getProductsByVSSImageSummary`,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        searchText: _searchText || "",
+        maxProductCount: 10,
+        similarityScoreLimit: 0.1, // 0 to 1
+      }),
+    },
+  );
+
+  return result.data || [];
 }

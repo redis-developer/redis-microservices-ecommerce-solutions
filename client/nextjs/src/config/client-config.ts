@@ -11,6 +11,10 @@ const SEARCH_TYPES = {
         VALUE: "vssText",
         LABEL: 'Semantic text search'
     },
+    VSS_IMAGE_SUMMARY: {
+        VALUE: "vssImageSummary",
+        LABEL: 'Semantic image summary search'
+    },
 }
 
 const VSS_EMBEDDINGS = {

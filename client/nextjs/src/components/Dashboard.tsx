@@ -6,7 +6,7 @@ import Navbar from '@/components/Navbar';
 import Cart from '@/components/Cart';
 import Alert from '@/components/Alert';
 import {
-    getProducts, getProductsByVSSText,
+    getProducts, getProductsByVSSText, getProductsByVSSImageSummary,
     triggerResetInventory,
     chatBot, getChatHistory
 } from '@/utils/services';
@@ -42,6 +42,11 @@ export default function Home() {
             const searchText = searchData?.productDisplayName;
             const embeddings = CLIENT_CONFIG.SEARCH_TYPE.OTHER.VSS_EMBEDDINGS;
             products = await getProductsByVSSText(searchText, embeddings);
+        }
+        else if (CLIENT_CONFIG.SEARCH_TYPE.VALUE == SEARCH_TYPES.VSS_IMAGE_SUMMARY.VALUE
+            && searchData?.productDisplayName && !searchData?.productId) {
+            const searchText = searchData?.productDisplayName;
+            products = await getProductsByVSSImageSummary(searchText);
         }
         else {
             products = await getProducts(searchData?.productDisplayName, searchData?.productId);
@@ -108,6 +113,9 @@ export default function Home() {
             if (CLIENT_CONFIG.SEARCH_TYPE.VALUE == SEARCH_TYPES.VSS_TEXT.VALUE) {
                 const embeddings = CLIENT_CONFIG.SEARCH_TYPE.OTHER.VSS_EMBEDDINGS;
                 setSearchPlaceHolder(`Semantic Search (${embeddings})`);
+            }
+            else if (CLIENT_CONFIG.SEARCH_TYPE.VALUE == SEARCH_TYPES.VSS_IMAGE_SUMMARY.VALUE) {
+                setSearchPlaceHolder(`Semantic Search on Image`);
             }
 
         })();

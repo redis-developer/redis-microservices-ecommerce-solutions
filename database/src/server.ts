@@ -129,10 +129,10 @@ const init = async () => {
 
     const products = await addProductsToRedisAndPrismaDB(prisma, redisClient);
 
-    consoleLog('loadTriggers', true);
-    await loadTriggers(redisClient);
-
     if (products) {
+      consoleLog('loadTriggers', true);
+      await loadTriggers(redisClient);
+
       consoleLog('addProductsToRandomStores', true);
       await addProductsToRandomStoresInRedis(
         products,
