@@ -44,6 +44,16 @@ services:
     ports:
       - '${POSTGRES_PG_ADMIN_PORT}:80'
 
+  cdn:
+    container_name: cdn
+    build:
+      context: ./
+      dockerfile: dockerfile-cdn
+      args:
+        BUILD_BASE_PATH: cdn
+    ports:
+      - '${CDN_PORT}:80'
+
   database-seed:
     container_name: database-seed
     build:
@@ -56,16 +66,7 @@ services:
     depends_on:
       - mongodb-server
       - postgresql-server
-
-  cdn:
-    container_name: cdn
-    build:
-      context: ./
-      dockerfile: dockerfile-cdn
-      args:
-        BUILD_BASE_PATH: cdn
-    ports:
-      - '${CDN_PORT}:80'
+      - cdn # to seed products image summary
 
   orders-service:
     container_name: orders-service

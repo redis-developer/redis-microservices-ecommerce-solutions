@@ -41,6 +41,8 @@ const OPEN_AI_PRODUCT_KEY_PREFIX = 'openAIProducts:'; //also in common ->server-
 const OPEN_AI_PRODUCT_INDEX_NAME = 'openAIProductsIdx';
 const HUGGING_FACE_PRODUCT_KEY_PREFIX = 'huggingFaceProducts:';
 const HUGGING_FACE_PRODUCT_INDEX_NAME = 'huggingFaceProductsIdx';
+const OPEN_AI_PRODUCT_IMG_TEXT_KEY_PREFIX = 'openAIProductImgText:';
+const OPEN_AI_PRODUCT_IMG_TEXT_INDEX_NAME = 'openAIProductImgIdx';
 
 //#endregion
 
@@ -55,7 +57,9 @@ export {
     OPEN_AI_PRODUCT_KEY_PREFIX,
     OPEN_AI_PRODUCT_INDEX_NAME,
     HUGGING_FACE_PRODUCT_KEY_PREFIX,
-    HUGGING_FACE_PRODUCT_INDEX_NAME
+    HUGGING_FACE_PRODUCT_INDEX_NAME,
+    OPEN_AI_PRODUCT_IMG_TEXT_KEY_PREFIX,
+    OPEN_AI_PRODUCT_IMG_TEXT_INDEX_NAME
 }
 
 export type {

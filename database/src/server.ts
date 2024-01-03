@@ -15,18 +15,36 @@ import {
 } from './stores-inventory-data.js';
 import { loadTriggers } from './triggers.js';
 import { addEmbeddingsToRedis } from './open-ai.js';
+import { addImageSummaryEmbeddingsToRedis } from './open-ai-image.js';
 
 dotenv.config();
+
+let logSeqNum = 1;
+const totalLogSeqCount = 7;
+
+const consoleLog = (msg: string, isAddSeq?: boolean) => {
+  let seq = '';
+
+  if (isAddSeq) {
+    seq = `(${logSeqNum}/ ${totalLogSeqCount}) `;
+    logSeqNum++;
+  }
+
+  if (msg) {
+    msg = `-----${seq}${msg}-----`;
+    console.log(msg);
+  }
+}
 
 const addProductsToRedisAndPrismaDB = async (
   prisma: PrismaClient,
   redisClient: NodeRedisClientType,
 ) => {
-  console.log('-----PrismaDB: checking if products have been loaded-----');
+  consoleLog('PrismaDB: checking if products have been loaded');
   const checkDB = await redisClient.exists('products_loaded');
 
   if (checkDB === 1) {
-    console.log('-----PrismaDB: products have been loaded, not reloading-----');
+    consoleLog('PrismaDB: products have been loaded, not reloading');
 
     return;
   }
@@ -35,7 +53,7 @@ const addProductsToRedisAndPrismaDB = async (
   const productJSONFolder = __dirname + '/../fashion-dataset/001/products';
 
   //delete products
-  console.log('-----PrismaDB: delete existing products-----');
+  consoleLog('PrismaDB: deleting existing products (if any)', true);
   await prisma.product.deleteMany({});
   await deleteExistingKeysInRedis(CONFIG.PRODUCT_KEY_PREFIX, redisClient);
 
@@ -45,7 +63,7 @@ const addProductsToRedisAndPrismaDB = async (
     (file) => path.extname(file) === '.json',
   );
 
-  console.log('-----Products seeding started-----');
+  consoleLog('Products seeding started', true);
 
   for (let file of jsonFilesInDir) {
     const filePath = path.join(productJSONFolder, file);
@@ -94,7 +112,7 @@ const addProductsToRedisAndPrismaDB = async (
       console.log(`${filePath} insertion failed `, err);
     }
   }
-  console.log('-----Products seeding completed-----');
+  consoleLog('Products seeding completed');
   return products;
 };
 
@@ -111,22 +129,33 @@ const init = async () => {
 
     const products = await addProductsToRedisAndPrismaDB(prisma, redisClient);
 
+    consoleLog('loadTriggers', true);
     await loadTriggers(redisClient);
 
     if (products) {
+      consoleLog('addProductsToRandomStores', true);
       await addProductsToRandomStoresInRedis(
         products,
         CONFIG.PRODUCT_IN_MAX_STORES,
         redisClient,
       );
 
+      consoleLog('addZipCodeDetails', true);
       await addZipCodeDetailsInRedis(redisClient);
 
-      await redisClient.set('products_loaded', 'true');
     }
     if (openAIApiKey && products) {
+      consoleLog('addProductDetailsEmbeddings started', true);
       await addEmbeddingsToRedis(products, redisClient, openAIApiKey, huggingFaceApiKey);
+      consoleLog('addProductDetailsEmbeddings completed');
+
+      consoleLog(`addImageSummaryEmbeddings started for ${products.length} products`, true);
+      await addImageSummaryEmbeddingsToRedis(products, redisClient, openAIApiKey);
+      consoleLog('addImageSummaryEmbeddings completed');
+
     }
+    await redisClient.set('products_loaded', 'true');
+
 
     await redisClient.disconnect();
     await prisma.$disconnect();

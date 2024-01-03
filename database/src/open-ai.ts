@@ -54,6 +54,7 @@ const seedOpenAIEmbeddings = async (vectorDocs: Document[], _redisClient: NodeRe
         console.log("seeding openAIEmbeddings skipped !");
         return;
     }
+    console.log("openAIEmbeddings started !");
 
     if (vectorDocs?.length && _redisClient && _openAIApiKey) {
         const embeddings = new OpenAIEmbeddings({
@@ -68,7 +69,7 @@ const seedOpenAIEmbeddings = async (vectorDocs: Document[], _redisClient: NodeRe
                 keyPrefix: CONFIG.OPEN_AI_PRODUCT_KEY_PREFIX,
             }
         );
-        console.log("seeding OpenAIEmbeddings completed");
+        console.log("OpenAIEmbeddings completed");
     }
 }
 
@@ -81,6 +82,8 @@ const seedHuggingFaceEmbeddings = async (vectorDocs: Document[], _redisClient: N
         console.log("seeding HuggingFaceEmbeddings skipped !");
         return;
     }
+
+    console.log("HuggingFaceEmbeddings started !");
 
     if (vectorDocs?.length && _redisClient && _huggingFaceApiKey) {
         const embeddings = new HuggingFaceInferenceEmbeddings({
@@ -95,7 +98,7 @@ const seedHuggingFaceEmbeddings = async (vectorDocs: Document[], _redisClient: N
                 keyPrefix: CONFIG.HUGGING_FACE_PRODUCT_KEY_PREFIX,
             }
         );
-        console.log("seeding HuggingFaceEmbeddings completed");
+        console.log("HuggingFaceEmbeddings completed");
     }
 }
 
