@@ -209,7 +209,7 @@ const chatBotMessage = async (_userMessage: string, _sessionId: string, _openAIA
     return answer;
 }
 
-const getSimilarProductsByVSSLangChain = async (_params: IParamsGetProductsByVSS) => {
+const getSimilarProductsScoreByVSS = async (_params: IParamsGetProductsByVSS) => {
     let {
         standAloneQuestion,
         openAIApiKey,
@@ -277,10 +277,56 @@ const getSimilarProductsByVSSLangChain = async (_params: IParamsGetProductsByVSS
     return vectorDocs;
 }
 
+const getSimilarProductsScoreByVSSImageSummary = async (_params: IParamsGetProductsByVSS) => {
+    let {
+        standAloneQuestion,
+        openAIApiKey,
+
+        //optional
+        KNN,
+        scoreLimit } = _params;
+
+    let vectorDocs: Document[] = [];
+    const client = getNodeRedisClient();
+
+    KNN = KNN || SERVER_CONFIG.PRODUCTS_SERVICE.VSS_KNN;
+    scoreLimit = scoreLimit || 0;
+
+    const embeddings = new OpenAIEmbeddings({
+        openAIApiKey: openAIApiKey
+    });
+
+    // create vector store
+    const vectorStore = new RedisVectorStore(
+        embeddings,
+        {
+            redisClient: client,
+            indexName: REDIS_KEYS.OPEN_AI.PRODUCT_IMG_TEXT_INDEX_NAME,
+            keyPrefix: REDIS_KEYS.OPEN_AI.PRODUCT_IMG_TEXT_KEY_PREFIX,
+        }
+    );
+
+    // search for similar products
+    const vectorDocsWithScore = await vectorStore.similaritySearchWithScore(standAloneQuestion, KNN);
+
+    // filter by scoreLimit
+    for (let [doc, score] of vectorDocsWithScore) {
+        if (score >= scoreLimit) {
+            doc["similarityScore"] = score;
+            vectorDocs.push(doc);
+        }
+    }
+    //sort by similarityScore in descending order
+    vectorDocs = vectorDocs.sort((a, b) => b["similarityScore"] - a["similarityScore"]);
+
+    return vectorDocs;
+}
+
 export {
     chatBotMessage,
     getChatBotHistory,
     getSimilarProductsByVSS,
-    getSimilarProductsByVSSLangChain,
+    getSimilarProductsScoreByVSS,
+    getSimilarProductsScoreByVSSImageSummary,
     CHAT_CONSTANTS
 }

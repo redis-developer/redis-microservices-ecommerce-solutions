@@ -15,7 +15,8 @@ import { SERVER_CONFIG } from '../../../common/config/server-config';
 import { getNodeRedisClient, AggregateSteps } from '../../../common/utils/redis/redis-wrapper';
 import {
   chatBotMessage, getChatBotHistory, CHAT_CONSTANTS,
-  getSimilarProductsByVSS, getSimilarProductsByVSSLangChain
+  getSimilarProductsByVSS, getSimilarProductsScoreByVSS,
+  getSimilarProductsScoreByVSSImageSummary
 } from './open-ai-prompt';
 
 interface IInventoryBodyFilter {
@@ -357,13 +358,58 @@ const getProductsByVSSText = async (productsVSSFilter: IProductsVSSBodyFilter) =
   }
 
   //VSS search
-  const vectorDocs = await getSimilarProductsByVSSLangChain({
+  const vectorDocs = await getSimilarProductsScoreByVSS({
     standAloneQuestion: searchText,
     openAIApiKey: openAIApiKey,
     huggingFaceApiKey: huggingFaceApiKey,
     KNN: maxProductCount,
     scoreLimit: similarityScoreLimit,
     embeddingsType: embeddingsType
+  });
+
+  if (vectorDocs?.length) {
+    const productIds = vectorDocs.map(doc => doc?.metadata?.productId);
+
+    //get product with details
+    products = await getProductByIds(productIds, true);
+  }
+
+  //add similarityScore to products
+  if (products?.length) {
+    products = products.map(prod => {
+      const matchingDoc = vectorDocs.find(doc => doc?.metadata?.productId === prod.productId);
+      if (matchingDoc) {
+        prod["similarityScore"] = matchingDoc["similarityScore"];
+      }
+      return prod;
+    });
+  }
+
+  return products;
+}
+
+const getProductsByVSSImageSummary = async (productsVSSFilter: IProductsVSSBodyFilter) => {
+  let { searchText, maxProductCount, similarityScoreLimit } = productsVSSFilter;
+  let products: IProduct[] = [];
+
+  const openAIApiKey = process.env.OPEN_AI_API_KEY || "";
+  maxProductCount = maxProductCount || SERVER_CONFIG.PRODUCTS_SERVICE.VSS_KNN;
+  similarityScoreLimit = similarityScoreLimit || SERVER_CONFIG.PRODUCTS_SERVICE.VSS_SCORE_LIMIT;
+
+  if (!openAIApiKey) {
+    throw new Error("Please provide openAI API key in .env file");
+  }
+
+  if (!searchText) {
+    throw new Error("Please provide search text");
+  }
+
+  //VSS search
+  const vectorDocs = await getSimilarProductsScoreByVSSImageSummary({
+    standAloneQuestion: searchText,
+    openAIApiKey: openAIApiKey,
+    KNN: maxProductCount,
+    scoreLimit: similarityScoreLimit,
   });
 
   if (vectorDocs?.length) {
@@ -395,5 +441,6 @@ export {
   getStoreProductsByGeoFilter,
   chatBot,
   getChatHistory,
-  getProductsByVSSText
+  getProductsByVSSText,
+  getProductsByVSSImageSummary
 };

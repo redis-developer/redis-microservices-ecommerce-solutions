@@ -44,6 +44,8 @@ const REDIS_KEYS = {
     PRODUCT_KEY_PREFIX: 'openAIProducts:',
     PRODUCT_INDEX_NAME: 'openAIProductsIdx',
     CHAT_HISTORY_KEY_PREFIX: "chatHistory:",
+    PRODUCT_IMG_TEXT_KEY_PREFIX: 'openAIProductImgText:',
+    PRODUCT_IMG_TEXT_INDEX_NAME: 'openAIProductImgIdx',
   },
   HUGGING_FACE: {
     PRODUCT_KEY_PREFIX: 'huggingFaceProducts:',
@@ -112,6 +114,7 @@ const SERVER_CONFIG = {
       CHAT_BOT: '/chatBot',
       GET_CHAT_HISTORY: '/getChatHistory',
       GET_PRODUCTS_BY_VSS_TEXT: '/getProductsByVSSText',
+      GET_PRODUCTS_BY_VSS_IMAGE_SUMMARY: '/getProductsByVSSImageSummary',
     }
   },
   PAYMENTS_SERVICE: {
