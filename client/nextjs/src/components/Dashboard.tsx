@@ -5,6 +5,7 @@ import ProductCard from '@/components/ProductCard';
 import Navbar from '@/components/Navbar';
 import Cart from '@/components/Cart';
 import Alert from '@/components/Alert';
+import LoaderIcon from '@/components/LoaderIcon';
 import {
     getProducts, getProductsByVSSText, getProductsByVSSImageSummary,
     triggerResetInventory,
@@ -29,6 +30,7 @@ export default function Home() {
     const [filterLabel, setFilterLabel] = useState<string>();
     const [oldChatHistory, setOldChatHistory] = useState<IChatMessage[]>([]);
     const [searchPlaceHolder, setSearchPlaceHolder] = useState<string>();
+    const [showLoader, setShowLoader] = useState<boolean>(false);
 
     async function refreshProducts(searchData?: models.Product) {
         if (!searchData) {
@@ -36,6 +38,8 @@ export default function Home() {
         }
 
         let products: models.Product[] = [];
+
+        setShowLoader(true);
 
         if (CLIENT_CONFIG.SEARCH_TYPE.VALUE == SEARCH_TYPES.VSS_TEXT.VALUE
             && searchData?.productDisplayName && !searchData?.productId) {
@@ -62,6 +66,8 @@ export default function Home() {
             searchFilter = " with search : (" + searchFilter + ")";
         }
         setFilterLabel(searchFilter);
+
+        setShowLoader(false);
     }
 
     async function resetStockQtyBtnClick() {
@@ -123,6 +129,7 @@ export default function Home() {
 
     return (
         <>
+            <LoaderIcon isLoading={showLoader} />
             <Navbar refreshProducts={refreshProducts} searchPlaceHolder={searchPlaceHolder} />
             <Cart refreshProducts={refreshProducts} setAlertNotification={setAlertNotification} />
 

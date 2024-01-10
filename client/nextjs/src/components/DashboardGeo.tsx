@@ -9,6 +9,7 @@ import Navbar from '@/components/Navbar';
 import Cart from '@/components/Cart';
 import Alert from '@/components/Alert';
 import { default as Chat, CHAT_CONSTANTS } from '@/components/Chat';
+import LoaderIcon from '@/components/LoaderIcon';
 
 import {
     triggerResetInventory,
@@ -35,6 +36,7 @@ export default function Home() {
     const [filterLabel, setFilterLabel] = useState<string>();
     const [nearestStore, setNearestStore] = useState<string>();
     const [oldChatHistory, setOldChatHistory] = useState<IChatMessage[]>([]);
+    const [showLoader, setShowLoader] = useState<boolean>(false);
 
     async function suggestionSelectedCallback(itm: ListItem) {
         setSelectedZipCodeInfo(itm.value);
@@ -49,6 +51,8 @@ export default function Home() {
             if (!searchData) {
                 searchData = getObjectFromWindowQueryParams();
             }
+            setShowLoader(true);
+
             const products = await getStoreProductsByGeoFilter(zipCodeInfo, searchData?.productDisplayName, searchData?.productId)
             setProducts(products);
 
@@ -65,6 +69,8 @@ export default function Home() {
                 searchFilter = " with search : (" + searchFilter + ")";
             }
             setFilterLabel(searchFilter);
+
+            setShowLoader(false);
         }
     }
 
@@ -143,6 +149,7 @@ export default function Home() {
 
     return (
         <>
+            <LoaderIcon isLoading={showLoader} />
             <Navbar refreshProducts={refreshProducts}
                 autoCompleteText={{
                     placeHolder: "Zip code...",
