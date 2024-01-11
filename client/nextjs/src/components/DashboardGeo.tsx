@@ -53,14 +53,14 @@ export default function Home() {
             }
             setShowLoader(true);
 
-            const products = await getStoreProductsByGeoFilter(zipCodeInfo, searchData?.productDisplayName, searchData?.productId)
-            setProducts(products);
+            const productsData = await getStoreProductsByGeoFilter(zipCodeInfo, searchData?.productDisplayName, searchData?.productId)
+            setProducts([...productsData]);
 
             setObjectToWindowQueryParams(searchData);
 
             setNearestStore("");
-            if (products?.length) {
-                setNearestStore(products[0].storeId);
+            if (productsData?.length) {
+                setNearestStore(productsData[0].storeId);
             }
 
             let labelObj = { zipCode: zipCodeInfo?.zipCode };

@@ -37,7 +37,7 @@ export default function Home() {
             searchData = getObjectFromWindowQueryParams();
         }
 
-        let products: models.Product[] = [];
+        let productsData: models.Product[] = [];
 
         setShowLoader(true);
 
@@ -45,19 +45,18 @@ export default function Home() {
             && searchData?.productDisplayName && !searchData?.productId) {
             const searchText = searchData?.productDisplayName;
             const embeddings = CLIENT_CONFIG.SEARCH_TYPE.OTHER.VSS_EMBEDDINGS;
-            products = await getProductsByVSSText(searchText, embeddings);
+            productsData = await getProductsByVSSText(searchText, embeddings);
         }
         else if (CLIENT_CONFIG.SEARCH_TYPE.VALUE == SEARCH_TYPES.VSS_IMAGE_SUMMARY.VALUE
             && searchData?.productDisplayName && !searchData?.productId) {
             const searchText = searchData?.productDisplayName;
-            products = await getProductsByVSSImageSummary(searchText);
+            productsData = await getProductsByVSSImageSummary(searchText);
         }
         else {
-            products = await getProducts(searchData?.productDisplayName, searchData?.productId);
+            productsData = await getProducts(searchData?.productDisplayName, searchData?.productId);
         }
 
-
-        setProducts(products);
+        setProducts([...productsData]);
 
         setObjectToWindowQueryParams(searchData);
 
@@ -68,6 +67,7 @@ export default function Home() {
         setFilterLabel(searchFilter);
 
         setShowLoader(false);
+
     }
 
     async function resetStockQtyBtnClick() {
