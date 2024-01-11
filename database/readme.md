@@ -1,18 +1,18 @@
-This application seeds "products" collection data to mongodb database.
+This application seeds "products" collection data to database.
 
 ## Database seeder
 
-Only ~100 products are added for the demo to keep repository size smaller but more items can be downloaded from [online fashion dataset](https://www.kaggle.com/datasets/paramaggarwal/fashion-product-images-dataset)
+Only 1000 products are added for the demo to keep repository size smaller but more items can be downloaded from [fashion-dataset-formatter](https://github.com/PrasanKumar93/fashion-dataset-formatter)
 
 ### After download
 
-- Copy all or required json files from "fashion-dataset/styles" to "database/fashion-dataset/001/products/"
+- Copy all or required folders from from "fashion-dataset-formatter/products/" to current repo "cdn/fashion-dataset/products/" and restart the docker application
 
-- Copy all or required images from "fashion-dataset/images" to "cdn/fashion-dataset/images/"
+Note : Each folder like 01, 02, 03..etc has 1000 products
 
 ## Prisma schema
 
-- On prisma schema change (locally), run following in `database`
+- On prisma schema change if any (locally), run following in `database`
 
 ```sh
 # to upgrade db & generate schema

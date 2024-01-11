@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { useContext, useState } from 'react';
 import { CartDispatchContext } from '@/components/CartProvider';
-import { getShortName, toCurrency } from '@/utils/convert';
+import { getShortName, toCurrency, getNoHtml } from '@/utils/convert';
 
 interface Props {
   product: models.Product;
@@ -13,11 +13,15 @@ interface Props {
 export default function ProductCard({ product, cardColorCss }: Props) {
   const cartDispatch = useContext(CartDispatchContext);
   const [showImageSummary, setShowImageSummary] = useState(false);
+  const [showFullDescription, setShowFullDescription] = useState(false);
 
   const toggleImageSummary = () => {
     if (product.imageSummary) {
       setShowImageSummary(!showImageSummary);
     }
+  };
+  const toggleDescription = () => {
+    setShowFullDescription(!showFullDescription);
   };
 
   return (
@@ -50,8 +54,13 @@ export default function ProductCard({ product, cardColorCss }: Props) {
           <h5 className="mb-2 h-16 text-xl font-medium leading-tight text-neutral-800">
             {product.productDisplayName}
           </h5>
-          <p className="mb-4 text-base text-neutral-600 flex-grow">
-            {getShortName(product.productDescriptors_description_value)}
+          <p className="mb-4 text-base text-neutral-600 flex-grow overflow-y-auto h-24 cursor-pointer">
+            {!showFullDescription &&
+              <div onClick={toggleDescription}>{getShortName(product.productDescriptors_description_value)}</div>
+            }
+            {showFullDescription &&
+              <div onClick={toggleDescription}>{getNoHtml(product.productDescriptors_description_value)}</div>
+            }
           </p>
           <p className="mb-4 text-base font-bold text-neutral-600 flex justify-between">
             <span>Price: {toCurrency(product.price)} </span>

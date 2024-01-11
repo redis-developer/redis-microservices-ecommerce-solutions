@@ -7,9 +7,14 @@ import DOMPurify from 'dompurify';
 //   return noHtml.replace(regex, '$1').trim() + ' ...';
 // }
 
-export function getShortName(str: string, len = 80) {
+export function getNoHtml(str: string) {
   // Remove all HTML tags
   const noHtml = str.replace(/(<([^>]+)>)/gi, '').trim();
+  return noHtml;
+}
+
+export function getShortName(str: string, len = 80) {
+  const noHtml = getNoHtml(str);
 
   // If the string is already shorter than or equal to the limit, just return it
   if (noHtml.length <= len) {

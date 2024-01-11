@@ -11,6 +11,12 @@ Following are the Microservice tutorials referring this application :
 
 - [API Gateway Caching](https://developer.redis.com/howtos/solutions/microservices/api-gateway-caching)
 
+- [Digital Identity Validation](https://developer.redis.com/howtos/solutions/fraud-detection/digital-identity-validation/)
+
+- [Transaction risk scoring](https://developer.redis.com/howtos/solutions/fraud-detection/transaction-risk-scoring/)
+
+- [GenAI Chatbot](https://developer.redis.com/howtos/solutions/vector/gen-ai-chatbot)
+
 ## Tech stack
 
 - Front end : built using nextJs and Tailwind
@@ -54,19 +60,6 @@ docker compose  up -d --build
 docker-compose build --no-cache <service_name>
 # example
 docker-compose build --no-cache orders-service
-```
-
-### To change dashboard
-
-Configure `NEXT_PUBLIC_LANDING_PAGE_CODE` in root `.env` file
-
-```sh
-# NORMAL DASHBOARD
-NEXT_PUBLIC_LANDING_PAGE_CODE=1
-
-# GEO SEARCH DASHBOARD
-NEXT_PUBLIC_LANDING_PAGE_CODE=2
-
 ```
 
 ### To change Database
@@ -131,9 +124,7 @@ npm run format
 
 ## API docs
 
-- [createOrder](docs/api/create-order.md)
-- [viewOrderHistory](docs/api/view-order-history.md)
-- [getProductsByFilter](docs/api/get-products-by-filter.md)
+All API docs are available at /docs/api folder
 
 ## Database Product list
 
@@ -154,21 +145,33 @@ Smaller dataset of products is used for the demo, but refer [database docs](./da
 
 ### Product
 
-- **dashboard**
+- `Dashboard`: Shows the list of products with search functionality
 
-![dashboard](./docs/images/app-design/design-1-dashboard.png)
+  ![redis microservices e-commerce app frontend products page](./docs/images/app-design/01-dashboard.png)
 
-- **cart**
+- `Chat bot`: The chat bot is available on the bottom right corner of the page. It can be used to search for products and view the product details.
 
-![cart](./docs/images/app-design/design-2-cart.png)
+  ![redis microservices e-commerce app frontend chat bot](./docs/images/app-design/02-ai-bot.png)
 
-- **order history**
+  Clicking on a product in the chat shows the product details on dashboard
 
-![order-history](./docs/images/app-design/design-3-order-history.png)
+  ![redis microservices e-commerce app frontend product details](./docs/images/app-design/03-ai-bot-product.png)
 
-- **search products**
+- `Shopping Cart`: Add products to the cart, then check out using the "Buy Now" button ![redis microservices e-commerce app frontend shopping cart](./docs/images/app-design/04-shopping-cart.png)
 
-![search-products](./docs/images/app-design/design-4-search-products.png)
+- `Order history`: Once an order is placed, the `Orders` link in the top navigation bar shows the order status and history
+
+  ![redis microservices e-commerce app frontend order history page](./docs/images/app-design/05-order-history.png)
+
+- `Admin`: The `admin` link in the top navigation bar shows purchase stats and trending products.
+
+  ![redis microservices e-commerce app frontend admin page](./docs/images/app-design/06-admin-charts.png) ![redis microservices e-commerce app frontend admin page](./docs/images/app-design/07-admin-top-trending.png)
+
+- `Settings`: To control UI features
+
+  ![Settings](./docs/images/app-design/08-settings.png)
+
+and so on
 
 ### MongoDB
 
