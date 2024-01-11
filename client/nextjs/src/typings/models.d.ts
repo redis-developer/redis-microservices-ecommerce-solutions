@@ -42,6 +42,7 @@ declare namespace models {
     distInMiles?: string;
 
     similarityScore?: number
+    imageSummary?: string
   }
 
   interface ZipCode {

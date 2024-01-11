@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { CartDispatchContext } from '@/components/CartProvider';
 import { getShortName, toCurrency } from '@/utils/convert';
 
@@ -12,18 +12,39 @@ interface Props {
 
 export default function ProductCard({ product, cardColorCss }: Props) {
   const cartDispatch = useContext(CartDispatchContext);
+  const [showImageSummary, setShowImageSummary] = useState(false);
+
+  const toggleImageSummary = () => {
+    if (product.imageSummary) {
+      setShowImageSummary(!showImageSummary);
+    }
+  };
 
   return (
     <div className="flex justify-center">
       <div className="max-w-sm rounded bg-white shadow-lg border border-neutral-200 flex flex-col">
-        <Image
-          className="rounded-t-lg w-auto mx-auto"
-          style={{ height: '160px' }}
-          src={product.styleImages_default_imageURL}
-          alt={product.productDisplayName}
-          width={480}
-          height={640}
-        />
+
+        {!showImageSummary &&
+          <Image
+            className={`rounded-t-lg w-auto mx-auto ${product.imageSummary ? 'cursor-pointer' : ''}`}
+            style={{ height: '160px' }}
+            src={product.styleImages_default_imageURL}
+            alt={product.productDisplayName}
+            width={480}
+            height={640}
+            onClick={toggleImageSummary}
+          />
+        }
+        {product.imageSummary && showImageSummary &&
+
+          <div className="flex p-2 justify-center cursor-pointer"
+            style={{ height: '160px', overflowY: 'auto' }}
+            onClick={toggleImageSummary}>
+            <div className='mb-4 text-base text-neutral-600'>
+              {product?.imageSummary}
+            </div>
+          </div>
+        }
         <hr />
         <div className={`${cardColorCss ? cardColorCss : 'bg-slate-100'} p-6 flex-grow flex flex-col`}>
           <h5 className="mb-2 h-16 text-xl font-medium leading-tight text-neutral-800">

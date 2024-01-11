@@ -425,6 +425,7 @@ const getProductsByVSSImageSummary = async (productsVSSFilter: IProductsVSSBodyF
       const matchingDoc = vectorDocs.find(doc => doc?.metadata?.productId === prod.productId);
       if (matchingDoc) {
         prod["similarityScore"] = matchingDoc["similarityScore"];
+        prod["imageSummary"] = matchingDoc["pageContent"];
       }
       return prod;
     });

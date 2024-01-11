@@ -271,7 +271,7 @@ const getSimilarProductsScoreByVSS = async (_params: IParamsGetProductsByVSS) =>
             }
         }
         //sort by similarityScore in descending order
-        vectorDocs = vectorDocs.sort((a, b) => b["similarityScore"] - a["similarityScore"]);
+        //vectorDocs = vectorDocs.sort((a, b) => b["similarityScore"] - a["similarityScore"]);
     }
 
     return vectorDocs;
@@ -317,7 +317,7 @@ const getSimilarProductsScoreByVSSImageSummary = async (_params: IParamsGetProdu
         }
     }
     //sort by similarityScore in descending order
-    vectorDocs = vectorDocs.sort((a, b) => b["similarityScore"] - a["similarityScore"]);
+    //vectorDocs = vectorDocs.sort((a, b) => b["similarityScore"] - a["similarityScore"]);
 
     return vectorDocs;
 }
