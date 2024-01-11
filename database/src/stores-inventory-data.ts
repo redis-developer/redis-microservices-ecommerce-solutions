@@ -1,19 +1,10 @@
 import type { NodeRedisClientType, IStore, IStoreInventory, IZipCode } from './config.js';
 
 import { Prisma } from '@prisma/client';
+
 import * as CONFIG from './config.js';
+import { deleteExistingKeysInRedis } from './utils.js';
 
-
-const deleteExistingKeysInRedis = async (_keyPrefix: string, redisClient: NodeRedisClientType) => {
-
-    if (_keyPrefix) {
-        const existingKeys = await redisClient?.keys(`${_keyPrefix}:*`);
-        if (existingKeys?.length) {
-            console.log(`deleting existing keys/ index starting with ${_keyPrefix}`);
-            await redisClient?.del(existingKeys);
-        }
-    }
-}
 
 const addZipCodeDetailsInRedis = async (redisClient: NodeRedisClientType) => {
 

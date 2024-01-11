@@ -54,9 +54,10 @@ const seedOpenAIEmbeddings = async (vectorDocs: Document[], _redisClient: NodeRe
         console.log("seeding openAIEmbeddings skipped !");
         return;
     }
-    console.log("openAIEmbeddings started !");
 
     if (vectorDocs?.length && _redisClient && _openAIApiKey) {
+        console.log("openAIEmbeddings started !");
+
         const embeddings = new OpenAIEmbeddings({
             openAIApiKey: _openAIApiKey
         });
@@ -83,9 +84,9 @@ const seedHuggingFaceEmbeddings = async (vectorDocs: Document[], _redisClient: N
         return;
     }
 
-    console.log("HuggingFaceEmbeddings started !");
-
     if (vectorDocs?.length && _redisClient && _huggingFaceApiKey) {
+        console.log("HuggingFaceEmbeddings started !");
+
         const embeddings = new HuggingFaceInferenceEmbeddings({
             apiKey: _huggingFaceApiKey
         });

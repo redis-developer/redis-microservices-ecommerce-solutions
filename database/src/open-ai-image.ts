@@ -7,9 +7,14 @@ import { HumanMessage } from "langchain/schema";
 import { Document } from "langchain/document";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { RedisVectorStore } from "langchain/vectorstores/redis";
-import axios from 'axios';
 
 import * as CONFIG from './config.js';
+import {
+    fetchFileData, fetchImageAndConvertToBase64,
+    deleteExistingKeysInRedis
+} from './utils.js';
+import path from 'node:path';
+
 
 let llm: ChatOpenAI<ChatOpenAICallOptions>;
 
@@ -25,64 +30,105 @@ const getOpenAIVisionInstance = (_openAIApiKey: string) => {
     return llm;
 }
 
-const fetchImageAndConvertToBase64 = async (_imageURL: string) => {
-    let base64Image = '';
-    try {
-        const response = await axios.get(_imageURL, {
-            responseType: 'arraybuffer'
-        });
-
-        // Convert image to Base64
-        base64Image = Buffer.from(response.data, 'binary').toString('base64');
-
-    } catch (error) {
-        console.error(`Error fetching or converting the image: ${_imageURL}`, error);
-    }
-    return base64Image;
-
-}
-
-
-const getOpenAIImageSummary = async (_openAIApiKey: string, _base64Image: string) => {
+const getOpenAIImageSummary = async (_openAIApiKey: string, _base64Image: string, _product: Prisma.ProductCreateInput) => {
     /*
      Reference : https://js.langchain.com/docs/integrations/chat/openai#multimodal-messages
    */
     let imageSummary = '';
 
-    if (_openAIApiKey && _base64Image) {
+    try {
 
-        const llmInst = getOpenAIVisionInstance(_openAIApiKey);
+        if (_openAIApiKey && _base64Image && _product) {
 
-        const imagePromptMessage = new HumanMessage({
-            content: [
-                {
-                    type: "text",
-                    text: "Summarize the contents of this image.",
-                    //text: "Provide a detailed analysis of the image.",
-                },
-                {
-                    type: "image_url",
-                    image_url: {
-                        url: `data:image/jpeg;base64,${_base64Image}`,
-                        detail: "low",
-                        //detail: "high", //  if you want more detail
+            const llmInst = getOpenAIVisionInstance(_openAIApiKey);
+
+            const text = `Below are the product details and image of an e-commerce product for reference. Please conduct and provide a comprehensive analysis of the product depicted in the image . 
+        
+            Product Details:
+            ${_product.productDescriptors_description_value}
+            
+            Image:
+        `;
+            const imagePromptMessage = new HumanMessage({
+                content: [
+                    {
+                        type: "text",
+                        text: text,
+                        //text: "Summarize the contents of this image.",
                     },
-                },
-            ],
-        });
+                    {
+                        type: "image_url",
+                        image_url: {
+                            url: `data:image/jpeg;base64,${_base64Image}`,
+                            detail: "high", // low, high (if you want more detail)
+                        },
+                    },
+                ],
+            });
 
-        const response = await llmInst.invoke([imagePromptMessage]);
-        //console.log({ response });
-        if (response?.content) {
-            imageSummary = <string>response.content;
+            const response = await llmInst.invoke([imagePromptMessage]);
+            //console.log({ response });
+            if (response?.content) {
+                imageSummary = <string>response.content;
+            }
+
         }
-
+    }
+    catch (err) {
+        console.log(`Error generating OpenAIImageSummary for product id ${_product.productId}`, err);
     }
     return imageSummary;
 
 }
 
+const getExistingImageSummary = async (_imagePath: string) => {
+    let imageSummary = '';
+
+    if (_imagePath) {
+        try {
+            const remoteFilePath = _imagePath.replace(".webp", ".txt");
+            imageSummary = await fetchFileData(remoteFilePath);
+        }
+        catch (err) {
+        }
+
+    }
+    return imageSummary;
+}
+
+const writeImageSummaryToFile = async (_imagePath: string, _imageSummary: string) => {
+    // later, copy all the generated files to the cdn/fashion-dataset/ manually
+    if (_imagePath && _imageSummary) {
+        try {
+            let summaryFilePath = _imagePath.replace(".webp", ".txt");
+
+            summaryFilePath = summaryFilePath.split(`:${process.env.CDN_PORT}`)[1];
+
+            summaryFilePath = "./generated-img-summary" + summaryFilePath;
+            console.log(`writing imageSummary to file: ${summaryFilePath}`);
+
+            const dir = path.dirname(summaryFilePath);
+            await fs.mkdir(dir, { recursive: true });
+            await fs.writeFile(summaryFilePath, _imageSummary);
+        }
+        catch (err) {
+        }
+
+    }
+}
+
+
 const getImageSummaryVectorDocuments = async (_products: Prisma.ProductCreateInput[], _openAIApiKey: string) => {
+    /*
+        - Image summary is seeded from file only (if exists) else skipped
+        - To generate openAI image summary for new products
+            - Copy new products to cdn/fashion-dataset/products/ folder
+            - Copy .env to database/.env  and update CDN_HOST_DEBUG=localhost
+            - Start all services & then again database service locally like 'cd database && npm start' 
+            - Image summary files will be generated in database/generated-img-summary folder
+            - Copy all the generated files to the cdn/fashion-dataset/ manually 
+    */
+
     const vectorDocs: Document[] = [];
 
     if (_products?.length > 0) {
@@ -90,19 +136,39 @@ const getImageSummaryVectorDocuments = async (_products: Prisma.ProductCreateInp
         for (let product of _products) {
             if (product) {
                 let imageURL = product.styleImages_default_imageURL; //cdn url
-                imageURL = imageURL.replace("host.docker.internal", "localhost");
-                const imageData = await fetchImageAndConvertToBase64(imageURL);
-                const imageSummary = await getOpenAIImageSummary(_openAIApiKey, imageData);
-                console.log(`openAI imageSummary #${count++} generated for product id: ${product.productId}`);
 
-                let doc = new Document({
-                    metadata: {
-                        productId: product.productId,
-                        imageURL: imageURL,
-                    },
-                    pageContent: imageSummary,
-                });
-                vectorDocs.push(doc);
+                const debugModeHost = process.env.CDN_HOST_DEBUG; //localhost
+                if (debugModeHost) {
+                    imageURL = imageURL.replace("host.docker.internal", debugModeHost);
+                }
+
+                let imageSummary = await getExistingImageSummary(imageURL);
+
+                if (imageSummary) {
+                    console.log(`imageSummary #${count++} fetched from file for product id: ${product.productId}`);
+                }
+                else if (!imageSummary && debugModeHost) {
+                    const imageData = await fetchImageAndConvertToBase64(imageURL);
+                    imageSummary = await getOpenAIImageSummary(_openAIApiKey, imageData, product);
+                    console.log(`openAI imageSummary #${count++} generated for product id: ${product.productId}`);
+
+                    await writeImageSummaryToFile(imageURL, imageSummary);
+
+                }
+                else {
+                    console.log(`openAI imageSummary #${count++} skipped for product id: ${product.productId}`);
+                }
+
+                if (imageSummary) {
+                    let doc = new Document({
+                        metadata: {
+                            productId: product.productId,
+                            imageURL: imageURL,
+                        },
+                        pageContent: imageSummary,
+                    });
+                    vectorDocs.push(doc);
+                }
             }
         }
     }
@@ -111,13 +177,9 @@ const getImageSummaryVectorDocuments = async (_products: Prisma.ProductCreateInp
 
 const seedImageSummaryEmbeddings = async (vectorDocs: Document[], _redisClient: NodeRedisClientType, _openAIApiKey: string) => {
 
-    const existingKeys = await _redisClient.keys(CONFIG.OPEN_AI_PRODUCT_IMG_TEXT_KEY_PREFIX + "*");
-    if (existingKeys.length > 0) {
-        console.log("seeding imageSummaryEmbeddings skipped !");
-        return;
-    }
-
     if (vectorDocs?.length && _redisClient && _openAIApiKey) {
+        await deleteExistingKeysInRedis(CONFIG.OPEN_AI_PRODUCT_IMG_TEXT_KEY_PREFIX, _redisClient);
+
         const embeddings = new OpenAIEmbeddings({
             openAIApiKey: _openAIApiKey
         });

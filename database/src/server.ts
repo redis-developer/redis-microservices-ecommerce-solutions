@@ -43,63 +43,64 @@ const init = async () => {
     const checkDB = await redisClient.exists('database_loaded');
     if (checkDB === 1) {
       consoleLog('Database have been loaded, not reloading');
-      return;
-    }
-
-    consoleLog(`Total database seeding steps: ${totalLogSeqCount}`);
-
-    if (SEED_DB.PRODUCTS) {
-      consoleLog('Products seeding started', true);
-      products = await addProductsToDatabase(prisma, redisClient, CDN_MAX_PRODUCTS_FOLDER_COUNT);
-      consoleLog('Products seeding completed');
     }
     else {
-      products = await prisma.product.findMany({});
-    }
 
-    if (products?.length > 0) {
-      if (SEED_DB.TRIGGERS) {
-        consoleLog('loadTriggers started', true);
-        await loadTriggers(redisClient);
-        consoleLog('loadTriggers completed');
-      }
+      consoleLog(`Total database seeding steps: ${totalLogSeqCount}`);
 
-      if (SEED_DB.STORES) {
-        consoleLog('addProductsToRandomStores started', true);
-        await addProductsToRandomStoresInRedis(
-          products,
-          CONFIG.PRODUCT_IN_MAX_STORES,
-          redisClient,
-        );
-        consoleLog('addProductsToRandomStores completed');
-      }
-
-      if (SEED_DB.ZIP_CODES) {
-        consoleLog('addZipCodeDetails started', true);
-        await addZipCodeDetailsInRedis(redisClient);
-        consoleLog('addZipCodeDetails completed');
-      }
-
-      if (openAIApiKey) {
-        if (SEED_DB.PRODUCT_DETAILS_EMBEDDINGS) {
-          consoleLog('addProductDetailsEmbeddings started', true);
-          await addEmbeddingsToRedis(products, redisClient, openAIApiKey, huggingFaceApiKey);
-          consoleLog('addProductDetailsEmbeddings completed');
-        }
-
-        if (SEED_DB.IMAGE_SUMMARY_EMBEDDINGS) {
-          consoleLog(`addImageSummaryEmbeddings started for ${products.length} products`, true);
-          await addImageSummaryEmbeddingsToRedis(products, redisClient, openAIApiKey);
-          consoleLog('addImageSummaryEmbeddings completed');
-        }
+      if (SEED_DB.PRODUCTS) {
+        consoleLog('Products seeding started', true);
+        products = await addProductsToDatabase(prisma, redisClient, CDN_MAX_PRODUCTS_FOLDER_COUNT);
+        consoleLog('Products seeding completed');
       }
       else {
-        consoleLog('addProductDetailsEmbeddings and addImageSummaryEmbeddings are skipped as openAIApiKey is missing in .env file!');
+        products = await prisma.product.findMany({});
       }
 
-    }
+      if (products?.length > 0) {
+        if (SEED_DB.TRIGGERS) {
+          consoleLog('loadTriggers started', true);
+          await loadTriggers(redisClient);
+          consoleLog('loadTriggers completed');
+        }
 
-    await redisClient.set('database_loaded', 'true');
+        if (SEED_DB.STORES) {
+          consoleLog('addProductsToRandomStores started', true);
+          await addProductsToRandomStoresInRedis(
+            products,
+            CONFIG.PRODUCT_IN_MAX_STORES,
+            redisClient,
+          );
+          consoleLog('addProductsToRandomStores completed');
+        }
+
+        if (SEED_DB.ZIP_CODES) {
+          consoleLog('addZipCodeDetails started', true);
+          await addZipCodeDetailsInRedis(redisClient);
+          consoleLog('addZipCodeDetails completed');
+        }
+
+        if (openAIApiKey) {
+          if (SEED_DB.PRODUCT_DETAILS_EMBEDDINGS) {
+            consoleLog('addProductDetailsEmbeddings started', true);
+            await addEmbeddingsToRedis(products, redisClient, openAIApiKey, huggingFaceApiKey);
+            consoleLog('addProductDetailsEmbeddings completed');
+          }
+
+          if (SEED_DB.IMAGE_SUMMARY_EMBEDDINGS) {
+            consoleLog(`addImageSummaryEmbeddings started for ${products.length} products`, true);
+            await addImageSummaryEmbeddingsToRedis(products, redisClient, openAIApiKey);
+            consoleLog('addImageSummaryEmbeddings completed');
+          }
+        }
+        else {
+          consoleLog('addProductDetailsEmbeddings and addImageSummaryEmbeddings are skipped as openAIApiKey is missing in .env file!');
+        }
+
+      }
+
+      await redisClient.set('database_loaded', 'true');
+    }
 
     await redisClient.disconnect();
     await prisma.$disconnect();
