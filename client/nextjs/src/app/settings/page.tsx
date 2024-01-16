@@ -124,6 +124,10 @@ export default function SettingsPage() {
                             </div>
                         </>
                     }
+                    <div className="text-neutral-500 pb-2 ml-2">
+                        Note : Products include watches, bags, belts, shoes, sandal, shirts/ t-shirts, trousers/ pants,..so on
+
+                    </div>
                     <div className="flex-grow flex pt-2">
                         <h3 className="text-lg font-bold text-neutral-600">AI Chat Bot</h3>
                     </div>

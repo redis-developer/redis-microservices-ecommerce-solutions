@@ -33,6 +33,10 @@ const getOpenAIVisionInstance = (_openAIApiKey: string) => {
 const getOpenAIImageSummary = async (_openAIApiKey: string, _base64Image: string, _product: Prisma.ProductCreateInput) => {
     /*
      Reference : https://js.langchain.com/docs/integrations/chat/openai#multimodal-messages
+
+      - This function utilizes OpenAI's multimodal capabilities to generate a summary from the image. 
+      - It constructs a prompt that combines the product description with the image.
+      - OpenAI's vision model then processes this prompt to generate a detailed summary.
    */
     let imageSummary = '';
 
@@ -49,6 +53,7 @@ const getOpenAIImageSummary = async (_openAIApiKey: string, _base64Image: string
             
             Image:
         `;
+            // Constructing a multimodal message combining text and image
             const imagePromptMessage = new HumanMessage({
                 content: [
                     {
@@ -66,6 +71,7 @@ const getOpenAIImageSummary = async (_openAIApiKey: string, _base64Image: string
                 ],
             });
 
+            // Invoking the LangChain ChatOpenAI model with the constructed message
             const response = await llmInst.invoke([imagePromptMessage]);
             //console.log({ response });
             if (response?.content) {
