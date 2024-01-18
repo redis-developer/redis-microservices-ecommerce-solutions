@@ -225,7 +225,7 @@ const getSimilarProductsScoreByVSS = async (_params: IParamsGetProductsByVSS) =>
 
     const VSS_EMBEDDINGS_TYPE = SERVER_CONFIG.PRODUCTS_SERVICE.VSS_EMBEDDINGS_TYPE;
     KNN = KNN || SERVER_CONFIG.PRODUCTS_SERVICE.VSS_KNN;
-    scoreLimit = scoreLimit || 0;
+    scoreLimit = scoreLimit || 1;
     embeddingsType = embeddingsType || VSS_EMBEDDINGS_TYPE.OPEN_AI;
 
     let indexName = "";
@@ -288,7 +288,7 @@ const getSimilarProductsScoreByVSSImageSummary = async (_params: IParamsGetProdu
     const client = getNodeRedisClient();
 
     KNN = KNN || SERVER_CONFIG.PRODUCTS_SERVICE.VSS_KNN;
-    scoreLimit = scoreLimit || 0;
+    scoreLimit = scoreLimit || 1;
 
     const embeddings = new OpenAIEmbeddings({
         openAIApiKey: openAIApiKey
