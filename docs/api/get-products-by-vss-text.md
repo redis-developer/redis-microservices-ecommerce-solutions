@@ -9,7 +9,7 @@ POST http://localhost:3000/products/getProductsByVSSText
 
    //optional
    "maxProductCount": 4, // 2 (default)
-   "similarityScoreLimit":0.1, // 0.1 (default)
+   "similarityScoreLimit":0.2, // 0.2 (default)
    "embeddingsType":"OpenAI" // OpenAI (default), HuggingFace
 }
 ```

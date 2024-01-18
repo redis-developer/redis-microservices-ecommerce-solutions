@@ -263,15 +263,13 @@ const getSimilarProductsScoreByVSS = async (_params: IParamsGetProductsByVSS) =>
         // search for similar products
         const vectorDocsWithScore = await vectorStore.similaritySearchWithScore(standAloneQuestion, KNN);
 
-        // filter by scoreLimit
+        // filter by scoreLimit // here near to 0 are more similar
         for (let [doc, score] of vectorDocsWithScore) {
-            if (score >= scoreLimit) {
+            if (score <= scoreLimit) {
                 doc["similarityScore"] = score;
                 vectorDocs.push(doc);
             }
         }
-        //sort by similarityScore in descending order
-        //vectorDocs = vectorDocs.sort((a, b) => b["similarityScore"] - a["similarityScore"]);
     }
 
     return vectorDocs;
@@ -309,15 +307,13 @@ const getSimilarProductsScoreByVSSImageSummary = async (_params: IParamsGetProdu
     // search for similar products
     const vectorDocsWithScore = await vectorStore.similaritySearchWithScore(standAloneQuestion, KNN);
 
-    // filter by scoreLimit
+    // filter by scoreLimit // here near to 0 are more similar
     for (let [doc, score] of vectorDocsWithScore) {
-        if (score >= scoreLimit) {
+        if (score <= scoreLimit) {
             doc["similarityScore"] = score;
             vectorDocs.push(doc);
         }
     }
-    //sort by similarityScore in descending order
-    //vectorDocs = vectorDocs.sort((a, b) => b["similarityScore"] - a["similarityScore"]);
 
     return vectorDocs;
 }

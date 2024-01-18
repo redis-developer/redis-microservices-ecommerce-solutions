@@ -9,11 +9,14 @@ const SEARCH_TYPES = {
     },
     VSS_TEXT: {
         VALUE: "vssText",
-        LABEL: 'Semantic text search'
+        LABEL: 'Semantic text search',
+        TUTORIAL: 'https://developer.redis.com/howtos/solutions/vector/semantic-text-search'
     },
     VSS_IMAGE_SUMMARY: {
         VALUE: "vssImageSummary",
-        LABEL: 'Semantic image summary search'
+        LABEL: 'Semantic image summary search',
+        TUTORIAL: 'https://developer.redis.com/howtos/solutions/vector/image-summary-search'
+
     },
 }
 

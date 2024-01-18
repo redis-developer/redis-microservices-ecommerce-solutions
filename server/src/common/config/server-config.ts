@@ -100,7 +100,7 @@ const SERVER_CONFIG = {
       envVariables.PRODUCTS_SERVICE_CONTAINER_ORIGIN || 'http://localhost',
     PORT: envVariables.PRODUCTS_SERVICE_PORT || 3003,
     VSS_KNN: 2, // number of (K) nearest neighbours to return
-    VSS_SCORE_LIMIT: 0.1, // threshold for similarity
+    VSS_SCORE_LIMIT: 0.2, // threshold for similarity
     VSS_EMBEDDINGS_TYPE: {
       OPEN_AI: "OpenAI",
       HUGGING_FACE: "HuggingFace",

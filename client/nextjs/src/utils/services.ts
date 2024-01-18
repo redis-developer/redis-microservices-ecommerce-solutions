@@ -161,7 +161,7 @@ export async function getProductsByVSSText(_searchText?: string, _embeddingsType
       body: JSON.stringify({
         searchText: _searchText || "",
         maxProductCount: 10,
-        similarityScoreLimit: 0.1, // 0 to 1
+        similarityScoreLimit: 0.2, // 0 to 1 , here near to 0 are more similar
         embeddingsType: _embeddingsType, //OpenAI (default), HuggingFace
       }),
     },
@@ -178,7 +178,7 @@ export async function getProductsByVSSImageSummary(_searchText?: string): Promis
       body: JSON.stringify({
         searchText: _searchText || "",
         maxProductCount: 10,
-        similarityScoreLimit: 0.1, // 0 to 1
+        similarityScoreLimit: 0.2, // 0 to 1 ,  here near to 0 are more similar
       }),
     },
   );

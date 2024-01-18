@@ -85,6 +85,9 @@ export default function SettingsPage() {
                                     onChange={handleSearchTypeChange} />
 
                                 <label htmlFor="vssText" className="ml-1">{SEARCH_TYPES.VSS_TEXT.LABEL}</label>
+                                <a href={SEARCH_TYPES.VSS_TEXT.TUTORIAL} className="ml-1" target="_blank" rel="noreferrer">
+                                    <i className="fas fa-arrow-up-right-from-square text-blue-600 ml-2"></i>
+                                </a>
                             </div>
                             <div className="flex flex-row ml-4">
                                 <input type="radio" id="vssImageSummary" name="searchType"
@@ -93,6 +96,10 @@ export default function SettingsPage() {
                                     onChange={handleSearchTypeChange} />
 
                                 <label htmlFor="vssImageSummary" className="ml-1">{SEARCH_TYPES.VSS_IMAGE_SUMMARY.LABEL}</label>
+                                <a href={SEARCH_TYPES.VSS_IMAGE_SUMMARY.TUTORIAL} className="ml-1" target="_blank" rel="noreferrer">
+                                    <i className="fas fa-arrow-up-right-from-square text-blue-600 ml-2"></i>
+                                </a>
+
                             </div>
                         </div>
                     </div>
@@ -119,13 +126,17 @@ export default function SettingsPage() {
                                     <label htmlFor="huggingFace" className="ml-1">{VSS_EMBEDDINGS.HUGGING_FACE}</label>
                                 </div>
                             </div>
-                            <div className="text-neutral-500 pb-2">
-                                <label>Note : OpenAI / HuggingFace API key is required in .env file</label>
-                            </div>
                         </>
                     }
                     <div className="text-neutral-500 pb-2 ml-2">
-                        Note : Products include watches, bags, belts, shoes, sandal, shirts/ t-shirts, trousers/ pants,..so on
+                        Note :
+                        <ul>
+                            {searchType === SEARCH_TYPES.VSS_TEXT.VALUE &&
+                                <li>OpenAI / HuggingFace API key is required in .env file</li>
+                            }
+                            <li> Search products include watches, bags, belts, shoes, sandal, shirts/ t-shirts, trousers/ pants,..so on
+                            </li>
+                        </ul>
 
                     </div>
                     <div className="flex-grow flex pt-2">
@@ -138,11 +149,10 @@ export default function SettingsPage() {
                                     checked={aiChatBot}
                                     onChange={handleAiChatBotChange} />
 
-                                <label htmlFor="aiChatBot" className="ml-1">{CLIENT_CONFIG.AI_CHAT_BOT.LABEL} , </label>
+                                <label htmlFor="aiChatBot" className="ml-1">{CLIENT_CONFIG.AI_CHAT_BOT.LABEL} </label>
 
-
-                                <a href={CLIENT_CONFIG.AI_CHAT_BOT.TUTORIAL} className="text-blue-600 underline ml-2" target="_blank" rel="noreferrer">
-                                    Refer Tutorial
+                                <a href={CLIENT_CONFIG.AI_CHAT_BOT.TUTORIAL} className="ml-1" target="_blank" rel="noreferrer">
+                                    <i className="fas fa-arrow-up-right-from-square text-blue-600 ml-2"></i>
                                 </a>
 
                             </div>
