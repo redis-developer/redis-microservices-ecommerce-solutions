@@ -54,14 +54,14 @@ export default function ProductCard({ product, cardColorCss }: Props) {
           <h5 className="mb-2 h-16 text-xl font-medium leading-tight text-neutral-800">
             {product.productDisplayName}
           </h5>
-          <p className="mb-4 text-base text-neutral-600 flex-grow overflow-y-auto h-24 cursor-pointer">
+          <div className="mb-4 text-base text-neutral-600 flex-grow overflow-y-auto h-24 cursor-pointer">
             {!showFullDescription &&
               <div onClick={toggleDescription}>{getShortName(product.productDescriptors_description_value)}</div>
             }
             {showFullDescription &&
               <div onClick={toggleDescription}>{getNoHtml(product.productDescriptors_description_value)}</div>
             }
-          </p>
+          </div>
           <p className="mb-4 text-base font-bold text-neutral-600 flex justify-between">
             <span>Price: {toCurrency(product.price)} </span>
 
