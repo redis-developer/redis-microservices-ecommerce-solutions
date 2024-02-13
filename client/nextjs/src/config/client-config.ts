@@ -7,6 +7,10 @@ const SEARCH_TYPES = {
         VALUE: "geo",
         LABEL: 'Geo location search'
     },
+    GEO_LOCATION_SEMANTIC: {
+        VALUE: "geoSemantic",
+        LABEL: 'Geo location semantic search'
+    },
     VSS_TEXT: {
         VALUE: "vssText",
         LABEL: 'Semantic text search',
@@ -16,7 +20,6 @@ const SEARCH_TYPES = {
         VALUE: "vssImageSummary",
         LABEL: 'Semantic image summary search',
         TUTORIAL: 'https://developer.redis.com/howtos/solutions/vector/image-summary-search'
-
     },
 }
 
@@ -44,7 +47,8 @@ const CLIENT_CONFIG = {
     },
     TRIGGERS_FUNCTIONS: {
         VALUE: true,
-        LABEL: 'Triggers and Functions'
+        LABEL: 'Triggers and Functions',
+        TUTORIAL: 'https://developer.redis.com/howtos/solutions/triggers-and-functions/getting-started'
     },
 }
 

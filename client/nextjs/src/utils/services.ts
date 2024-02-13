@@ -102,7 +102,7 @@ export async function getZipCodes(): Promise<models.ZipCode[]> {
 }
 
 export async function getStoreProductsByGeoFilter(zipCodeInfo: models.ZipCode,
-  _productDisplayName?: string, _productId?: string
+  _productDisplayName?: string, _productId?: string, _semanticProductSearchText?: string
 ): Promise<models.Product[]> {
 
   const result = await request(
@@ -111,6 +111,7 @@ export async function getStoreProductsByGeoFilter(zipCodeInfo: models.ZipCode,
       method: 'POST',
       body: JSON.stringify({
         productDisplayName: _productDisplayName || "",
+        semanticProductSearchText: _semanticProductSearchText || "",
         productId: _productId || "",
         userLocation: {
           latitude: zipCodeInfo?.zipLocation?.latitude,

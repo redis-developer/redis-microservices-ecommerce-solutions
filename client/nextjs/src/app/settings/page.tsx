@@ -70,14 +70,7 @@ export default function SettingsPage() {
 
                                 <label htmlFor="normal" className="ml-1">{SEARCH_TYPES.NORMAL.LABEL}</label>
                             </div>
-                            <div className="flex flex-row ml-4">
-                                <input type="radio" id="geoLocation" name="searchType"
-                                    value={SEARCH_TYPES.GEO_LOCATION.VALUE}
-                                    checked={searchType == SEARCH_TYPES.GEO_LOCATION.VALUE}
-                                    onChange={handleSearchTypeChange} />
 
-                                <label htmlFor="geoLocation" className="ml-1">{SEARCH_TYPES.GEO_LOCATION.LABEL}</label>
-                            </div>
                             <div className="flex flex-row ml-4">
                                 <input type="radio" id="vssText" name="searchType"
                                     value={SEARCH_TYPES.VSS_TEXT.VALUE}
@@ -100,6 +93,23 @@ export default function SettingsPage() {
                                     <i className="fas fa-arrow-up-right-from-square text-blue-600 ml-2"></i>
                                 </a>
 
+                            </div>
+                            <div className="flex flex-row ml-4">
+                                <input type="radio" id="geoLocation" name="searchType"
+                                    value={SEARCH_TYPES.GEO_LOCATION.VALUE}
+                                    checked={searchType == SEARCH_TYPES.GEO_LOCATION.VALUE}
+                                    onChange={handleSearchTypeChange} />
+
+                                <label htmlFor="geoLocation" className="ml-1">{SEARCH_TYPES.GEO_LOCATION.LABEL}</label>
+                            </div>
+
+                            <div className="flex flex-row ml-4">
+                                <input type="radio" id="geoLocationSemantic" name="searchType"
+                                    value={SEARCH_TYPES.GEO_LOCATION_SEMANTIC.VALUE}
+                                    checked={searchType == SEARCH_TYPES.GEO_LOCATION_SEMANTIC.VALUE}
+                                    onChange={handleSearchTypeChange} />
+
+                                <label htmlFor="geoLocationSemantic" className="ml-1">{SEARCH_TYPES.GEO_LOCATION_SEMANTIC.LABEL}</label>
                             </div>
                         </div>
                     </div>
@@ -183,6 +193,11 @@ export default function SettingsPage() {
                                     onChange={handleTriggersFunctionsChange} />
 
                                 <label htmlFor="triggersFunctions" className="ml-1">{CLIENT_CONFIG.TRIGGERS_FUNCTIONS.LABEL}</label>
+
+                                <a href={CLIENT_CONFIG.TRIGGERS_FUNCTIONS.TUTORIAL} className="ml-1" target="_blank" rel="noreferrer">
+                                    <i className="fas fa-arrow-up-right-from-square text-blue-600 ml-2"></i>
+                                </a>
+
                             </div>
                         </div>
                     </div>

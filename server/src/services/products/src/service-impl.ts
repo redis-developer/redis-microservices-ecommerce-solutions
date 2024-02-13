@@ -20,13 +20,15 @@ import {
 } from './open-ai-prompt';
 
 interface IInventoryBodyFilter {
-  productDisplayName?: string;
+  productDisplayName?: string; // 1
+  semanticProductSearchText?: string; // 2 , either 1 or 2
+
   productId?: string;
   searchRadiusInMiles?: number;
   userLocation?: {
     latitude?: number;
     longitude?: number;
-  }
+  },
 }
 interface IChatMessage {
   sender: string;
@@ -125,17 +127,58 @@ const getZipCodes = async () => {
   return zipCodes;
 };
 
+const getSemanticProductsForStoreSearch = async (
+  _inventoryFilter: IInventoryBodyFilter,
+  openAIApiKey?: string,
+  maxProductCount?: number,
+  similarityScoreLimit?: number
+) => {
 
-const searchStoreInventoryByGeoFilter = async (_inventoryFilter: IInventoryBodyFilter) => {
+  let productIds: string[] = [];
+
+  if (_inventoryFilter.semanticProductSearchText) {
+    //VSS search
+    const vectorDocs = await getSimilarProductsScoreByVSS({
+      standAloneQuestion: _inventoryFilter.semanticProductSearchText,
+      openAIApiKey: openAIApiKey,
+      KNN: maxProductCount,
+      scoreLimit: similarityScoreLimit,
+    });
+
+    if (vectorDocs?.length) {
+      productIds = vectorDocs.map(doc => doc?.metadata?.productId);
+    }
+  }
+
+  return productIds;
+}
+
+const searchStoreInventoryByGeoFilter = async (
+  _inventoryFilter: IInventoryBodyFilter,
+  openAIApiKey?: string,
+  maxProductCount?: number,
+  similarityScoreLimit?: number
+) => {
   const redisClient = getNodeRedisClient();
   const repository = StoreInventoryRepo.getRepository();
   let storeProducts: IStoreInventory[] = [];
   const trimmedStoreProducts: IStoreInventory[] = [] // similar item of other stores are removed
   const uniqueProductIds = {};
+  let semanticProductIds: string[] = [];
 
   if (repository
     && _inventoryFilter?.userLocation?.latitude
     && _inventoryFilter?.userLocation?.longitude) {
+
+
+    if (_inventoryFilter.semanticProductSearchText) {
+      semanticProductIds = await getSemanticProductsForStoreSearch(_inventoryFilter, openAIApiKey, maxProductCount, similarityScoreLimit);
+      console.log("semanticProductIds : ", semanticProductIds);
+      if (!semanticProductIds?.length) {
+        _inventoryFilter.productDisplayName = _inventoryFilter.semanticProductSearchText;
+      }
+    }
+
 
     const lat = _inventoryFilter.userLocation.latitude;
     const long = _inventoryFilter.userLocation.longitude;
@@ -154,7 +197,7 @@ const searchStoreInventoryByGeoFilter = async (_inventoryFilter: IInventoryBodyF
           .longitude(long)
           .radius(radiusInMiles)
           .miles
-      });;
+      });
 
     if (_inventoryFilter.productDisplayName) {
       queryBuilder = queryBuilder
@@ -210,6 +253,13 @@ const searchStoreInventoryByGeoFilter = async (_inventoryFilter: IInventoryBodyF
     }
     else {
 
+      // filter storeProducts to keep only  semanticProductIds
+      if (_inventoryFilter.semanticProductSearchText && semanticProductIds?.length) {
+        storeProducts = storeProducts.filter((storeProduct) => {
+          return storeProduct.productId && semanticProductIds.includes(storeProduct.productId);
+        });
+      }
+
       storeProducts.forEach((storeProduct) => {
         if (storeProduct?.productId && !uniqueProductIds[storeProduct.productId]) {
           uniqueProductIds[storeProduct.productId] = true;
@@ -239,7 +289,11 @@ const searchStoreInventoryByGeoFilter = async (_inventoryFilter: IInventoryBodyF
 const getStoreProductsByGeoFilter = async (_inventoryFilter: IInventoryBodyFilter) => {
   let products: IStoreProduct[] = [];
 
-  const { storeProducts, productIds } = await searchStoreInventoryByGeoFilter(_inventoryFilter);
+  const openAIApiKey = process.env.OPEN_AI_API_KEY;
+  const maxProductCount = 10;// IfSemanticSearch
+  const similarityScoreLimit = SERVER_CONFIG.PRODUCTS_SERVICE.VSS_SCORE_LIMIT;
+
+  const { storeProducts, productIds } = await searchStoreInventoryByGeoFilter(_inventoryFilter, openAIApiKey, maxProductCount, similarityScoreLimit);
 
   if (storeProducts?.length && productIds?.length) {
     const repository = ProductRepo.getRepository();

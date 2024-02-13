@@ -23,7 +23,7 @@ import {
     convertObjectToLabel,
     formatChatBotAnswer
 } from '@/utils/convert';
-import { getClientConfig } from '@/config/client-config';
+import { getClientConfig, SEARCH_TYPES } from '@/config/client-config';
 
 
 export default function Home() {
@@ -37,6 +37,7 @@ export default function Home() {
     const [nearestStore, setNearestStore] = useState<string>();
     const [oldChatHistory, setOldChatHistory] = useState<IChatMessage[]>([]);
     const [showLoader, setShowLoader] = useState<boolean>(false);
+    const [searchPlaceHolder, setSearchPlaceHolder] = useState<string>();
 
     async function suggestionSelectedCallback(itm: ListItem) {
         setSelectedZipCodeInfo(itm.value);
@@ -53,7 +54,16 @@ export default function Home() {
             }
             setShowLoader(true);
 
-            const productsData = await getStoreProductsByGeoFilter(zipCodeInfo, searchData?.productDisplayName, searchData?.productId)
+            let productDisplayName = "";
+            let semanticProductSearchText = "";
+            if (CLIENT_CONFIG.SEARCH_TYPE.VALUE == SEARCH_TYPES.GEO_LOCATION.VALUE) {
+                productDisplayName = searchData?.productDisplayName || "";
+            }
+            else if (CLIENT_CONFIG.SEARCH_TYPE.VALUE == SEARCH_TYPES.GEO_LOCATION_SEMANTIC.VALUE) {
+                semanticProductSearchText = searchData?.productDisplayName || "";
+            }
+
+            const productsData = await getStoreProductsByGeoFilter(zipCodeInfo, productDisplayName, searchData?.productId, semanticProductSearchText)
             setProducts([...productsData]);
 
             setObjectToWindowQueryParams(searchData);
@@ -144,6 +154,12 @@ export default function Home() {
                 setOldChatHistory(historyArr);
             }
 
+            if (CLIENT_CONFIG.SEARCH_TYPE.VALUE == SEARCH_TYPES.GEO_LOCATION.VALUE) {
+                setSearchPlaceHolder(`Title Search`);
+            }
+            else if (CLIENT_CONFIG.SEARCH_TYPE.VALUE == SEARCH_TYPES.GEO_LOCATION_SEMANTIC.VALUE) {
+                setSearchPlaceHolder(`Semantic Search`);
+            }
         })();
     }, []);
 
@@ -155,7 +171,9 @@ export default function Home() {
                     placeHolder: "Zip code...",
                     suggestionSelectedCallback: suggestionSelectedCallback,
                     listItems: zipCodeList ?? []
-                }} />
+                }}
+                searchPlaceHolder={searchPlaceHolder}
+            />
             <Cart refreshProducts={refreshProducts} setAlertNotification={setAlertNotification} />
 
             {CLIENT_CONFIG.AI_CHAT_BOT.VALUE &&

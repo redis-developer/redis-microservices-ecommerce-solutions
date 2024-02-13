@@ -5,7 +5,9 @@
 ```json
 POST http://localhost:3000/products/getStoreProductsByGeoFilter
 {
-    "productDisplayName":"", // "puma"
+    "productDisplayName":"", // 1 "puma"
+    //"semanticProductSearchText": "", // 2 , either 1 or 2
+
     "productId": "", //either by productDisplayName or productId
     "searchRadiusInMiles":50, //optional (default 50mi)
     "userLocation": {

@@ -263,8 +263,12 @@ const getSimilarProductsScoreByVSS = async (_params: IParamsGetProductsByVSS) =>
         // search for similar products
         const vectorDocsWithScore = await vectorStore.similaritySearchWithScore(standAloneQuestion, KNN);
 
+        console.log("standAloneQuestion:", standAloneQuestion + ", KNN : " + KNN + ", length:" + vectorDocsWithScore.length);
+
         // filter by scoreLimit // here near to 0 are more similar
         for (let [doc, score] of vectorDocsWithScore) {
+            console.log("score:", score + ", scoreLimitMatch: " + (score <= scoreLimit).toString());
+
             if (score <= scoreLimit) {
                 doc["similarityScore"] = score;
                 vectorDocs.push(doc);
