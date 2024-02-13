@@ -59,8 +59,8 @@ export default function SettingsPage() {
                     <div className="flex-grow flex">
                         <h3 className="text-lg font-bold text-neutral-600">Search Type</h3>
                     </div>
-                    <div className="flex-grow flex p-2">
-                        <div className="flex flex-row">
+                    <div className="flex-grow p-2">
+                        <div className="flex flex-row justify-between">
                             <div className="flex flex-row">
 
                                 <input type="radio" id="normal" name="searchType"
@@ -94,13 +94,20 @@ export default function SettingsPage() {
                                 </a>
 
                             </div>
-                            <div className="flex flex-row ml-4">
+
+                        </div>
+                        <div className="flex flex-row">
+                            <div className="flex flex-row">
                                 <input type="radio" id="geoLocation" name="searchType"
                                     value={SEARCH_TYPES.GEO_LOCATION.VALUE}
                                     checked={searchType == SEARCH_TYPES.GEO_LOCATION.VALUE}
                                     onChange={handleSearchTypeChange} />
 
                                 <label htmlFor="geoLocation" className="ml-1">{SEARCH_TYPES.GEO_LOCATION.LABEL}</label>
+
+                                <a href={SEARCH_TYPES.GEO_LOCATION.TUTORIAL} className="ml-1" target="_blank" rel="noreferrer">
+                                    <i className="fas fa-arrow-up-right-from-square text-blue-600 ml-2"></i>
+                                </a>
                             </div>
 
                             <div className="flex flex-row ml-4">

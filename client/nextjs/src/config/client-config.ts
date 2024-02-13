@@ -5,7 +5,8 @@ const SEARCH_TYPES = {
     },
     GEO_LOCATION: {
         VALUE: "geo",
-        LABEL: 'Geo location search'
+        LABEL: 'Geo location search',
+        TUTORIAL: 'https://developer.redis.com/howtos/solutions/geo/getting-started'
     },
     GEO_LOCATION_SEMANTIC: {
         VALUE: "geoSemantic",
