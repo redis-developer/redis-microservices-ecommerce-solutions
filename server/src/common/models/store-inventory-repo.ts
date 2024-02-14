@@ -40,3 +40,22 @@ const createRedisIndex = async () => {
 };
 
 export { getRepository, createRedisIndex, RedisEntityId, STORE_INVENTORY_KEY_PREFIX };
+
+/*
+# To drop existing index
+FT.DROPINDEX "storeInventory:storeInventoryId:index"
+
+# To create index
+FT.CREATE "storeInventory:storeInventoryId:index"
+  ON JSON
+  PREFIX 1 "storeInventory:storeInventoryId:"
+  SCHEMA
+    "$.storeId" AS "storeId" TAG SEPARATOR "|"
+    "$.storeName" AS "storeName" TEXT
+    "$.storeLocation" AS "storeLocation" GEO
+    "$.productId" AS "productId" TAG SEPARATOR "|"
+    "$.productDisplayName" AS "productDisplayName" TEXT
+    "$.stockQty" AS "stockQty" NUMERIC
+    "$.statusCode" AS "statusCode" NUMERIC
+
+*/

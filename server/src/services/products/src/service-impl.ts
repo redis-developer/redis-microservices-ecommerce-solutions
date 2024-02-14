@@ -224,7 +224,7 @@ const searchStoreInventoryByGeoFilter = async (
         LOAD: ["@storeId", "@storeName", "@storeLocation", "@productId", "@productDisplayName", "@stockQty"],
         STEPS: [{
           type: AggregateSteps.APPLY,
-          expression: `geodistance(@storeLocation, ${long}, ${lat})/${radiusInMiles}`,
+          expression: `geodistance(@storeLocation, ${long}, ${lat})/1609`, //convert to miles
           AS: 'distInMiles'
         }, {
           type: AggregateSteps.SORTBY,
@@ -238,9 +238,9 @@ const searchStoreInventoryByGeoFilter = async (
 
     /* Sample command to run on CLI
         FT.AGGREGATE "storeInventory:storeInventoryId:index"
-          "( ( ( (@statusCode:[1 1]) (@stockQty:[(0 +inf]) ) (@storeLocation:[-73.968285 40.785091 1000 km]) ) (@productDisplayName:'puma') )"
-          "LOAD" "5" "@storeId" "@storeName" "@storeLocation" "@productId" "@productDisplayName" "@stockQty"
-          "APPLY" "geodistance(@storeLocation, -73.968285, 40.785091)/1000"
+          "( ( ( (@statusCode:[1 1]) (@stockQty:[(0 +inf]) ) (@storeLocation:[-73.968285 40.785091 50 mi]) ) (@productDisplayName:'puma') )"
+          "LOAD" "6" "@storeId" "@storeName" "@storeLocation" "@productId" "@productDisplayName" "@stockQty"
+          "APPLY" "geodistance(@storeLocation, -73.968285, 40.785091)/1609"
           "AS" "distInMiles"
           "SORTBY" "1" "@distInMiles"
           "LIMIT" "0" "100"
@@ -249,7 +249,7 @@ const searchStoreInventoryByGeoFilter = async (
     storeProducts = <IStoreInventory[]>aggregator.results;
 
     if (!storeProducts.length) {
-      // throw `Product not found with in ${radiusInKm}km range!`;
+      // throw `Product not found with in ${radiusInMiles}mi range!`;
     }
     else {
 
