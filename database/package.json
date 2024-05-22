@@ -17,8 +17,7 @@
     "dotenv": "^16.0.3",
     "langchain": "^0.0.199",
     "prisma": "^4.16.2",
-    "redis": "^4.6.10",
-    "zlib": "^1.0.5"
+    "redis": "^4.6.10"
   },
   "devDependencies": {
     "@types/node": "^20.3.3",
