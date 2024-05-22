@@ -99,3 +99,25 @@ model OrderProduct {
 
   @@map("orderProducts")
 }
+
+model Store{
+  storeId        String @id @map("_id")
+  storeName      String?
+  storeLocation  String?
+  statusCode     Int?      @default(1)
+
+  storeProducts  StoreInventory[]
+
+  @@map("stores")
+}
+
+model StoreInventory{
+  id           String @id @default(cuid()) @map("_id")
+  storeId      String
+  Store        Store  @relation(fields: [storeId], references: [storeId])
+  productId    String
+  stockQty     Int
+  statusCode   Int?      @default(1)
+
+  @@map("storeProducts")
+}

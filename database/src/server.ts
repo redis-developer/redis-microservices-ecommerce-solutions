@@ -1,4 +1,3 @@
-
 import * as dotenv from 'dotenv';
 import { PrismaClient, Prisma } from '@prisma/client';
 import { createClient } from 'redis';
@@ -7,12 +6,13 @@ import * as CONFIG from './config.js';
 import {
   addProductsToRandomStoresInRedis,
   addZipCodeDetailsInRedis,
+  addStoresToDatabase,
 } from './stores-inventory-data.js';
 import { loadTriggers } from './triggers.js';
 import { addEmbeddingsToRedis } from './open-ai.js';
 import { addImageSummaryEmbeddingsToRedis } from './open-ai-image.js';
 import { consoleLog } from './utils.js';
-import { addProductsToDatabase } from "./products-seed.js";
+import { addProductsToDatabase } from './products-seed.js';
 
 dotenv.config();
 
@@ -43,17 +43,18 @@ const init = async () => {
     const checkDB = await redisClient.exists('database_loaded');
     if (checkDB === 1) {
       consoleLog('Database have been loaded, not reloading');
-    }
-    else {
-
+    } else {
       consoleLog(`Total database seeding steps: ${totalLogSeqCount}`);
 
       if (SEED_DB.PRODUCTS) {
         consoleLog('Products seeding started', true);
-        products = await addProductsToDatabase(prisma, redisClient, CDN_MAX_PRODUCTS_FOLDER_COUNT);
+        products = await addProductsToDatabase(
+          prisma,
+          redisClient,
+          CDN_MAX_PRODUCTS_FOLDER_COUNT,
+        );
         consoleLog('Products seeding completed');
-      }
-      else {
+      } else {
         products = await prisma.product.findMany({});
       }
 
@@ -66,10 +67,12 @@ const init = async () => {
 
         if (SEED_DB.STORES) {
           consoleLog('addProductsToRandomStores started', true);
+          await addStoresToDatabase(prisma);
           await addProductsToRandomStoresInRedis(
             products,
             CONFIG.PRODUCT_IN_MAX_STORES,
             redisClient,
+            prisma,
           );
           consoleLog('addProductsToRandomStores completed');
         }
@@ -83,20 +86,32 @@ const init = async () => {
         if (openAIApiKey) {
           if (SEED_DB.PRODUCT_DETAILS_EMBEDDINGS) {
             consoleLog('addProductDetailsEmbeddings started', true);
-            await addEmbeddingsToRedis(products, redisClient, openAIApiKey, huggingFaceApiKey);
+            await addEmbeddingsToRedis(
+              products,
+              redisClient,
+              openAIApiKey,
+              huggingFaceApiKey,
+            );
             consoleLog('addProductDetailsEmbeddings completed');
           }
 
           if (SEED_DB.IMAGE_SUMMARY_EMBEDDINGS) {
-            consoleLog(`addImageSummaryEmbeddings started for ${products.length} products`, true);
-            await addImageSummaryEmbeddingsToRedis(products, redisClient, openAIApiKey);
+            consoleLog(
+              `addImageSummaryEmbeddings started for ${products.length} products`,
+              true,
+            );
+            await addImageSummaryEmbeddingsToRedis(
+              products,
+              redisClient,
+              openAIApiKey,
+            );
             consoleLog('addImageSummaryEmbeddings completed');
           }
+        } else {
+          consoleLog(
+            'addProductDetailsEmbeddings and addImageSummaryEmbeddings are skipped as openAIApiKey is missing in .env file!',
+          );
         }
-        else {
-          consoleLog('addProductDetailsEmbeddings and addImageSummaryEmbeddings are skipped as openAIApiKey is missing in .env file!');
-        }
-
       }
 
       await redisClient.set('database_loaded', 'true');
